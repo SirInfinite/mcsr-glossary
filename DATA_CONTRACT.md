@@ -10,7 +10,7 @@ The root JSON object contains:
 
 ## Term schema
 
-Every term must contain exactly these fields:
+Every term contains the required fields below and may contain the documented optional `media` field. Unknown fields fail validation.
 
 | Field | Type | Contract |
 | --- | --- | --- |
@@ -19,17 +19,31 @@ Every term must contain exactly these fields:
 | `category` | string | One value from the controlled category list below. |
 | `aliases` | string[] | Genuine alternate names, at most 10 values of at most 80 characters each. Values are trimmed, unique case-insensitively, and may not collide with any canonical name or another term's alias. |
 | `tags` | string[] | Descriptive filter labels, at most 12 values of at most 40 characters each. Values are unique lowercase kebab-case strings such as `nether-travel` or `version-1-16-1`. |
-| `definition` | string | Trimmed Markdown, 20–5000 characters. Definitions under 80 or over 1200 characters produce review warnings. Raw iframe HTML is prohibited; use a supported media directive if a controlled embed is needed. |
+| `definition` | string | Trimmed Markdown, 20–5000 characters. Definitions under 80 or over 1200 characters produce review warnings. Raw iframe HTML and legacy media directives are prohibited; media belongs in the structured field below. |
 | `relatedTerms` | string[] | At most 20 exact, case-sensitive canonical term names. Every value must resolve, be unique, and not point back to the current term. |
 | `creationDate` | string | Editorial record creation date in `YYYY-MM-DD`, or an empty string when unknown. It is not the date the community term was invented. |
 | `needsUpdating` | boolean | Editorial review flag. Use `true` when known content work remains; record the reason in the content audit or source notes. |
 | `updatedDate` | string | Most recent substantive content revision in `YYYY-MM-DD`, or an empty string when unknown. The term page displays this value when present. |
+| `media` | object[] (optional) | Zero to six validated media items. Omit the field when a definition has no useful visual example. |
 
-Unknown term fields fail validation so schema changes remain deliberate.
+### Media schema
+
+Media is presentation data, never arbitrary HTML. Each item requires `type`, `src`, `title`, `caption`, `credit`, and `sourceUrl`. `credit` is exactly `{ "name": "…", "url": "https://…" }`; `sourceUrl` is the original HTTPS source shown below the media. Titles, captions, and credit names must be trimmed and remain within the limits in `js/content-contract.js`.
+
+| Type | `src` | Additional fields | Browser behavior |
+| --- | --- | --- | --- |
+| `youtube` | Exact 11-character video ID | Optional integer `start`, 0–86400 seconds | Click-to-load iframe from `youtube-nocookie.com`; no remote request is made before activation. |
+| `twitch` | Exact Twitch clip slug | None | Click-to-load clip iframe with the current hostname supplied as `parent`. |
+| `image` | Local image under `images/media/`, or HTTPS from the explicit host allowlist | Required `alt`, integer `width`, integer `height` | Lazy image with an accessible click-to-expand dialog. |
+| `gif` | Local GIF under `images/media/`, or allowlisted HTTPS GIF | Required `alt`, `width`, `height`, and local static `poster` | Starts paused on the poster; the visitor explicitly plays or pauses it. |
+| `video` | Local `.mp4` or `.webm` under `media/` | Required `width`, `height`, `hasAudio`; optional local `poster` and `.vtt` `captions` | Native controls, metadata preload, inline playback, and no autoplay. Captions are mandatory when `hasAudio` is true. |
+| `link` | HTTPS URL | None | Safe external preview/link only; useful for providers that should not be embedded. |
+
+Unsupported fields or providers fail repository validation. At runtime, an invalid item with a safe HTTPS source degrades to a normal source link; an item without even a safe source is omitted. External image hosts are intentionally limited to `minecraft.wiki` and `upload.wikimedia.org`. Expanding any embed or image host requires both a contract change and a matching CSP review.
 
 ## Categories
 
-The finite v1 category set is:
+The finite category set is:
 
 - `format`: a ruleset, seed format, or competition format, such as RSG or MCSR Ranked.
 - `strategy`: a route or decision-making approach used across multiple actions.
@@ -41,7 +55,7 @@ Use the most specific category that describes why a newcomer needs the entry. Do
 
 ## Modes and versions
 
-The v1 model does not define `modes` or `versions` fields and the site does not present mode/version filters. The current dataset does not classify every term completely enough for those filters to be truthful. Put important limitations in the definition, and use a descriptive tag such as `ranked`, `rsg`, or `version-1-16-1` only when it is accurate. An invented `modes` or `versions` field is rejected as an unsupported schema change.
+The current model does not define `modes` or `versions` fields and the site does not present mode/version filters. The dataset does not classify every term completely enough for those filters to be truthful. Put important limitations in the definition, and use a descriptive tag such as `ranked`, `rsg`, or `version-1-16-1` only when it is accurate. An invented `modes` or `versions` field is rejected as an unsupported schema change.
 
 ## Adding or editing a term
 
@@ -49,7 +63,7 @@ The v1 model does not define `modes` or `versions` fields and the site does not 
 2. Generate a UUID. `npm run assign-ids` fills any blank `id`, or a UUID can be generated before editing.
 3. Use one controlled category and verify aliases, tags, dates, and related terms against this contract.
 4. If the ID is new, add it to a Supabase migration that seeds `glossary_vote_totals`; validation prevents published terms from silently lacking a vote row.
-5. Record factual sources in `CONTENT_SOURCES.md`.
+5. Record factual and media sources in `CONTENT_SOURCES.md`. Do not copy third-party files into the repository without clear permission.
 6. Run the complete local check:
 
    ```sh

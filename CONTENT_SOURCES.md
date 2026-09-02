@@ -1,6 +1,6 @@
-# MCSR Glossary v1 Content Sources
+# MCSR Glossary Content Sources
 
-Research reviewed: 2026-09-01
+Research reviewed: 2026-09-02
 
 This file records the evidence used for the v1 corrections and additions in `data/terms.json`. Current rules and Ranked behavior were checked against their official documentation. Minecraft mechanics were checked against Minecraft Wiki, while community technique names and 1.16.1 routing were checked against the official MCSR resource index, primary tool documentation, and the established Metacor guide.
 
@@ -359,6 +359,32 @@ Verified line-intersection triangulation and the uncertainty-aware calculator wo
 - https://www.minecraftspeedrunning.com/public-resources/documents
 - https://github.com/Ninjabrain1/Ninjabrain-Bot
 - https://minecraft.wiki/w/Eye_of_Ender
+
+## Structured Media Provenance
+
+The v0.2 media layer embeds or links the original public source; no third-party video or imagery is copied into this repository. YouTube examples use privacy-enhanced, click-to-load embeds and retain a direct source link. The two local SVG diagrams are original project assets.
+
+All external media URLs below were rechecked on 2026-09-02.
+
+| Term | Media and creator | Original source |
+| --- | --- | --- |
+| Blind | Blind and educated travel tutorial — BoomerPlayz | https://www.youtube.com/watch?v=0N8Wj8hOVKM |
+| Bridge Bastion | Bridge bastion route tutorial — T_Wagz | https://www.youtube.com/watch?v=2pzMpX1RJGI&t=128s |
+| Calculated Travel | Calculated travel explained — Four | https://www.youtube.com/watch?v=Rx8i7e5lu7g |
+| Divine Travel | Divine travel tutorial — k4yfour | https://www.youtube.com/watch?v=SXem01c44-I |
+| Educated Travel | Educated travel demonstration — BoomerPlayz | https://www.youtube.com/watch?v=0N8Wj8hOVKM&t=516s |
+| Housing Bastion | Housing bastion route tutorial — T_Wagz | https://www.youtube.com/watch?v=BoNr-pbEITM&t=132s |
+| Mapless | Mapless buried treasure tutorial — MoleyG | https://www.youtube.com/watch?v=ho1rwmooHRg |
+| Nether Fortress | Nether fortress navigation — Lucas Chan | https://www.youtube.com/watch?v=swSbv4AImzI&t=87s |
+| Nether Travel | Original 1:8 coordinate-scaling diagram — MCSR Glossary | https://github.com/SirInfinite/mcsr-glossary/blob/main/images/media/nether-coordinate-scaling.svg |
+| One Cycle | One-cycle Ender Dragon tutorial — Marcus Fireworks | https://www.youtube.com/watch?v=JaVyuTyDxxs |
+| Perch | How the Ender Dragon perches — T_Wagz | https://www.youtube.com/watch?v=6V2sQthCzOc |
+| Stables Bastion | Stables bastion route tutorial — T_Wagz | https://www.youtube.com/watch?v=TioQsF5ygOg&t=149s |
+| Stronghold | Stronghold navigation tutorial — k4yfour | https://www.youtube.com/watch?v=kQCt6JgWr6E |
+| Treasure Bastion | Treasure bastion route tutorial — T_Wagz | https://www.youtube.com/watch?v=A9GGUWwNcrY&t=132s |
+| Triangulation | Stronghold triangulation tutorial — BoomerPlayz | https://www.youtube.com/watch?v=8c29j0We2VQ |
+| Triangulation | Original two-throw diagram — MCSR Glossary | https://github.com/SirInfinite/mcsr-glossary/blob/main/images/media/stronghold-triangulation.svg |
+| Zero Cycle | Zero-cycle Ender Dragon tutorial — T_Wagz | https://www.youtube.com/watch?v=iClDGWL0e5s |
 
 ## Human Review Notes
 

@@ -3,9 +3,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+    MEDIA_CONTRACT,
     TERM_CONTRACT,
     isValidEditorialDate,
-    slugifyTermName
+    slugifyTermName,
+    validateMediaItem
 } from "../js/content-contract.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -47,7 +49,8 @@ export function validateGlossary(payload, { voteRowIDs = null } = {}) {
     const errors = [];
     const warnings = [];
     const categories = new Set(TERM_CONTRACT.categories);
-    const requiredFields = new Set(TERM_CONTRACT.requiredFields);
+    const allowedFields = new Set([...TERM_CONTRACT.requiredFields, ...TERM_CONTRACT.optionalFields]);
+    let mediaItemCount = 0;
 
     if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
         return { errors: ["Root value must be an object containing a terms array."], warnings, termCount: 0 };
@@ -83,7 +86,7 @@ export function validateGlossary(payload, { voteRowIDs = null } = {}) {
             if (!Object.hasOwn(term, field)) errors.push(`${label}: missing required field '${field}'.`);
         }
         for (const field of Object.keys(term)) {
-            if (!requiredFields.has(field)) errors.push(`${label}: unsupported field '${field}'. Update the contract before adding new fields.`);
+            if (!allowedFields.has(field)) errors.push(`${label}: unsupported field '${field}'. Update the contract before adding new fields.`);
         }
 
         if (typeof term.id !== "string" || !TERM_CONTRACT.uuidPattern.test(term.id)) {
@@ -206,7 +209,26 @@ export function validateGlossary(payload, { voteRowIDs = null } = {}) {
                 warnings.push(`${label}: definition is ${definitionLength} characters; consider whether it can be more concise.`);
             }
             if (/<iframe\b/i.test(term.definition)) {
-                errors.push(`${label}: raw iframe HTML is not allowed; use a supported media directive.`);
+                errors.push(`${label}: raw iframe HTML is not allowed; use the structured media field.`);
+            }
+            if (/@\[(?:youtube|twitch|video)\]\(/i.test(term.definition)) {
+                errors.push(`${label}: media directives are not allowed in definition Markdown; use the structured media field.`);
+            }
+        }
+
+        if (Object.hasOwn(term, "media")) {
+            if (!Array.isArray(term.media)) {
+                errors.push(`${label}: media must be an array when present.`);
+            } else {
+                mediaItemCount += term.media.length;
+                if (term.media.length > MEDIA_CONTRACT.limits.maxItems) {
+                    errors.push(`${label}: media may contain at most ${MEDIA_CONTRACT.limits.maxItems} items.`);
+                }
+                for (const [mediaIndex, mediaItem] of term.media.entries()) {
+                    for (const mediaError of validateMediaItem(mediaItem)) {
+                        errors.push(`${label}: media[${mediaIndex}] ${mediaError}.`);
+                    }
+                }
             }
         }
 
@@ -262,7 +284,8 @@ export function validateGlossary(payload, { voteRowIDs = null } = {}) {
         warnings,
         termCount: terms.length,
         uniqueIDCount: ids.size,
-        uniqueRouteCount: routeSlugs.size
+        uniqueRouteCount: routeSlugs.size,
+        mediaItemCount
     };
 }
 
@@ -293,7 +316,8 @@ function run() {
 
     console.log(
         `Content validation passed: ${result.termCount} terms, ${result.uniqueIDCount} unique UUIDs, `
-        + `${result.uniqueRouteCount} unique routes, all IDs seeded for voting, all related terms resolved.`
+        + `${result.uniqueRouteCount} unique routes, ${result.mediaItemCount} media items, `
+        + "all IDs seeded for voting, all related terms resolved."
     );
 }
 

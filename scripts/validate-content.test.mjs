@@ -21,6 +21,22 @@ function corrupt(mutator) {
     return validateGlossary(copy, { voteRowIDs });
 }
 
+function validYouTubeMedia(overrides = {}) {
+    return {
+        type: "youtube",
+        src: "ho1rwmooHRg",
+        start: 0,
+        title: "Mapless buried treasure tutorial",
+        caption: "A practical walkthrough of mapless buried treasure navigation.",
+        credit: {
+            name: "MoleyG",
+            url: "https://www.youtube.com/@moleyg"
+        },
+        sourceUrl: "https://www.youtube.com/watch?v=ho1rwmooHRg",
+        ...overrides
+    };
+}
+
 test("the checked-in glossary satisfies the contract", () => {
     const result = validateGlossaryText(source, { voteRowIDs });
     assert.deepEqual(result.errors, []);
@@ -132,4 +148,61 @@ test("warns about unusually short and long definitions without failing them", ()
     assert.equal(result.errors.length, 0);
     assert.ok(result.warnings.some(warning => warning.includes("only")));
     assert.ok(result.warnings.some(warning => warning.includes("more concise")));
+});
+
+test("accepts a valid structured media item and a term without media", () => {
+    const result = corrupt(data => {
+        data.terms.forEach(term => { delete term.media; });
+        data.terms[0].media = [validYouTubeMedia()];
+        delete data.terms[1].media;
+    });
+    assert.deepEqual(result.errors, []);
+    assert.equal(result.mediaItemCount, 1);
+});
+
+test("rejects an unsupported media type", () => {
+    const result = corrupt(data => {
+        data.terms[0].media = [validYouTubeMedia({ type: "iframe" })];
+    });
+    assert.ok(result.errors.some(error => error.includes("type must be one of")));
+});
+
+test("rejects a media item missing a required field", () => {
+    const result = corrupt(data => {
+        const media = validYouTubeMedia();
+        delete media.caption;
+        data.terms[0].media = [media];
+    });
+    assert.ok(result.errors.some(error => error.includes("missing required field 'caption'")));
+});
+
+test("rejects unsafe or unallowlisted media sources", () => {
+    const result = corrupt(data => {
+        data.terms[0].media = [{
+            type: "image",
+            src: "javascript:alert(1)",
+            title: "Unsafe image",
+            caption: "This invalid fixture must never reach the rendering layer.",
+            credit: { name: "Fixture", url: "https://example.com" },
+            sourceUrl: "https://example.com/source",
+            alt: "Unsafe fixture image",
+            width: 640,
+            height: 360
+        }];
+    });
+    assert.ok(result.errors.some(error => error.includes("allowlisted HTTPS image")));
+});
+
+test("rejects fields not declared for a media type", () => {
+    const result = corrupt(data => {
+        data.terms[0].media = [validYouTubeMedia({ html: "<iframe></iframe>" })];
+    });
+    assert.ok(result.errors.some(error => error.includes("unsupported field 'html'")));
+});
+
+test("rejects legacy media directives inside definition Markdown", () => {
+    const result = corrupt(data => {
+        data.terms[0].definition = "A definition long enough to validate. @[youtube](ho1rwmooHRg)";
+    });
+    assert.ok(result.errors.some(error => error.includes("media directives are not allowed")));
 });

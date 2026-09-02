@@ -1,5 +1,5 @@
 import { TERM_CONTRACT, isValidEditorialDate, slugifyTermName as slugify } from "./content-contract.js";
-import { getVoteTarget, normalizeVoteValue, projectVoteTotals } from "./glossary-core.js";
+import { classifyMediaItem, getVoteTarget, normalizeVoteValue, projectVoteTotals } from "./glossary-core.js";
 
 const GITHUB_REPO = "SirInfinite/mcsr-glossary";
 const REQUEST_TIMEOUT_MS = 8000;
@@ -170,109 +170,282 @@ function highlightMatch(text, query) {
     return escapeHTML(text).replace(new RegExp(`(${safe})`, "gi"), "<mark>$1</mark>");
 }
 
-function parseYouTubeSource(source) {
-    const value = String(source || "").trim();
-    if (/^[a-zA-Z0-9_-]{11}$/.test(value)) return { type: "youtube", id: value, start: "" };
-
+function parseSafeHTTPSURL(value) {
     try {
-        const url = new URL(value);
-        const host = url.hostname.toLowerCase().replace(/^www\./, "");
-        let id = "";
-        if (host === "youtu.be") id = url.pathname.split("/").filter(Boolean)[0] || "";
-        if (["youtube.com", "youtube-nocookie.com"].includes(host)) {
-            const pathParts = url.pathname.split("/").filter(Boolean);
-            if (["embed", "shorts"].includes(pathParts[0])) id = pathParts[1] || "";
-            else id = url.searchParams.get("v") || "";
-        }
-        if (!/^[a-zA-Z0-9_-]{11}$/.test(id)) return null;
-        const rawStart = url.searchParams.get("start") || url.searchParams.get("t") || "";
-        const start = /^\d{1,6}$/.test(rawStart) ? rawStart : "";
-        return { type: "youtube", id, start };
-    } catch {
-        return null;
-    }
-}
-
-function parseSafeMediaSource(source) {
-    try {
-        const url = new URL(String(source || "").trim(), window.location.href);
-        const localHTTP = url.origin === window.location.origin && url.protocol === "http:";
-        return url.protocol === "https:" || localHTTP ? url.href : "";
+        const url = new URL(String(value || "").trim());
+        return url.protocol === "https:" ? url.href : "";
     } catch {
         return "";
     }
 }
 
-function createTrustedEmbed(spec) {
-    const container = document.createElement("div");
-    container.className = "embed-container";
+function createExternalLink(url, label, className = "") {
+    const safeURL = parseSafeHTTPSURL(url);
+    if (!safeURL) return null;
+    const link = document.createElement("a");
+    link.href = safeURL;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = label;
+    if (className) link.className = className;
+    return link;
+}
 
-    if (spec.type === "youtube") {
-        const iframe = document.createElement("iframe");
-        iframe.src = `https://www.youtube-nocookie.com/embed/${spec.id}${spec.start ? `?start=${spec.start}` : ""}`;
-        iframe.title = "YouTube video";
-        iframe.loading = "lazy";
-        iframe.referrerPolicy = "strict-origin-when-cross-origin";
-        iframe.allow = "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share";
-        iframe.allowFullscreen = true;
-        container.appendChild(iframe);
-        return container;
+let lightboxReturnFocus = null;
+
+function getMediaLightbox() {
+    let dialog = document.getElementById("media-lightbox");
+    if (dialog) return dialog;
+
+    dialog = document.createElement("dialog");
+    dialog.id = "media-lightbox";
+    dialog.className = "media-lightbox";
+    dialog.setAttribute("aria-labelledby", "media-lightbox-caption");
+
+    const closeButton = document.createElement("button");
+    closeButton.type = "button";
+    closeButton.className = "media-lightbox-close";
+    closeButton.setAttribute("aria-label", "Close expanded image");
+    closeButton.textContent = "×";
+
+    const image = document.createElement("img");
+    image.id = "media-lightbox-image";
+    image.alt = "";
+
+    const caption = document.createElement("p");
+    caption.id = "media-lightbox-caption";
+
+    closeButton.addEventListener("click", () => dialog.close());
+    dialog.addEventListener("click", event => {
+        if (event.target === dialog) dialog.close();
+    });
+    dialog.addEventListener("close", () => {
+        lightboxReturnFocus?.focus?.();
+        lightboxReturnFocus = null;
+    });
+    dialog.append(closeButton, image, caption);
+    document.body.appendChild(dialog);
+    return dialog;
+}
+
+function openMediaLightbox(item, trigger) {
+    const dialog = getMediaLightbox();
+    const image = dialog.querySelector("img");
+    const caption = dialog.querySelector("p");
+    image.src = item.src;
+    image.alt = item.alt;
+    image.width = item.width;
+    image.height = item.height;
+    caption.textContent = `${item.title} — ${item.caption}`;
+    lightboxReturnFocus = trigger;
+    dialog.showModal();
+}
+
+function createProviderPlaceholder(item, providerName, loadEmbed) {
+    const placeholder = document.createElement("div");
+    placeholder.className = "media-provider-placeholder";
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "media-load-button";
+    button.setAttribute("aria-label", `Load ${item.title} from ${providerName}`);
+
+    const play = document.createElement("span");
+    play.className = "media-play-mark";
+    play.setAttribute("aria-hidden", "true");
+    play.textContent = "▶";
+
+    const copy = document.createElement("span");
+    const title = document.createElement("strong");
+    title.textContent = item.title;
+    const note = document.createElement("small");
+    note.textContent = `Load from ${providerName}`;
+    copy.append(title, note);
+    button.append(play, copy);
+
+    button.addEventListener("click", () => {
+        const embed = loadEmbed();
+        if (embed) placeholder.replaceChildren(embed);
+    }, { once: true });
+    placeholder.appendChild(button);
+    return placeholder;
+}
+
+function createMediaBody(item) {
+    if (item.type === "youtube") {
+        return createProviderPlaceholder(item, "YouTube (privacy-enhanced)", () => {
+            const frame = document.createElement("iframe");
+            const params = new URLSearchParams({ rel: "0" });
+            if (item.start) params.set("start", String(item.start));
+            frame.src = `https://www.youtube-nocookie.com/embed/${item.src}?${params}`;
+            frame.title = item.title;
+            frame.loading = "lazy";
+            frame.referrerPolicy = "strict-origin-when-cross-origin";
+            frame.allow = "accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share";
+            frame.allowFullscreen = true;
+            return frame;
+        });
     }
 
-    if (spec.type === "twitch") {
-        const iframe = document.createElement("iframe");
-        iframe.src = `https://clips.twitch.tv/embed?clip=${encodeURIComponent(spec.slug)}&parent=${encodeURIComponent(window.location.hostname || "localhost")}`;
-        iframe.title = "Twitch clip";
-        iframe.loading = "lazy";
-        iframe.referrerPolicy = "strict-origin-when-cross-origin";
-        iframe.allowFullscreen = true;
-        container.appendChild(iframe);
-        return container;
+    if (item.type === "twitch") {
+        return createProviderPlaceholder(item, "Twitch", () => {
+            const frame = document.createElement("iframe");
+            const parent = window.location.hostname || "localhost";
+            frame.src = `https://clips.twitch.tv/embed?clip=${encodeURIComponent(item.src)}&parent=${encodeURIComponent(parent)}`;
+            frame.title = item.title;
+            frame.loading = "lazy";
+            frame.referrerPolicy = "strict-origin-when-cross-origin";
+            frame.allowFullscreen = true;
+            return frame;
+        });
     }
 
-    if (spec.type === "video") {
+    if (item.type === "image") {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "media-image-button";
+        button.setAttribute("aria-label", `Expand image: ${item.title}`);
+        const image = document.createElement("img");
+        image.src = item.src;
+        image.alt = item.alt;
+        image.width = item.width;
+        image.height = item.height;
+        image.loading = "lazy";
+        image.decoding = "async";
+        button.appendChild(image);
+        button.addEventListener("click", () => openMediaLightbox(item, button));
+        return button;
+    }
+
+    if (item.type === "gif") {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "media-image-button media-gif-button";
+        button.setAttribute("aria-pressed", "false");
+        button.setAttribute("aria-label", `Play animation: ${item.title}`);
+        const image = document.createElement("img");
+        image.src = item.poster;
+        image.alt = `${item.alt} (animation paused)`;
+        image.width = item.width;
+        image.height = item.height;
+        image.loading = "lazy";
+        const stateLabel = document.createElement("span");
+        stateLabel.className = "media-gif-state";
+        stateLabel.textContent = "Play GIF";
+        button.append(image, stateLabel);
+        button.addEventListener("click", () => {
+            const playing = button.getAttribute("aria-pressed") === "true";
+            button.setAttribute("aria-pressed", String(!playing));
+            button.setAttribute("aria-label", `${playing ? "Play" : "Pause"} animation: ${item.title}`);
+            image.src = playing ? item.poster : item.src;
+            image.alt = playing ? `${item.alt} (animation paused)` : item.alt;
+            stateLabel.textContent = playing ? "Play GIF" : "Pause GIF";
+        });
+        return button;
+    }
+
+    if (item.type === "video") {
         const video = document.createElement("video");
         video.controls = true;
         video.preload = "metadata";
+        video.playsInline = true;
+        video.width = item.width;
+        video.height = item.height;
+        if (item.poster) video.poster = item.poster;
         const source = document.createElement("source");
-        source.src = spec.url;
-        video.append(source, "Your browser does not support video.");
-        container.appendChild(video);
-        return container;
+        source.src = item.src;
+        source.type = item.src.toLowerCase().endsWith(".webm") ? "video/webm" : "video/mp4";
+        video.appendChild(source);
+        if (item.captions) {
+            const track = document.createElement("track");
+            track.kind = "captions";
+            track.src = item.captions;
+            track.srclang = "en";
+            track.label = "English";
+            track.default = true;
+            video.appendChild(track);
+        }
+        video.append("Your browser does not support HTML5 video.");
+        return video;
+    }
+
+    if (item.type === "link") {
+        const link = createExternalLink(item.src, "Open this example in a new tab ↗", "media-link-preview");
+        if (link) link.setAttribute("aria-label", `${item.title} (opens in a new tab)`);
+        return link;
     }
 
     return null;
 }
 
-function parseDefinition(raw, { includeMedia = true } = {}) {
+function createMediaFallback(item, index, fallbackURL = "") {
+    const sourceURL = fallbackURL || parseSafeHTTPSURL(item?.sourceUrl) || parseSafeHTTPSURL(item?.src);
+    if (!sourceURL) return null;
+    const title = typeof item?.title === "string" && item.title.trim()
+        ? item.title.trim()
+        : `Media example ${index + 1}`;
+    const link = createExternalLink(sourceURL, `${title} — open source ↗`, "media-fallback-link");
+    if (!link) return null;
+    const note = document.createElement("p");
+    note.textContent = "This media type is not available here, so the original source is linked instead.";
+    const fallback = document.createElement("div");
+    fallback.className = "media-fallback";
+    fallback.append(link, note);
+    return fallback;
+}
+
+function createMediaFigure(item, index) {
+    const presentation = classifyMediaItem(item);
+    const body = presentation.kind === "media"
+        ? createMediaBody(item)
+        : presentation.kind === "fallback"
+            ? createMediaFallback(item, index, presentation.fallbackURL)
+            : null;
+    if (!body) return null;
+
+    const figure = document.createElement("figure");
+    figure.className = `media-card media-card-${presentation.kind === "media" ? item.type : "fallback"}`;
+    figure.appendChild(body);
+
+    if (presentation.kind === "media") {
+        const caption = document.createElement("figcaption");
+        const heading = document.createElement("h3");
+        heading.textContent = item.title;
+        const description = document.createElement("p");
+        description.textContent = item.caption;
+        const attribution = document.createElement("p");
+        attribution.className = "media-attribution";
+        attribution.append("Credit: ");
+        const credit = createExternalLink(item.credit.url, item.credit.name);
+        if (credit) attribution.appendChild(credit);
+        const source = createExternalLink(item.sourceUrl, "Original source");
+        if (source) attribution.append(" · ", source);
+        caption.append(heading, description, attribution);
+        figure.appendChild(caption);
+    }
+    return figure;
+}
+
+function renderMediaGallery(items, container) {
+    if (!container || !Array.isArray(items)) return 0;
+    container.replaceChildren();
+    let renderedCount = 0;
+    items.forEach((item, index) => {
+        const figure = createMediaFigure(item, index);
+        if (!figure) return;
+        container.appendChild(figure);
+        renderedCount += 1;
+    });
+    return renderedCount;
+}
+
+function parseDefinition(raw) {
     if (!raw) return "";
 
     raw = String(raw).replace(/[\u200B\u200C\u200D\u200E\u200F\uFEFF]/g, "");
     if (!window.marked?.parse || !window.DOMPurify?.sanitize) {
         return `<p>${escapeHTML(raw).replace(/\n/g, "<br>")}</p>`;
     }
-
-    const embeds = [];
-    const registerEmbed = spec => {
-        if (!includeMedia || !spec) return "";
-        const token = `MCSR_EMBED_TOKEN_${embeds.length}_END`;
-        embeds.push({ token, spec });
-        return `\n\n${token}\n\n`;
-    };
-
-    raw = raw.replace(/<iframe\b[^>]*>[\s\S]*?<\/iframe\s*>|<iframe\b[^>]*\/?\s*>/gi, iframeHTML => {
-        const srcMatch = iframeHTML.match(/\bsrc\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i);
-        return registerEmbed(parseYouTubeSource(srcMatch?.[1] || srcMatch?.[2] || srcMatch?.[3] || ""));
-    });
-    raw = raw.replace(/@\[youtube\]\(([^)]+)\)/gi, (_, source) => registerEmbed(parseYouTubeSource(source)));
-    raw = raw.replace(/@\[twitch\]\(([^)]+)\)/gi, (_, slug) => {
-        const safeSlug = /^[a-zA-Z0-9_-]{1,100}$/.test(slug.trim()) ? slug.trim() : "";
-        return registerEmbed(safeSlug ? { type: "twitch", slug: safeSlug } : null);
-    });
-    raw = raw.replace(/@\[video\]\(([^)]+)\)/gi, (_, source) => {
-        const safeURL = parseSafeMediaSource(source);
-        return registerEmbed(safeURL ? { type: "video", url: safeURL } : null);
-    });
 
     const sanitized = window.DOMPurify.sanitize(window.marked.parse(raw), {
         ALLOWED_TAGS: ["a", "blockquote", "br", "code", "del", "em", "h2", "h3", "h4", "h5", "h6", "hr", "li", "mark", "ol", "p", "pre", "strong", "table", "tbody", "td", "th", "thead", "tr", "ul"],
@@ -297,12 +470,6 @@ function parseDefinition(raw, { includeMedia = true } = {}) {
         }
     });
 
-    for (const { token, spec } of embeds) {
-        const paragraphs = [...template.content.querySelectorAll("p")];
-        const tokenParagraph = paragraphs.find(paragraph => paragraph.textContent.trim() === token);
-        const embed = createTrustedEmbed(spec);
-        if (tokenParagraph && embed) tokenParagraph.replaceWith(embed);
-    }
     return template.innerHTML;
 }
 
@@ -551,6 +718,10 @@ function renderTermDetail(id) {
             <div class="term-detail-body term-content">
                 ${parseDefinition(term.definition)}
             </div>
+            <section class="term-media" id="term-media" aria-labelledby="term-media-title">
+                <h2 id="term-media-title">Examples &amp; media</h2>
+                <div class="media-gallery" id="term-media-gallery"></div>
+            </section>
             ${relatedTerms.length ? `
             <div class="related-terms">
                 <h3>Related Terms</h3>
@@ -571,6 +742,9 @@ function renderTermDetail(id) {
         </div>
     `;
     document.title = `${term.name} | MCSR Glossary`;
+
+    const renderedMedia = renderMediaGallery(term.media, document.getElementById("term-media-gallery"));
+    if (!renderedMedia) document.getElementById("term-media")?.remove();
 
     document.getElementById("detail-back")?.addEventListener("click", () => {
         if (history.state?.from) {

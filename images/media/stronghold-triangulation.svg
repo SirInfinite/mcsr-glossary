@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Stronghold triangulation with two Eye of Ender throws</title>
+  <desc id="desc">Two observed Eye of Ender directions extend from different positions and intersect near a stronghold.</desc>
+  <defs>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#273146" stroke-width="1"/>
+    </pattern>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1200" height="675" rx="24" fill="#0f1117"/>
+  <rect x="34" y="34" width="1132" height="607" rx="16" fill="url(#grid)" stroke="#46536b" stroke-width="3"/>
+  <g font-family="system-ui, sans-serif">
+    <text x="70" y="92" fill="#eef4ff" font-size="32" font-weight="700">TWO-THROW TRIANGULATION</text>
+    <text x="70" y="128" fill="#aab5c9" font-size="22">Extend both measured eye directions; their intersection estimates the stronghold.</text>
+  </g>
+  <g stroke="#72d982" stroke-width="8" stroke-linecap="round" fill="none">
+    <path d="M 194 514 L 924 250"/>
+    <path d="M 360 208 L 924 250"/>
+  </g>
+  <g fill="#72d982" stroke="#b4f3bd" stroke-width="4">
+    <circle cx="194" cy="514" r="18"/>
+    <circle cx="360" cy="208" r="18"/>
+  </g>
+  <g filter="url(#glow)">
+    <circle cx="924" cy="250" r="28" fill="#f1ce54"/>
+    <circle cx="924" cy="250" r="10" fill="#fff2a8"/>
+  </g>
+  <g font-family="system-ui, sans-serif" font-size="23" font-weight="700">
+    <text x="105" y="568" fill="#eef4ff">Throw 1</text>
+    <text x="270" y="184" fill="#eef4ff">Throw 2</text>
+    <text x="956" y="244" fill="#f5da78">Estimated</text>
+    <text x="956" y="274" fill="#f5da78">stronghold</text>
+  </g>
+  <g fill="#72d982">
+    <path d="M 565 367 l 28 -8 -13 26 z"/>
+    <path d="M 630 220 l 27 10 -25 15 z"/>
+  </g>
+  <text x="600" y="611" fill="#aab5c9" font-family="system-ui, sans-serif" font-size="20" text-anchor="middle">Diagram is conceptual; runners use precise angles or calculators for accurate estimates.</text>
+</svg>

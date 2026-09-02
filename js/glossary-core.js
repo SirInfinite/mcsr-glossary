@@ -1,3 +1,26 @@
+import { validateMediaItem } from "./content-contract.js";
+
+function safeHTTPSURL(value) {
+    try {
+        const url = new URL(String(value || "").trim());
+        return url.protocol === "https:" ? url.href : "";
+    } catch {
+        return "";
+    }
+}
+
+export function classifyMediaItem(item) {
+    const errors = validateMediaItem(item);
+    if (!errors.length) return { kind: "media", fallbackURL: "", errors };
+
+    const fallbackURL = safeHTTPSURL(item?.sourceUrl) || safeHTTPSURL(item?.src);
+    return {
+        kind: fallbackURL ? "fallback" : "ignored",
+        fallbackURL,
+        errors
+    };
+}
+
 export function normalizeVoteValue(value) {
     const numeric = Number(value);
     return numeric === 1 || numeric === -1 ? numeric : 0;

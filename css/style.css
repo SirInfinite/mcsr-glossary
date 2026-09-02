@@ -216,6 +216,19 @@ header {
     line-height: 0;
 }
 
+.beta-badge {
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    color: var(--accent);
+    font-family: var(--font-code);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 0.3em 0.65em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
 .nav {
     display: flex;
     gap: 0.5em;
@@ -1516,6 +1529,27 @@ footer {
     z-index: 1;
 }
 
+footer p {
+    margin: 0;
+}
+
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65em 1.2em;
+    justify-content: center;
+    margin-top: 0.65em;
+}
+
+.footer-links a {
+    color: var(--text-muted);
+    text-underline-offset: 0.2em;
+}
+
+.footer-links a:hover {
+    color: var(--accent);
+}
+
 @keyframes fadeUp {
     from {
         opacity: 0;
@@ -1539,6 +1573,12 @@ footer {
     header > a {
         grid-column: 1;
         grid-row: 1;
+    }
+
+    .beta-badge {
+        grid-column: 2;
+        grid-row: 1;
+        justify-self: start;
     }
 
     .nav {

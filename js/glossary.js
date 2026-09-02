@@ -1,6 +1,6 @@
 import { TERM_CONTRACT, isValidEditorialDate, slugifyTermName as slugify } from "./content-contract.js";
 
-const GITHUB_REPO = "";
+const GITHUB_REPO = "SirInfinite/mcsr-glossary";
 const REQUEST_TIMEOUT_MS = 8000;
 
 const runtimeConfig = window.MCSR_CONFIG || {};

@@ -6,13 +6,13 @@ Contributions are welcome from runners, researchers, and newcomers who notice so
 
 1. Select **Submit** on the glossary home page.
 2. Provide the term, category, aliases or tags if known, and a clear definition.
-3. Submit the form. If online submissions are not configured, the site copies a formatted proposal instead; paste it into a GitHub issue when the repository is published.
+3. Submit the form. If online submissions are not configured, the site copies a formatted proposal instead; paste it into a [new-term issue](https://github.com/SirInfinite/mcsr-glossary/issues/new?template=suggest-new-term.yml).
 
 Website submissions enter a private moderation queue. They do not automatically become public glossary entries.
 
 ## Contributing through GitHub
 
-For a small factual correction, open an issue with the term name, the exact problem, the proposed correction, and supporting links. To contribute the change directly:
+For a small factual correction, [open a correction issue](https://github.com/SirInfinite/mcsr-glossary/issues/new?template=incorrect-or-outdated-term.yml) with the term name, the exact problem, the proposed correction, and supporting links. To contribute the change directly:
 
 1. Fork the repository and create a focused branch.
 2. Edit `data/terms.json`, preserving the existing term's `id` when correcting it.

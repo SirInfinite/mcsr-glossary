@@ -1,0 +1,35 @@
+name: Incorrect / outdated term
+description: Report a definition, alias, relationship, or detail that needs correction.
+title: "[Term correction]: "
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping keep the glossary accurate. Please include supporting evidence when possible.
+  - type: input
+    id: term
+    attributes:
+      label: Term
+      description: Which published glossary term needs attention?
+      placeholder: e.g. Blind
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is incorrect or outdated?
+      description: Quote or summarize the affected text and explain the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: correction
+    attributes:
+      label: Suggested correction
+      description: What should the glossary say instead?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Sources or evidence
+      description: Link current rules, leaderboards, documentation, primary guides, or representative community usage when possible.
+      placeholder: Paste links and briefly explain what each supports.

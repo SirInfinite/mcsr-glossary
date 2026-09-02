@@ -1,0 +1,45 @@
+name: Suggest a new term
+description: Propose missing Minecraft speedrunning terminology for review.
+title: "[New term]: "
+body:
+  - type: markdown
+    attributes:
+      value: Suggestions enter editorial review and are not added automatically. Please include evidence that the term is used in the MCSR community when possible.
+  - type: input
+    id: term
+    attributes:
+      label: Term
+      placeholder: e.g. One Cycle
+    validations:
+      required: true
+  - type: textarea
+    id: definition
+    attributes:
+      label: Proposed definition
+      description: Explain the term clearly for someone new to Minecraft speedrunning.
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Suggested category
+      options:
+        - Format
+        - Strategy
+        - Technique
+        - Terminology
+        - Tool
+        - Unsure
+    validations:
+      required: true
+  - type: input
+    id: aliases
+    attributes:
+      label: Aliases or alternate spellings
+      description: Separate multiple aliases with commas.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Sources or evidence
+      description: Link current rules, documentation, primary guides, or representative community usage when possible.
+      placeholder: Paste links and briefly explain what each supports.

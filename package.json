@@ -1,0 +1,11 @@
+{
+  "name": "mcsr-glossary",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "assign-ids": "node js/uuid.js",
+    "validate-content": "node scripts/validate-content.mjs",
+    "test-content-validator": "node --test scripts/validate-content.test.mjs",
+    "check-content": "npm run validate-content && npm run test-content-validator"
+  }
+}

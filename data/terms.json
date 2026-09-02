@@ -1,0 +1,1147 @@
+{
+    "titleString": "MCSR Glossary",
+    "aboutParagraph": "A glossary of Minecraft speedrunning terms, strategies, tools, and community language.",
+    "terms": [
+        {
+            "id": "b612b6ee-074a-47ad-9fdf-0e4a774c582e",
+            "name": "Any%",
+            "category": "format",
+            "aliases": [],
+            "tags": [
+                "category",
+                "speedrunning"
+            ],
+            "definition": "A speedrun category with no required completion percentage; runners reach the category's defined endpoint as fast as possible. In Minecraft: Java Edition Any% Glitchless, the run finishes when the credits begin after the runner enters the exit End portal, not when the Ender Dragon dies. Leaderboards separate Random Seed, Set Seed, and version groups.",
+            "relatedTerms": [
+                "Leaderboard",
+                "Minecraft Speedrunning",
+                "RSG",
+                "Set Seed"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "eeafd00b-603f-4f15-b302-4b72c3d09824",
+            "name": "Bastion",
+            "category": "terminology",
+            "aliases": [
+                "Bastion Remnant"
+            ],
+            "tags": [
+                "nether",
+                "structure",
+                "version-1-16-1"
+            ],
+            "definition": "Bastion is the common MCSR name for a Bastion Remnant, a Nether structure added in Minecraft 1.16. In Java 1.16.1 RSG and Ranked, runners route bastions for gold blocks, piglins, and chests, then obtain Ender Pearls, obsidian, string, and Fire Resistance through bartering and loot. The four layouts require different routes.",
+            "relatedTerms": [
+                "Bastion Route",
+                "Bridge Bastion",
+                "Housing Bastion",
+                "Hypermodern",
+                "MCSR Ranked",
+                "Stables Bastion",
+                "Treasure Bastion"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "57736e7f-a35f-46f3-b254-8576dfc806f7",
+            "name": "Bastion Route",
+            "category": "strategy",
+            "aliases": [],
+            "tags": [
+                "bastion",
+                "nether",
+                "routing"
+            ],
+            "definition": "A Bastion Route is a practiced path through one of the four Bastion Remnant layouts. A route coordinates gold collection, chest looting, piglin positioning, and bartering so the runner can obtain needed resources quickly and safely. Bridge, Housing, Stables, and Treasure bastions require different routes, especially in Java Edition 1.16.1 RSG and Ranked runs.",
+            "relatedTerms": [
+                "Bastion",
+                "Hypermodern",
+                "Piglin Bartering"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "49519490-1b5c-43e3-998a-9b689237b894",
+            "name": "Blaze",
+            "category": "terminology",
+            "aliases": [],
+            "tags": [
+                "mob",
+                "nether",
+                "resource"
+            ],
+            "definition": "A Blaze is a hostile Nether mob and the source of Blaze Rods. In MCSR, runners usually fight Blazes at a Nether Fortress spawner because the rods are required to craft Eyes of Ender. MCSR Ranked standardizes Blaze Rod drops and spawner timing so both racers receive comparable RNG.",
+            "relatedTerms": [
+                "Blaze Rods",
+                "Nether Fortress"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "c11fabb0-39ec-4d6b-8dca-73e5a4cf4125",
+            "name": "Blaze Rods",
+            "category": "terminology",
+            "aliases": [
+                "Blaze Rod"
+            ],
+            "tags": [
+                "item",
+                "nether",
+                "resource"
+            ],
+            "definition": "Blaze Rods are items dropped by Blazes. Each rod crafts into two Blaze Powder, and one powder combines with one Ender Pearl to make an Eye of Ender. Speedrunners obtain rods in Nether Fortresses; piglins do not barter Blaze Rods.",
+            "relatedTerms": [
+                "Blaze",
+                "Eye of Ender",
+                "Nether Fortress"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "fdb43564-02d9-47aa-bf20-f000dc4bf7b6",
+            "name": "Blind",
+            "category": "strategy",
+            "aliases": [
+                "Blind Travel"
+            ],
+            "tags": [
+                "java",
+                "navigation",
+                "rsg",
+                "stronghold"
+            ],
+            "definition": "Blind travel is a Java 1.16 RSG strategy in which a runner moves through the Nether to a selected coordinate and builds an exit portal without first using an Eye of Ender to learn the stronghold's direction or distance. The goal is to emerge near a first-ring Stronghold, after which an eye can correct the route. It is distinct from educated and calculated travel.",
+            "relatedTerms": [
+                "Educated Travel",
+                "Eye of Ender",
+                "Nether Travel",
+                "Stronghold"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "0f3feedf-6e7c-483d-beef-2fbc9796217e",
+            "name": "Bridge Bastion",
+            "category": "terminology",
+            "aliases": [
+                "Bridge"
+            ],
+            "tags": [
+                "bastion",
+                "nether",
+                "structure"
+            ],
+            "definition": "Bridge Bastion is one of the four Bastion Remnant layouts. It is distinguished by its large ruined bridge and a prominent gold-block structure often called the gold chalice. Speedrun routes use its exposed gold and layout-specific piglin positions, so it is routed differently from Housing, Stables, and Treasure bastions.",
+            "relatedTerms": [
+                "Bastion",
+                "Bastion Route",
+                "Piglin Bartering"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "7e27ff9c-3e87-4b58-a8ba-5962cae2d866",
+            "name": "Calculated Travel",
+            "category": "technique",
+            "aliases": [
+                "Calc Travel"
+            ],
+            "tags": [
+                "navigation",
+                "nether",
+                "stronghold"
+            ],
+            "definition": "Calculated Travel is a Nether-travel method that estimates both the direction and distance to a stronghold from precise Eye of Ender measurements, usually with a calculator. The runner converts the estimated Overworld target to Nether coordinates and builds a second portal nearby. It can produce a much closer exit than a blind or direction-only travel.",
+            "relatedTerms": [
+                "Educated Travel",
+                "Nether Travel",
+                "Ninjabrain Bot",
+                "Triangulation"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "8f1d38a8-a954-4d90-9fe8-91a4e059e07b",
+            "name": "Classic",
+            "category": "strategy",
+            "aliases": [],
+            "tags": [
+                "ranked",
+                "route",
+                "rsg"
+            ],
+            "definition": "In MCSR Ranked, Classic means winning a match without entering a Bastion. In broader Java 1.16 RSG discussion, the word can also describe older or no-bastion routes, where runners may barter with ordinary piglins for pearls but still obtain Blaze Rods by killing Blazes. The intended context should always be stated.",
+            "relatedTerms": [
+                "Bastion",
+                "Blaze Rods",
+                "MCSR Ranked",
+                "Piglin Bartering"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "68cf54a3-14b6-42b9-bbca-1f8cba22b664",
+            "name": "Divine Travel",
+            "category": "technique",
+            "aliases": [
+                "Fossil Divine"
+            ],
+            "tags": [
+                "java",
+                "navigation",
+                "stronghold",
+                "version-1-16-1"
+            ],
+            "definition": "Divine Travel is a Java Edition 1.16.1 technique that uses the position of a Nether fossil in a particular chunk to infer where a stronghold can be reached through another portal. It depends on world-generation correlations and is highly version-specific. It does not work in MCSR Ranked, where the Overworld and Nether seeds are generated independently.",
+            "relatedTerms": [
+                "Nether Travel",
+                "Stronghold"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "055bcac8-7ddb-4d56-a770-79e7b4450ad4",
+            "name": "Educated Travel",
+            "category": "technique",
+            "aliases": [
+                "E Travel"
+            ],
+            "tags": [
+                "navigation",
+                "nether",
+                "stronghold"
+            ],
+            "definition": "Educated Travel is a two-portal Nether-travel method that uses an Eye of Ender throw after the first exit to learn the stronghold's direction. The runner re-enters the Nether, moves along the corresponding direction, and builds a second exit portal nearer the stronghold ring. It improves direction over a blind travel without calculating a precise stronghold position.",
+            "relatedTerms": [
+                "Blind",
+                "Eye of Ender",
+                "Nether Travel",
+                "Stronghold"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "abd0eb7e-93f7-41a5-bc32-2c3194dff826",
+            "name": "Elo",
+            "category": "terminology",
+            "aliases": [
+                "Elo Rating"
+            ],
+            "tags": [
+                "competitive",
+                "ranked",
+                "rating"
+            ],
+            "definition": "Elo is the rating used by MCSR Ranked to match players of similar skill and order its competitive ladder. Winning normally raises a player's Elo and losing lowers it, with the change influenced by the opponent's rating. The official styling is `Elo`, not the acronym `ELO`.",
+            "relatedTerms": [
+                "MCSR Ranked"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "3fbb8875-5ccb-4671-a78e-8f1443c0fdd1",
+            "name": "Ender Pearl",
+            "category": "terminology",
+            "aliases": [
+                "Pearl"
+            ],
+            "tags": [
+                "item",
+                "nether",
+                "routing"
+            ],
+            "definition": "An Ender Pearl is a throwable item that teleports the player to where it lands and is also an ingredient in an Eye of Ender. In Java Edition 1.16.1 RSG, runners commonly obtain pearls by bartering with piglins, usually at a bastion. Extra pearls can also save travel time or enable safer movement.",
+            "relatedTerms": [
+                "Bastion",
+                "Eye of Ender",
+                "Piglin Bartering"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "89b951db-b5d3-428d-bc7e-130040701284",
+            "name": "Eye of Ender",
+            "category": "terminology",
+            "aliases": [
+                "Eye"
+            ],
+            "tags": [
+                "item",
+                "navigation",
+                "stronghold"
+            ],
+            "definition": "An Eye of Ender is crafted from one Ender Pearl and one Blaze Powder. Thrown eyes travel toward the nearest Stronghold and may drop or break; runners measure their direction to navigate or triangulate. Eyes also fill the twelve End portal frames, although some frames can generate already filled.",
+            "relatedTerms": [
+                "Blaze Rods",
+                "Ender Pearl",
+                "Stronghold",
+                "Triangulation"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "188b89c9-f4b5-451c-b9a8-d75ddc7b561d",
+            "name": "F3",
+            "category": "tool",
+            "aliases": [
+                "Debug Screen"
+            ],
+            "tags": [
+                "debug",
+                "java",
+                "navigation"
+            ],
+            "definition": "F3 usually means the Java Edition debug screen and its related key combinations. It exposes information such as coordinates, facing direction, chunk position, and entity counts, which supports navigation, structure detection, and stronghold measurements. Available fields and permitted uses can depend on the game version and category rules.",
+            "relatedTerms": [
+                "Pie Chart",
+                "Triangulation"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "51d4c5fe-e0a6-4938-abcb-86098f788e7d",
+            "name": "Filtered Seed",
+            "category": "format",
+            "aliases": [
+                "Seed Filtering"
+            ],
+            "tags": [
+                "ranked",
+                "rng",
+                "seed"
+            ],
+            "definition": "A Filtered Seed is a randomly generated seed accepted only when it meets predefined conditions. Filtering can reduce uncompetitive starts without giving runners a memorized Set Seed route. MCSR Ranked filters its Overworld and Nether seeds separately, so its seed generation differs from ordinary RSG.",
+            "relatedTerms": [
+                "MCSR Ranked",
+                "Random Seed",
+                "RNG Standardization"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "2e0b404a-9e30-451e-a1ee-3f547c10cfe3",
+            "name": "Housing Bastion",
+            "category": "terminology",
+            "aliases": [
+                "Housing Units"
+            ],
+            "tags": [
+                "bastion",
+                "nether",
+                "structure"
+            ],
+            "definition": "Housing Bastion is one of the four Bastion Remnant layouts. It contains two ramparts connected through a central housing section, with layout-specific gold, chests, and piglin positions. Runners identify it quickly because its safe and efficient route differs from Bridge, Stables, and Treasure bastions.",
+            "relatedTerms": [
+                "Bastion",
+                "Bastion Route",
+                "Piglin Bartering"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "4b6cddc9-3bf4-4a00-92fa-e27809d75064",
+            "name": "Hypermodern",
+            "category": "strategy",
+            "aliases": [],
+            "tags": [
+                "java",
+                "route",
+                "rsg",
+                "version-1-16-1"
+            ],
+            "definition": "Hypermodern is a selective, reset-heavy route family developed for Java 1.16.1 RSG. It combines favorable coastal or mapless starts, rapid Nether entry, Bastion routing, fortress discovery, Nether travel, and an optimized End fight. It is not a universal label for every modern Minecraft version or for MCSR Ranked's filtered seeds.",
+            "relatedTerms": [
+                "Bastion",
+                "Bastion Route",
+                "Mapless",
+                "RSG"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "ef4e6706-da0b-4a7a-be55-4e3c90a32030",
+            "name": "IGT",
+            "category": "terminology",
+            "aliases": [
+                "In-Game Time"
+            ],
+            "tags": [
+                "leaderboard",
+                "rules",
+                "timing"
+            ],
+            "definition": "IGT means In-Game Time, a timing method that counts time according to the game's active run state rather than every second of wall-clock time. Minecraft Java Edition leaderboard rules exclude specified loading, pausing, and freeze periods from IGT, with approved timing tools or retiming used to determine the submitted time. Exact timing rules depend on the category.",
+            "relatedTerms": [
+                "Leaderboard",
+                "LiveSplit",
+                "RTA",
+                "Split"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "8fa91be1-f6ca-404f-b1c1-90ac58cecea4",
+            "name": "Leaderboard",
+            "category": "terminology",
+            "aliases": [
+                "LB"
+            ],
+            "tags": [
+                "record",
+                "rules",
+                "timing"
+            ],
+            "definition": "A Leaderboard lists accepted run times for a category and its variables. Minecraft Java Edition runners submit evidence for moderator verification, and the resulting placement is meaningful only within that board's rules, version, difficulty, and seed-type filters.",
+            "relatedTerms": [
+                "PB",
+                "Speedrun.com",
+                "WR"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "61655f57-5e2e-4884-a460-d26991fd853b",
+            "name": "LiveSplit",
+            "category": "tool",
+            "aliases": [],
+            "tags": [
+                "comparison",
+                "timer",
+                "tool"
+            ],
+            "definition": "LiveSplit is an open-source speedrun timer that records segment splits and compares attempts with saved runs. Minecraft runners can use it to display pace and personal-best comparisons, but the visible timer is not automatically the official leaderboard time; the category's timing rules still control.",
+            "relatedTerms": [
+                "IGT",
+                "Pace",
+                "RTA",
+                "Split"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "f94ab4fd-e78c-4954-8492-7a9df83d47e3",
+            "name": "Mapless",
+            "category": "technique",
+            "aliases": [
+                "Mapless Treasure"
+            ],
+            "tags": [
+                "debug",
+                "java",
+                "overworld",
+                "version-specific"
+            ],
+            "definition": "Mapless is a Java Edition technique for locating buried treasure without a treasure map. The runner first uses a version-specific Pie Chart path and chunk-boundary behavior to identify the chunk containing the chest, then digs at chunk-relative X/Z coordinates `9, 9`. The `9, 9` position alone does not reveal which chunk contains treasure.",
+            "relatedTerms": [
+                "F3",
+                "Pie Chart"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "a1b2c3d4-0001-0001-0001-000000000021",
+            "name": "MCSR Ranked",
+            "category": "format",
+            "aliases": [
+                "Ranked"
+            ],
+            "tags": [
+                "competitive",
+                "java",
+                "ranked",
+                "version-1-16-1"
+            ],
+            "definition": "MCSR Ranked is a Minecraft: Java Edition 1.16.1 Fabric mod and competitive format for live speedrun races. Standard matches put two players in separate worlds using the same filtered match seed and standardized RNG; the first player to defeat the dragon and enter the exit portal wins. Ranked matchmaking uses Elo and six ranks: Coal, Iron, Gold, Emerald, Diamond, and Netherite. The project also offers Casual, Private Rooms, and Weekly Race modes.",
+            "relatedTerms": [
+                "Elo",
+                "Filtered Seed",
+                "RNG Standardization",
+                "RSG"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "34237e84-7cf4-4193-bfdd-1445aebb56d0",
+            "name": "Minecraft Speedrunning",
+            "category": "terminology",
+            "aliases": [
+                "MCSR"
+            ],
+            "tags": [
+                "minecraft",
+                "speedrunning"
+            ],
+            "definition": "Minecraft speedrunning is the practice of completing a defined Minecraft objective under a category's rules as quickly as possible. A prominent example is Java Edition Any% Glitchless Random Seed, where the runner starts an unknown world, reaches the End, defeats the Ender Dragon, and enters the exit portal. Other editions, categories, seeds, and version groups use different rules.",
+            "relatedTerms": [
+                "Any%",
+                "Leaderboard",
+                "MCSR Ranked",
+                "RSG",
+                "Speedrun.com"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "646582e0-7d14-4079-8b5f-5da239af06f3",
+            "name": "Multi-Instance",
+            "category": "strategy",
+            "aliases": [
+                "Multi Instancing"
+            ],
+            "tags": [
+                "resetting",
+                "rsg",
+                "setup"
+            ],
+            "definition": "Multi-Instance is an RSG setup that runs multiple separate Minecraft clients so worlds can generate in parallel and the runner can evaluate more starts. Official leaderboard rules place recording and installation requirements on this setup. SeedQueue offers a different way to queue generated worlds inside one game instance.",
+            "relatedTerms": [
+                "Reset",
+                "RSG",
+                "SeedQueue"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "17e08ae7-ab41-4e6a-87b2-e4a7940dd600",
+            "name": "Nether Fortress",
+            "category": "terminology",
+            "aliases": [
+                "Fortress"
+            ],
+            "tags": [
+                "nether",
+                "structure"
+            ],
+            "definition": "A Nether Fortress is a Nether structure whose Blaze spawners provide the Blaze Rods required for Eyes of Ender. In Java 1.16.1 routes, runners often visit a Bastion first for pearls, obsidian, and Fire Resistance, then locate and navigate a fortress for rods. Fortress layout and spawner access strongly affect a run's pace.",
+            "relatedTerms": [
+                "Bastion",
+                "Blaze",
+                "Blaze Rods"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "38f75326-fd11-436d-8bce-e3b4e7df6c8c",
+            "name": "Nether Travel",
+            "category": "strategy",
+            "aliases": [],
+            "tags": [
+                "nether",
+                "navigation",
+                "stronghold"
+            ],
+            "definition": "Nether Travel uses the Nether's 1:8 horizontal coordinate scale to cover Overworld distance quickly. In Java Edition RSG, a runner can build another portal in the Nether so its Overworld exit is closer to a stronghold. Blind, Educated Travel, and Calculated Travel differ in how precisely the runner estimates that destination.",
+            "relatedTerms": [
+                "Blind",
+                "Stronghold",
+                "Triangulation"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "c66d062a-5395-4703-a4cd-2e3d79fc17d9",
+            "name": "Ninjabrain Bot",
+            "category": "tool",
+            "aliases": [
+                "Ninjabrain"
+            ],
+            "tags": [
+                "calculator",
+                "stronghold",
+                "tool-assisted"
+            ],
+            "definition": "Ninjabrain Bot is an external stronghold calculator for Minecraft Java Edition speedrunning. It combines measured Eye of Ender throws, player-entered uncertainty, and stronghold-generation probabilities to estimate a location and confidence level. Runners use it for triangulation and Calculated Travel; its legality should always be checked against the current category rules.",
+            "relatedTerms": [
+                "Calculated Travel",
+                "Eye of Ender",
+                "Triangulation"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "9af0fd71-077d-4224-811e-01897e47ae90",
+            "name": "Obsidian",
+            "category": "terminology",
+            "aliases": [
+                "Obby"
+            ],
+            "tags": [
+                "item",
+                "nether",
+                "portal"
+            ],
+            "definition": "Obsidian is the block used to build Nether portal frames. In Java Edition 1.16.1 RSG, runners commonly obtain it from bastion chests and piglin bartering rather than mining it. Extra obsidian enables a second portal for Nether Travel and can also be useful during the End fight.",
+            "relatedTerms": [
+                "Bastion",
+                "Nether Travel",
+                "Piglin Bartering"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "7c47b455-5752-4f46-bc57-cafae58d5e94",
+            "name": "One Cycle",
+            "category": "technique",
+            "aliases": [
+                "One-Cycle"
+            ],
+            "tags": [
+                "dragon",
+                "end",
+                "java"
+            ],
+            "definition": "A one cycle defeats the Ender Dragon during a single perch at the exit portal. In modern Java speedruns, runners normally time bed explosions against the dragon's head as it perches; respawn-anchor variants or backups also exist. The technique depends on the post-1.9 dragon fight and does not describe older pre-1.9 End fights.",
+            "relatedTerms": [
+                "Perch",
+                "Zero Cycle"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "afbf957a-15ca-425f-9deb-33a3f3407a98",
+            "name": "Pace",
+            "category": "terminology",
+            "aliases": [],
+            "tags": [
+                "comparison",
+                "timing"
+            ],
+            "definition": "Pace describes how an attempt is progressing toward a time goal such as a personal best or world record. Runners infer pace from the current time, route state, resources, and splits. Being on a particular pace is a projection, not a guarantee of the final time.",
+            "relatedTerms": [
+                "PB",
+                "Split",
+                "WR"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "fb3f3ad9-da01-4c1d-8f21-6d37670bec49",
+            "name": "PB",
+            "category": "terminology",
+            "aliases": [
+                "Personal Best"
+            ],
+            "tags": [
+                "leaderboard",
+                "timing"
+            ],
+            "definition": "PB means personal best: a runner's fastest valid completion in a particular category, ruleset, and timing method. A runner can therefore have separate PBs for RSG, Set Seed, different version groups, or different timing methods.",
+            "relatedTerms": [
+                "Pace",
+                "Split",
+                "WR"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "4606716b-2e5a-445c-ab6b-cbff0e8ae9c3",
+            "name": "Perch",
+            "category": "terminology",
+            "aliases": [
+                "Dragon Perch"
+            ],
+            "tags": [
+                "dragon",
+                "end",
+                "rng"
+            ],
+            "definition": "A Perch is the Ender Dragon's landing sequence at the central exit portal. Runners prepare beds around the portal and wait for a favorable perch because it creates the main window for a One Cycle. Perch behavior is partly random and can be standardized by formats such as MCSR Ranked.",
+            "relatedTerms": [
+                "One Cycle",
+                "Zero Cycle"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "d9fb1556-467c-4803-a4bd-5125e07ed45d",
+            "name": "Pie Chart",
+            "category": "tool",
+            "aliases": [
+                "F3 Pie Chart"
+            ],
+            "tags": [
+                "debug",
+                "java",
+                "navigation",
+                "version-specific"
+            ],
+            "definition": "The Pie Chart is Java Edition's debug profiler graph, toggled with `F3+1` in current versions and historically with `Shift+F3`. Speedrunners navigate its numbered profiler sections and combine block-entity or spawner data with render-distance and chunk-boundary changes to locate structures. This use is often called pie-ray or piedar, and both profiler paths and exact procedures are version-specific.",
+            "relatedTerms": [
+                "Blaze",
+                "F3",
+                "Mapless",
+                "Nether Fortress"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "725c3c13-eaef-4bf6-bc43-4a73a852c9c8",
+            "name": "Piglin Bartering",
+            "category": "technique",
+            "aliases": [
+                "Bartering"
+            ],
+            "tags": [
+                "bastion",
+                "nether",
+                "rng"
+            ],
+            "definition": "Piglin Bartering is giving gold ingots to adult piglins in exchange for randomized items. In Java Edition 1.16.1 RSG, barters can provide Ender Pearls, obsidian, string, and fire resistance, making bastion routing central to many runs. Later 1.16 versions use a different barter table, and Blaze Rods never come from bartering.",
+            "relatedTerms": [
+                "Bastion",
+                "Blaze Rods",
+                "Ender Pearl"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "ad9d3e01-d7ba-4dbc-a99e-16d7cb078b26",
+            "name": "Random Seed",
+            "category": "format",
+            "aliases": [],
+            "tags": [
+                "category",
+                "random-seed",
+                "rules"
+            ],
+            "definition": "Random Seed is a speedrun seed type in which the seed input is left blank and the runner does not choose the world in advance. The official Java rules require a blank seed field. Random Seed describes seed knowledge; RSG additionally specifies a glitchless ruleset.",
+            "relatedTerms": [
+                "Filtered Seed",
+                "RSG",
+                "Seed",
+                "Set Seed",
+                "Spawn"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "ab51c808-715b-4256-8944-4b88c9595955",
+            "name": "Reset",
+            "category": "terminology",
+            "aliases": [
+                "Resetting"
+            ],
+            "tags": [
+                "attempt",
+                "random-seed",
+                "rsg"
+            ],
+            "definition": "A reset is abandoning the current attempt and starting another world. RSG runners reset when a seed no longer meets the requirements of their chosen route. Official Java rules allow specified reset mods and player-triggered reset macros, but macros generally cannot be triggered during gameplay.",
+            "relatedTerms": [
+                "Multi-Instance",
+                "Random Seed",
+                "RSG",
+                "SeedQueue"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "cc67e5c4-ff1e-4495-b962-bab68db9fb5c",
+            "name": "RNG Standardization",
+            "category": "terminology",
+            "aliases": [
+                "Standardized RNG"
+            ],
+            "tags": [
+                "ranked",
+                "rng",
+                "rules"
+            ],
+            "definition": "RNG Standardization is MCSR Ranked's system for making selected random events more consistent between races. It controls defined events such as barters, drops, Eye of Ender breaks, and parts of the dragon fight so a match depends less on extreme luck. It does not remove all randomness from a seed or route.",
+            "relatedTerms": [
+                "Filtered Seed",
+                "MCSR Ranked",
+                "Piglin Bartering"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "1a1a4edc-d019-4310-855a-67dc0f56795f",
+            "name": "RSG",
+            "category": "format",
+            "aliases": [
+                "Random Seed Glitchless"
+            ],
+            "tags": [
+                "category",
+                "glitchless",
+                "random-seed"
+            ],
+            "definition": "RSG means Random Seed Glitchless, the ruleset behind many prominent Minecraft Any% runs. The runner starts an unknown seed and completes the category without techniques classified as glitches by the leaderboard rules. Edition and version groups still matter, so `1.16 RSG` is more specific than RSG alone.",
+            "relatedTerms": [
+                "Any%",
+                "Random Seed",
+                "Reset",
+                "SeedQueue"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "6bcfb691-110b-4b14-ad1f-a25175592b5b",
+            "name": "RTA",
+            "category": "terminology",
+            "aliases": [
+                "Real Time",
+                "Real-Time Attack"
+            ],
+            "tags": [
+                "rules",
+                "timer",
+                "timing"
+            ],
+            "definition": "RTA means Real-Time Attack and measures elapsed real time from start to finish, normally including loads and pauses unless a category says otherwise. It contrasts with In-Game Time. Minecraft Java Edition leaderboard categories commonly use IGT, so runners should not assume an RTA display is the submitted time.",
+            "relatedTerms": [
+                "IGT",
+                "LiveSplit",
+                "Split"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "7d8e55db-47db-4d03-ae6d-c7912ede831b",
+            "name": "Seed",
+            "category": "terminology",
+            "aliases": [
+                "World Seed"
+            ],
+            "tags": [
+                "generation",
+                "world"
+            ],
+            "definition": "A seed is the value Minecraft uses as an input when generating a world. Reusing a seed with the same relevant game version and settings can reproduce major terrain and structures, which makes chosen seeds suitable for Set Seed competition. Random Seed runs leave the seed field blank instead.",
+            "relatedTerms": [
+                "Filtered Seed",
+                "Random Seed",
+                "Set Seed"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "c68cfbe2-e105-420e-bc54-5bfcd6e755be",
+            "name": "SeedQueue",
+            "category": "tool",
+            "aliases": [
+                "Seed Queue"
+            ],
+            "tags": [
+                "mod",
+                "resetting",
+                "rsg"
+            ],
+            "definition": "SeedQueue is a reset-management mod that generates multiple random worlds in the background and presents them for selection while using one Minecraft instance. It reduces waiting between RSG attempts and is an alternative to traditional multi-instancing. Leaderboard runners must follow the current rules for its version, configuration, recording, and queue limits.",
+            "relatedTerms": [
+                "Multi-Instance",
+                "Random Seed",
+                "Reset",
+                "RSG"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "8cde1926-1e03-431f-b3c5-7baa149add0b",
+            "name": "Set Seed",
+            "category": "format",
+            "aliases": [
+                "SSG"
+            ],
+            "tags": [
+                "category",
+                "set-seed",
+                "rules"
+            ],
+            "definition": "Set Seed is a speedrun seed type in which the runner enters and knows the seed before the attempt. This allows a planned route to be practiced and optimized. `SSG` commonly means Set Seed Glitchless in Minecraft Any%, while Set Seed by itself describes seed selection rather than every other category rule.",
+            "relatedTerms": [
+                "Any%",
+                "Random Seed",
+                "Seed"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "6bed6409-abd8-4af7-a6a7-b88a3012a1ed",
+            "name": "Spawn",
+            "category": "terminology",
+            "aliases": [
+                "World Spawn"
+            ],
+            "tags": [
+                "overworld",
+                "resetting",
+                "routing"
+            ],
+            "definition": "Spawn is the location where the player first enters a new world. In RSG, runners quickly evaluate nearby terrain, structures, food, iron, and Nether-entry options before deciding whether to continue or reset. Ranked starts are generated under its own filtering and standardization rules.",
+            "relatedTerms": [
+                "Random Seed",
+                "Reset",
+                "RSG"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "aa302b20-470f-4aeb-8ed2-4516aeef0437",
+            "name": "Speedrun.com",
+            "category": "tool",
+            "aliases": [
+                "SRC"
+            ],
+            "tags": [
+                "leaderboard",
+                "record",
+                "rules"
+            ],
+            "definition": "Speedrun.com is the platform that hosts the main community-run Minecraft: Java Edition leaderboards. Its game pages publish category rules and accept run submissions that volunteer moderators verify. The site is not operated by Mojang, and runners should consult the current rules before recording or submitting a run.",
+            "relatedTerms": [
+                "Leaderboard",
+                "RSG",
+                "WR"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "5bf9c441-704b-4126-b3a5-206d62364550",
+            "name": "Split",
+            "category": "terminology",
+            "aliases": [
+                "Splits"
+            ],
+            "tags": [
+                "timer",
+                "timing"
+            ],
+            "definition": "A split is the cumulative time recorded when a runner reaches a chosen checkpoint; a segment is the time between two splits. MCSR runners might split on Nether entry, Nether exit, End entry, and the final exit-portal transition, but layouts are personal rather than an official fixed list. Timer tools compare current splits against a PB or another target.",
+            "relatedTerms": [
+                "IGT",
+                "LiveSplit",
+                "PB",
+                "RTA",
+                "WR"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "df178e7f-17b3-4bc0-8e1a-749a8e73be7b",
+            "name": "Stables Bastion",
+            "category": "terminology",
+            "aliases": [
+                "Hoglin Stables"
+            ],
+            "tags": [
+                "bastion",
+                "nether",
+                "structure"
+            ],
+            "definition": "Stables Bastion is one of the four Bastion Remnant layouts. Its hoglin-stable sections, multiple ramparts, and distributed loot create routing and safety problems distinct from the other layouts. Speedrun routes account for its variable structure pieces, hoglins, gold access, and piglin collection.",
+            "relatedTerms": [
+                "Bastion",
+                "Bastion Route",
+                "Piglin Bartering"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "6b9d6f01-f91f-463f-a41d-efc60b47fbd1",
+            "name": "Stronghold",
+            "category": "terminology",
+            "aliases": [],
+            "tags": [
+                "end",
+                "overworld",
+                "structure"
+            ],
+            "definition": "A Stronghold is an underground Overworld structure containing an End portal room. Eyes of Ender point runners toward the nearest Stronghold, and the portal activates when all twelve frame slots contain eyes. Locating the correct chunk and navigating from the starter staircase to the portal room are separate MCSR skills.",
+            "relatedTerms": [
+                "Blind",
+                "Calculated Travel",
+                "Eye of Ender",
+                "Nether Travel",
+                "Triangulation"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "ae770e14-ca3e-40a7-9f0a-747288db6017",
+            "name": "Treasure Bastion",
+            "category": "terminology",
+            "aliases": [
+                "Treasure"
+            ],
+            "tags": [
+                "bastion",
+                "nether",
+                "structure"
+            ],
+            "definition": "Treasure Bastion is one of the four Bastion Remnant layouts. It has a large central treasure room with lava, gold blocks, and a magma cube spawner. That vertical, hazardous layout requires its own route for collecting gold and bartering without losing time or dying.",
+            "relatedTerms": [
+                "Bastion",
+                "Bastion Route",
+                "Piglin Bartering"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "08bf985b-3daf-4923-a5d0-52b8d268beda",
+            "name": "Triangulation",
+            "category": "technique",
+            "aliases": [
+                "Eye Triangulation"
+            ],
+            "tags": [
+                "navigation",
+                "stronghold",
+                "tool-assisted"
+            ],
+            "definition": "Triangulation estimates a stronghold location by comparing Eye of Ender directions from two or more measured positions. The intersection of those direction lines gives a target estimate. Tools such as stronghold calculators can account for measurement error, but accurate throws and inputs still matter.",
+            "relatedTerms": [
+                "Eye of Ender",
+                "F3",
+                "Stronghold"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "a1b2c3d4-0001-0001-0001-000000000020",
+            "name": "WR",
+            "category": "terminology",
+            "aliases": [
+                "World Record"
+            ],
+            "tags": [
+                "leaderboard",
+                "record",
+                "timing"
+            ],
+            "definition": "WR means world record: the fastest accepted valid time on a specified category and variables leaderboard at a given point in time. For Minecraft, edition, seed type, glitch rules, version group, and timing method can all distinguish records, so the live leaderboard is more reliable than a hard-coded holder or time.",
+            "relatedTerms": [
+                "Leaderboard",
+                "PB",
+                "Speedrun.com"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        },
+        {
+            "id": "d6bf8493-878b-4616-b906-f46705905345",
+            "name": "Zero Cycle",
+            "category": "technique",
+            "aliases": [
+                "Zero-Cycle"
+            ],
+            "tags": [
+                "dragon",
+                "end",
+                "java"
+            ],
+            "definition": "A zero cycle is an advanced End-fight technique that intercepts and kills the Ender Dragon during its initial flight, before a normal perch cycle. Established setups use a specific End spike, orientation, height, and timed bed or respawn-anchor explosions. Exact setups depend on the Minecraft version and on whether the run is vanilla RSG or MCSR Ranked.",
+            "relatedTerms": [
+                "One Cycle",
+                "Perch"
+            ],
+            "creationDate": "",
+            "needsUpdating": false,
+            "updatedDate": ""
+        }
+    ]
+}

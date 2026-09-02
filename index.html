@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MCSR Glossary</title>
+        <meta name="description" content="Browse and explore the definitions for numerous Minecraft speedrunning game terms in the community.">
+        <meta name="author" content="SirInfinity">
+        <meta name="keywords" content="minecraft,mc,mcsr,MC,MCSR,glossary,terms,speedrunning">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co https://api.github.com https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com; frame-src https://www.youtube-nocookie.com https://clips.twitch.tv; media-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:ital,wght@0,300..800;1,300..800&family=STIX+Two+Text:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+        <script src="js/supabase-config.js" defer></script>
+        <script src="js/vendor/marked.umd.js" defer></script>
+        <script src="js/vendor/purify.min.js" defer></script>
+        <script src="js/glossary.js" type="module"></script>
+
+        <link rel="stylesheet" href="css/vendor/modern-normalize.css">
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="icon" type="image/webp" href="images/favicon.webp">
+    </head>
+    <body>
+    <div id="submit-modal" role="dialog" aria-modal="true" aria-labelledby="submit-modal-title" aria-describedby="submit-modal-description" hidden>
+        <div id="submit-modal-backdrop"></div>
+        <div id="submit-modal-box" tabindex="-1">
+            <div id="submit-modal-header">
+                <span id="submit-modal-title">Submit a Term</span>
+                <button id="submit-modal-close" type="button" aria-label="Close submission dialog">&times;</button>
+            </div>
+            <p id="submit-modal-description" class="muted-note submit-description">Submissions are reviewed before appearing on the site. Markdown is supported in definitions.</p>
+            <form id="submit-form" class="submit-form">
+                <label class="submit-label">Term Name *
+                    <input id="sub-name" name="name" type="text" placeholder="e.g. One Cycle" autocomplete="off" minlength="2" maxlength="100" required>
+                </label>
+                <label class="submit-label">Category *
+                    <select id="sub-category" name="category" required>
+                        <option value="">Choose a category</option>
+                    </select>
+                </label>
+                <label class="submit-label">Aliases
+                    <input id="sub-aliases" name="aliases" type="text" placeholder="Comma separated, e.g. 1 Cycle, One-Cycle" maxlength="300">
+                </label>
+                <label class="submit-label">Tags
+                    <input id="sub-tags" name="tags" type="text" placeholder="Comma separated, e.g. end, boss, strategy" maxlength="300">
+                </label>
+                <label class="submit-label">Definition * (markdown supported)
+                    <textarea id="sub-definition" name="definition" rows="6" placeholder="Write a clear definition..." minlength="20" maxlength="5000" required></textarea>
+                </label>
+                <label class="honeypot-field" aria-hidden="true">Website
+                    <input id="sub-website" name="website" type="text" autocomplete="off" tabindex="-1" maxlength="200">
+                </label>
+                <button id="sub-submit" class="submit-btn" type="submit">Submit for Review</button>
+                <p id="sub-status" role="status" aria-live="polite" hidden></p>
+            </form>
+        </div>
+    </div>
+        <!-- Header -->
+        <header id="header">
+            <a href="./" aria-label="MCSR Glossary home">
+                <img src="images/logo.png" alt="Minecraft Speedrunning Glossary" id="logo" draggable="false">
+            </a>
+
+            <nav class="nav" aria-label="Primary navigation">
+                <button class="nav-btn" type="button" data-page="home" aria-current="page">
+                    <span class="title">Home</span>
+                </button>
+                <button class="nav-btn" type="button" data-page="stats">
+                    <span class="title">Stats</span>
+                </button>
+                <button class="nav-btn" type="button" data-page="changelog">
+                    <span class="title">Changelog</span>
+                </button>
+                <button class="nav-btn" type="button" data-page="credits">
+                    <span class="title">Credits</span>
+                </button>
+            </nav>
+
+            <button id="theme-toggle" type="button" aria-label="Switch to light theme">
+                <img src="images/dark-mode.png" alt="" class="theme-toggle" draggable="false">
+            </button>
+        </header>
+
+        <div id="search-tooltip" role="listbox" aria-label="Search suggestions" style="display:none;">
+            <div id="search-tooltip-inner"></div>
+        </div>
+
+        <!-- Main -->
+        <main class="container">
+            <section id="page-home" class="page" style="display:block;">
+
+                <div id="featured-section" style="display:none;">
+                    <h2 class="featured-title"><i class="fa-solid fa-fire"></i> Popular Terms</h2>
+                    <div id="featured-list"></div>
+                </div>
+
+                <div id="search-bar-wrapper">
+                    <div id="search">
+                        <div id="search-input-wrap">
+                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                            <button id="random-btn" type="button" aria-label="Random term">
+                                <i class="fa-solid fa-shuffle"></i>
+                                <span>Random</span>
+                            </button>
+                            <input id="search-input" name="Search Bar" type="text" placeholder="Search terms…" autocomplete="off" aria-label="Search terms" aria-autocomplete="list" aria-controls="search-tooltip" aria-expanded="false" spellcheck="false">
+                            <button id="search-clear" type="button" aria-label="Clear search" style="display:none;"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+
+                        <button id="filter-btn" name="Filter" type="button" aria-expanded="false" aria-controls="filters">
+                            <i class="fa-solid fa-filter"></i>
+                            <span>Filter</span>
+                        </button>
+
+                        <button id="submit-trigger" type="button" aria-haspopup="dialog" aria-controls="submit-modal">
+                            <span aria-hidden="true">+</span>
+                            <span>Submit</span>
+                        </button>
+                    </div>
+
+                    <fieldset id="filters" style="display:none;" aria-label="Filter options">
+                        <legend>Filter</legend>
+
+                        <div class="filter-group">
+                            <span class="filter-group-label">Category</span>
+                            <div class="filter-chips" id="category-filters" data-group="category">
+                                <button class="chip active" type="button" data-value="all">All</button>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <span class="filter-group-label">Tags</span>
+                            <div class="tag-filter-wrap">
+                                <button class="chip" id="tag-dropdown-btn" type="button" aria-expanded="false" aria-controls="tag-dropdown">Tags</button>
+                                <div id="tag-dropdown" style="display:none;" role="group" aria-label="Tag filters">
+                                    <div class="tag-match-row">
+                                        <span class="filter-group-label match-label">Match:</span>
+                                        <label class="chip-radio"><input type="radio" name="tag-match" value="any" checked> At least one</label>
+                                        <label class="chip-radio"><input type="radio" name="tag-match" value="all"> All</label>
+                                        <label class="chip-radio"><input type="radio" name="tag-match" value="none"> None</label>
+                                    </div>
+                                    <div id="tag-dropdown-list"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <nav id="index" aria-label="Browse by letter"></nav>
+
+                <div id="terms" role="list"></div>
+
+            </section>
+            <section id="page-term" class="page" style="display: none;">
+            </section>
+            <section id="page-stats" class="page" style="display: none;">
+                <h1 class="page-title">Glossary Stats</h1>
+                <div id="stats-grid"></div>
+            </section>
+            <section id="page-changelog" class="page" style="display: none;">
+                <h1 class="page-title">Changelog</h1>
+                <div id="changelog-content"></div>
+            </section>
+            <section id="page-credits" class="page" style="display: none;">
+                <h1 class="page-title">Credits</h1>
+                <div class="credits-grid">
+                    <div class="credit-card">
+                        <span class="credit-role">Project Lead</span>
+                        <span class="credit-name">SirInfinity</span>
+                    </div>
+                    <div class="credit-card">
+                        <span class="credit-role">Terms &amp; Definitions</span>
+                        <span class="credit-name">SirInfinity</span>
+                    </div>
+                    <div class="credit-card">
+                        <span class="credit-role">Coding &amp; Design</span>
+                        <span class="credit-name">SirInfinity</span>
+                    </div>
+                    <div class="credit-card">
+                        <span class="credit-role">Inspiration</span>
+                        <span class="credit-name">ffz, Infil, Aaron Peckham</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- BTT -->
+            <div id="btt-wrapper">
+                <div>
+                    <button class="btt" id="btt-btn" type="button" aria-label="Back to top">Back To Top</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer id="footer">
+            <p>started in January 2026</p>
+        </footer>
+    </body>
+</html>

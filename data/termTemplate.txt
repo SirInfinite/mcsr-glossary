@@ -1,0 +1,12 @@
+{
+    "id": "",
+    "name": "",
+    "category": "",
+    "aliases": [],
+    "tags": [],
+    "definition": "",
+    "relatedTerms": [],
+    "creationDate": "",
+    "needsUpdating": false,
+    "updatedDate": ""
+},

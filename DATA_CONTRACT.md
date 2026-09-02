@@ -1,0 +1,61 @@
+# Glossary Data Contract
+
+`data/terms.json` is the source of truth for published glossary content. The browser and the Node validator share the contract constants in `js/content-contract.js`; there is no build step or runtime schema dependency.
+
+The root JSON object contains:
+
+- `terms` (required): an array of term objects.
+- `titleString` (optional): site title metadata. It must be a string when present.
+- `aboutParagraph` (optional): site description metadata. It must be a string when present.
+
+## Term schema
+
+Every term must contain exactly these fields:
+
+| Field | Type | Contract |
+| --- | --- | --- |
+| `id` | string | Unique UUID in `8-4-4-4-12` hexadecimal form. IDs are stable database keys and must not change after publication. |
+| `name` | string | Unique canonical display name, 2–100 characters, trimmed. Names are compared case-insensitively and must produce a unique URL slug. |
+| `category` | string | One value from the controlled category list below. |
+| `aliases` | string[] | Genuine alternate names, at most 10 values of at most 80 characters each. Values are trimmed, unique case-insensitively, and may not collide with any canonical name or another term's alias. |
+| `tags` | string[] | Descriptive filter labels, at most 12 values of at most 40 characters each. Values are unique lowercase kebab-case strings such as `nether-travel` or `version-1-16-1`. |
+| `definition` | string | Trimmed Markdown, 20–5000 characters. Definitions under 80 or over 1200 characters produce review warnings. Raw iframe HTML is prohibited; use a supported media directive if a controlled embed is needed. |
+| `relatedTerms` | string[] | At most 20 exact, case-sensitive canonical term names. Every value must resolve, be unique, and not point back to the current term. |
+| `creationDate` | string | Editorial record creation date in `YYYY-MM-DD`, or an empty string when unknown. It is not the date the community term was invented. |
+| `needsUpdating` | boolean | Editorial review flag. Use `true` when known content work remains; record the reason in the content audit or source notes. |
+| `updatedDate` | string | Most recent substantive content revision in `YYYY-MM-DD`, or an empty string when unknown. The term page displays this value when present. |
+
+Unknown term fields fail validation so schema changes remain deliberate.
+
+## Categories
+
+The finite v1 category set is:
+
+- `format`: a ruleset, seed format, or competition format, such as RSG or MCSR Ranked.
+- `strategy`: a route or decision-making approach used across multiple actions.
+- `technique`: a specific execution or information-gathering method.
+- `terminology`: a game object, structure, timing concept, or community term that does not fit a more specific category.
+- `tool`: software or an in-game utility interface used to run, time, or analyze attempts.
+
+Use the most specific category that describes why a newcomer needs the entry. Do not introduce synonyms such as `tech`, `term`, `run type`, or grammatical labels such as `noun, verb`.
+
+## Modes and versions
+
+The v1 model does not define `modes` or `versions` fields and the site does not present mode/version filters. The current dataset does not classify every term completely enough for those filters to be truthful. Put important limitations in the definition, and use a descriptive tag such as `ranked`, `rsg`, or `version-1-16-1` only when it is accurate. An invented `modes` or `versions` field is rejected as an unsupported schema change.
+
+## Adding or editing a term
+
+1. Add an object following `data/termTemplate.txt`, keeping `data/terms.json` alphabetized by canonical `name`.
+2. Generate a UUID. `npm run assign-ids` fills any blank `id`, or a UUID can be generated before editing.
+3. Use one controlled category and verify aliases, tags, dates, and related terms against this contract.
+4. If the ID is new, add it to a Supabase migration that seeds `glossary_vote_totals`; validation prevents published terms from silently lacking a vote row.
+5. Record factual sources in `CONTENT_SOURCES.md`.
+6. Run the complete local check:
+
+   ```sh
+   npm run check-content
+   ```
+
+`npm run validate-content` checks the current dataset. `npm run test-content-validator` runs deliberate in-memory corruptions covering the major failure classes; it never modifies `terms.json`.
+
+The validator exits nonzero on errors and prints the offending term and field. Definition-length warnings do not fail the command, but should be reviewed before release.

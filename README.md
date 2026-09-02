@@ -2,9 +2,13 @@
 
 MCSR Glossary is a searchable reference for Minecraft speedrunning terminology. It is intended to make a jargon-heavy community easier to understand for new runners, viewers, and contributors.
 
-## Live Beta
+## EARLY BETA
 
-**EARLY BETA:** <https://sirinfinite.github.io/mcsr-glossary/>
+Live beta: <https://sirinfinite.github.io/mcsr-glossary/>
+
+Repository: <https://github.com/SirInfinite/mcsr-glossary>
+
+Feedback: <https://github.com/SirInfinite/mcsr-glossary/issues/new/choose>
 
 Content and behavior may still change, and tester feedback is welcome.
 
@@ -16,7 +20,8 @@ Content and behavior may still change, and tester feedback is welcome.
 - Random-term navigation
 - Light and dark themes saved in the browser
 - Glossary statistics and a changelog loaded from the repository's public GitHub commit history
-- A community term-proposal form with a clipboard fallback when online moderation is not configured
+- Lightweight anonymous voting with atomic aggregate updates
+- Community term proposals sent to a private review queue, with a clipboard fallback when the backend is unavailable
 
 ## Tech
 

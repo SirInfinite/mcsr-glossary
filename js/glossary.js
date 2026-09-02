@@ -1,4 +1,5 @@
 import { TERM_CONTRACT, isValidEditorialDate, slugifyTermName as slugify } from "./content-contract.js";
+import { getVoteTarget, normalizeVoteValue, projectVoteTotals } from "./glossary-core.js";
 
 const GITHUB_REPO = "SirInfinite/mcsr-glossary";
 const REQUEST_TIMEOUT_MS = 8000;
@@ -507,15 +508,17 @@ function renderTermDetail(id) {
     if (!term || !page) return;
 
     const votes = getVotes(term.id);
-    const alreadyVoted = votedTerms[term.id];
-    const votingEnabled = sb.enabled && voteServiceAvailable && !alreadyVoted;
+    const currentVote = getVoteState(term.id);
+    const votingEnabled = sb.enabled && voteServiceAvailable;
     const voteNote = !sb.enabled
         ? (sb.configurationError || "Voting is not configured.")
         : !voteServiceAvailable
             ? `${voteServiceMessage} Displayed totals may be cached.`
-            : alreadyVoted
-                ? "This browser ID has already voted on this term."
-                : "One vote per persistent browser ID. This is lightweight abuse friction, not an account.";
+            : currentVote === 1
+                ? "Your upvote is saved. Select Upvote again to remove it, or choose Downvote to switch."
+                : currentVote === -1
+                    ? "Your downvote is saved. Select Downvote again to remove it, or choose Upvote to switch."
+                    : "Choose a reaction. One current vote is stored per persistent browser ID.";
     const updatedDate = term.updatedDate ? new Date(`${term.updatedDate}T00:00:00`) : null;
     const dateStr = updatedDate && !Number.isNaN(updatedDate.getTime())
         ? updatedDate.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
@@ -554,11 +557,12 @@ function renderTermDetail(id) {
                 ${relatedTerms.map(related => `<button class="related-tag" type="button" data-id="${related.id}">${escapeHTML(related.name)}</button>`).join("")}
             </div>` : ""}
             <div class="vote-section">
+                <h2>Was this definition useful?</h2>
                 <div class="vote-row" id="vote-row">
-                    <button class="vote-btn upvote ${alreadyVoted === 'up' ? 'voted' : ''}" id="vote-up" type="button" aria-label="Upvote ${escapeHTML(term.name)}" ${votingEnabled ? '' : 'disabled'}>
+                    <button class="vote-btn upvote ${currentVote === 1 ? 'voted' : ''}" id="vote-up" type="button" aria-label="Upvote ${escapeHTML(term.name)}" aria-pressed="${currentVote === 1}" ${votingEnabled ? '' : 'disabled'}>
                         ▲ <span id="vote-up-count">${votes.up}</span>
                     </button>
-                    <button class="vote-btn downvote ${alreadyVoted === 'down' ? 'voted' : ''}" id="vote-down" type="button" aria-label="Downvote ${escapeHTML(term.name)}" ${votingEnabled ? '' : 'disabled'}>
+                    <button class="vote-btn downvote ${currentVote === -1 ? 'voted' : ''}" id="vote-down" type="button" aria-label="Downvote ${escapeHTML(term.name)}" aria-pressed="${currentVote === -1}" ${votingEnabled ? '' : 'disabled'}>
                         ▼ <span id="vote-down-count">${votes.down}</span>
                     </button>
                 </div>
@@ -582,35 +586,69 @@ function renderTermDetail(id) {
         showToast(await copyText(url) ? "Link copied!" : "Could not copy the link.");
     });
 
-    async function handleVote(direction) {
+    function updateVoteControls(vote, totals, enabled = true) {
         const upButton = document.getElementById("vote-up");
         const downButton = document.getElementById("vote-down");
+        const upCount = document.getElementById("vote-up-count");
+        const downCount = document.getElementById("vote-down-count");
+        if (!upButton || !downButton || !upCount || !downCount) return;
+
+        upButton.classList.toggle("voted", vote === 1);
+        downButton.classList.toggle("voted", vote === -1);
+        upButton.setAttribute("aria-pressed", String(vote === 1));
+        downButton.setAttribute("aria-pressed", String(vote === -1));
+        upButton.disabled = !enabled;
+        downButton.disabled = !enabled;
+        upCount.textContent = String(totals.up);
+        downCount.textContent = String(totals.down);
+    }
+
+    let voteRequestPending = false;
+    async function handleVote(direction) {
+        if (voteRequestPending) return;
+        voteRequestPending = true;
+
+        const voteRow = document.getElementById("vote-row");
         const status = document.getElementById("vote-status");
-        upButton.disabled = true;
-        downButton.disabled = true;
+        const previousVote = getVoteState(term.id);
+        const previousTotals = getVotes(term.id);
+        const targetVote = getVoteTarget(previousVote, direction);
+        const optimisticTotals = projectVoteTotals(previousTotals, previousVote, targetVote);
+
+        votesCache[term.id] = optimisticTotals;
+        writeStoredJSON("mcsr_vote_totals", votesCache);
+        rememberVote(term.id, targetVote);
+        updateVoteControls(targetVote, optimisticTotals, false);
+        voteRow?.setAttribute("aria-busy", "true");
         status.textContent = "Saving vote…";
 
-        const result = await castVote(term.id, direction);
+        const result = await setVote(term.id, targetVote);
+        voteRow?.removeAttribute("aria-busy");
+        voteRequestPending = false;
+
         if (!result.ok) {
-            upButton.disabled = !voteServiceAvailable;
-            downButton.disabled = !voteServiceAvailable;
+            votesCache[term.id] = previousTotals;
+            writeStoredJSON("mcsr_vote_totals", votesCache);
+            rememberVote(term.id, previousVote);
+            updateVoteControls(previousVote, previousTotals, sb.enabled && voteServiceAvailable);
             status.textContent = result.reason || "Vote could not be saved.";
             showToast(status.textContent);
             return;
         }
 
-        document.getElementById("vote-up-count").textContent = result.upvotes;
-        document.getElementById("vote-down-count").textContent = result.downvotes;
-        if (result.accepted) document.getElementById(`vote-${direction}`).classList.add("voted");
-        status.textContent = result.accepted
-            ? "Vote recorded for this browser ID."
-            : "This browser ID has already voted on this term.";
+        const authoritativeTotals = { up: result.upvotes, down: result.downvotes };
+        updateVoteControls(result.currentVote, authoritativeTotals, true);
+        status.textContent = result.currentVote === 1
+            ? "Your upvote is saved. Select Upvote again to remove it, or choose Downvote to switch."
+            : result.currentVote === -1
+                ? "Your downvote is saved. Select Downvote again to remove it, or choose Upvote to switch."
+                : "Your vote was removed. You can vote again at any time.";
         renderFeatured();
-        showToast(result.accepted ? "Vote recorded." : "This browser ID already voted.");
+        showToast(result.currentVote === 0 ? "Vote removed." : result.currentVote === 1 ? "Upvote saved." : "Downvote saved.");
     }
 
-    document.getElementById("vote-up")?.addEventListener("click", () => handleVote("up"));
-    document.getElementById("vote-down")?.addEventListener("click", () => handleVote("down"));
+    document.getElementById("vote-up")?.addEventListener("click", () => handleVote(1));
+    document.getElementById("vote-down")?.addEventListener("click", () => handleVote(-1));
 
     page.querySelectorAll(".related-tag[data-id]").forEach(el => {
         el.addEventListener("click", () => {
@@ -1018,9 +1056,9 @@ async function submitTerm(formData) {
 
 let votesCache = readStoredJSON("mcsr_vote_totals", {});
 if (!votesCache || typeof votesCache !== "object" || Array.isArray(votesCache)) votesCache = {};
-const storedVotedTerms = readStoredJSON("mcsr_voted_terms", {});
-const votedTerms = storedVotedTerms && typeof storedVotedTerms === "object" && !Array.isArray(storedVotedTerms)
-    ? storedVotedTerms
+const storedVoteStates = readStoredJSON("mcsr_vote_states", {});
+const voteStates = storedVoteStates && typeof storedVoteStates === "object" && !Array.isArray(storedVoteStates)
+    ? storedVoteStates
     : {};
 let voteServiceAvailable = false;
 let voteServiceMessage = sb.configurationError || "Voting is not configured.";
@@ -1029,7 +1067,9 @@ async function loadVotes() {
     if (!sb.enabled) return false;
 
     try {
-        const rows = await sb.rpc("get_glossary_vote_totals", {});
+        const rows = await sb.rpc("get_glossary_vote_state", {
+            p_browser_id: getBrowserID()
+        });
         if (!Array.isArray(rows)) throw new Error("Unexpected vote response.");
         votesCache = {};
         rows.forEach(row => {
@@ -1037,8 +1077,10 @@ async function loadVotes() {
                 up: Number(row.upvotes) || 0,
                 down: Number(row.downvotes) || 0
             };
+            voteStates[row.term_id] = normalizeVoteValue(row.current_vote);
         });
         writeStoredJSON("mcsr_vote_totals", votesCache);
+        writeStoredJSON("mcsr_vote_states", voteStates);
         voteServiceAvailable = true;
         voteServiceMessage = "";
         return true;
@@ -1049,33 +1091,39 @@ async function loadVotes() {
     }
 }
 
-function rememberVote(termId, direction) {
-    votedTerms[termId] = direction || true;
-    writeStoredJSON("mcsr_voted_terms", votedTerms);
+function rememberVote(termId, vote) {
+    const normalized = normalizeVoteValue(vote);
+    if (normalized) voteStates[termId] = normalized;
+    else delete voteStates[termId];
+    writeStoredJSON("mcsr_vote_states", voteStates);
 }
 
-async function castVote(termId, direction) {
-    if (!["up", "down"].includes(direction)) return { ok: false, reason: "Invalid vote direction." };
+async function setVote(termId, vote) {
+    const normalizedVote = normalizeVoteValue(vote);
+    if (normalizedVote !== Number(vote)) return { ok: false, reason: "Invalid vote value." };
     if (!sb.enabled || !voteServiceAvailable) return { ok: false, reason: voteServiceMessage || "Voting is temporarily unavailable." };
 
     try {
-        const result = await sb.rpc("cast_glossary_vote", {
+        const result = await sb.rpc("set_glossary_vote", {
             p_term_id: termId,
             p_browser_id: getBrowserID(),
-            p_direction: direction
+            p_vote: normalizedVote
         });
         const response = Array.isArray(result) ? result[0] : result;
-        if (!response || typeof response.accepted !== "boolean") throw new Error("Unexpected vote response.");
+        if (!response || typeof response.changed !== "boolean") throw new Error("Unexpected vote response.");
 
         const upvotes = Number(response.upvotes) || 0;
         const downvotes = Number(response.downvotes) || 0;
+        const currentVote = normalizeVoteValue(response.current_vote);
         votesCache[termId] = { up: upvotes, down: downvotes };
         writeStoredJSON("mcsr_vote_totals", votesCache);
-        rememberVote(termId, response.accepted ? direction : "");
-        return { ok: true, accepted: response.accepted, upvotes, downvotes };
+        rememberVote(termId, currentVote);
+        return { ok: true, changed: response.changed, currentVote, upvotes, downvotes };
     } catch (error) {
-        voteServiceAvailable = false;
-        voteServiceMessage = formatServiceFailure(error, "Voting");
+        if (!error.status || error.status >= 500) {
+            voteServiceAvailable = false;
+            voteServiceMessage = formatServiceFailure(error, "Voting");
+        }
         return { ok: false, reason: formatServiceFailure(error, "Vote") };
     }
 }
@@ -1083,6 +1131,10 @@ async function castVote(termId, direction) {
 function getVotes(termId) {
     const votes = votesCache[termId] || {};
     return { up: Number(votes.up) || 0, down: Number(votes.down) || 0 };
+}
+
+function getVoteState(termId) {
+    return normalizeVoteValue(voteStates[termId]);
 }
 
 // top N terms by upvotes

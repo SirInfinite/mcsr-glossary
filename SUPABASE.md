@@ -17,9 +17,13 @@ it does not publish or replace glossary content.
 | <code>public.glossary_submissions</code> | Private moderation queue | None |
 | <code>public.cast_glossary_vote(uuid, uuid, text)</code> | Public invoker RPC wrapper | <code>EXECUTE</code> |
 | <code>public.get_glossary_vote_totals()</code> | Public read-only invoker RPC wrapper | <code>EXECUTE</code> |
+| <code>public.set_glossary_vote(uuid, uuid, smallint)</code> | Reversible public vote RPC wrapper | <code>EXECUTE</code> |
+| <code>public.get_glossary_vote_state(uuid)</code> | Aggregate totals plus this browser's current state | <code>EXECUTE</code> |
 | <code>public.submit_glossary_term(uuid, text, text, text[], text[], text, text)</code> | Public invoker RPC wrapper | <code>EXECUTE</code> |
 | <code>private.cast_glossary_vote(...)</code> | Privileged atomic vote implementation | Only through the wrapper |
 | <code>private.get_glossary_vote_totals()</code> | Privileged aggregate reader | Only through the wrapper |
+| <code>private.set_glossary_vote(...)</code> | Privileged reversible vote implementation | Only through the wrapper |
+| <code>private.get_glossary_vote_state(...)</code> | Privileged current-state reader | Only through the wrapper |
 | <code>private.submit_glossary_term(...)</code> | Privileged validated submission implementation | Only through the wrapper |
 
 The <code>private</code> schema is not exposed through the Data API. The public
@@ -38,38 +42,51 @@ empty.
 
 ## Voting
 
-The browser sends:
+The v0.2 browser sends:
 
 - <code>p_term_id</code>: the stable UUID from <code>data/terms.json</code>
 - <code>p_browser_id</code>: a persistent random UUID generated in the browser
-- <code>p_direction</code>: <code>up</code> or <code>down</code>
+- <code>p_vote</code>: <code>1</code> for up, <code>-1</code> for down, or
+  <code>0</code> for neutral/removal
 
 The application tables store only a SHA-256 hash of the browser UUID. They do
 not store an account, email address, IP address, user agent, or the raw browser
 UUID. Supabase infrastructure may still retain ordinary request logs under the
 project's platform settings.
 
-The private vote implementation locks the aggregate row, inserts the unique
-<code>(term_id, voter_hash)</code> receipt, and increments the matching counter
-in the same transaction. A repeated vote returns <code>accepted = false</code>
-and leaves totals unchanged. The current UI intentionally allows one vote per
-browser/term and does not offer vote changes.
+The private vote implementation locks the term's aggregate row before reading
+or changing its receipt. In that same transaction it inserts, updates, or
+deletes the unique <code>(term_id, voter_hash)</code> receipt and applies both
+aggregate deltas. This serializes simultaneous changes for one term, prevents
+lost read-modify-write updates, and keeps the receipt and totals consistent.
+
+The supported transitions are neutral to up/down, up/down to neutral, and
+up-to-down or down-to-up. Repeating the already-authoritative target is
+idempotent: <code>changed = false</code> and the totals remain unchanged. The
+frontend temporarily disables both controls while a request is pending, uses an
+optimistic projection, and rolls back to its prior truthful state if the RPC
+fails.
 
 This is lightweight early-beta integrity, not strong abuse prevention. A
 visitor can clear browser storage or supply another random UUID.
 
-The RPC response is one row with:
+<code>set_glossary_vote</code> returns one authoritative row with:
 
 ~~~text
-accepted boolean
+changed boolean
+current_vote smallint
 upvotes bigint
 downvotes bigint
 ~~~
 
 Only term UUIDs seeded in <code>glossary_vote_totals</code> can receive votes.
 Content validation fails when a published term lacks a migration seed.
-The frontend loads aggregates through <code>get_glossary_vote_totals()</code>;
-the underlying table is not exposed through REST or GraphQL.
+The v0.2 frontend loads aggregate totals and only its own current state through
+<code>get_glossary_vote_state(p_browser_id)</code>. It never receives receipt
+hashes or other browsers' choices. The v0.1 <code>cast_glossary_vote</code> and
+<code>get_glossary_vote_totals</code> RPCs remain deployed for compatibility
+with the released beta; the underlying tables are not exposed through REST or
+GraphQL.
 
 ## Submissions
 
@@ -112,7 +129,7 @@ to <code>data/terms.json</code>.
 RLS is enabled on every public table, including the retained prototype tables.
 
 - <code>anon</code> has no direct table grants.
-- <code>anon</code> can execute only the three public RPC wrappers and the
+- <code>anon</code> can execute only the five public RPC wrappers and the
   corresponding non-exposed implementations required by those wrappers.
 - <code>anon</code> cannot directly insert, update, or delete any backend table.
 - <code>authenticated</code> has no beta-site table or RPC privileges because
@@ -151,6 +168,8 @@ Apply files from <code>supabase/migrations/</code> in filename order:
 2. <code>20260902031554_seed_v1_vote_totals.sql</code>
 3. <code>20260902032016_hide_direct_api_tables.sql</code>
 4. <code>20260902033232_clarify_vote_totals_access.sql</code>
+5. <code>20260902203148_add_reversible_term_voting.sql</code>
+6. <code>20260902205450_seed_v02_vote_totals.sql</code>
 
 These filenames match the beta project's remote migration versions and names.
 Do not edit an applied migration. Add a new timestamped migration for every
@@ -178,9 +197,10 @@ future schema, policy, function, or canonical vote-target change.
 4. Retrieve the project URL and an enabled publishable key. Put only those two
    public values in <code>js/supabase-config.js</code>.
 5. Run <code>npm run check-content</code>.
-6. Serve the repository over HTTP and test vote loading, a new vote, a repeat
-   vote, a valid submission, rejected malformed requests, and graceful
-   behavior when Supabase is unavailable.
+6. Serve the repository over HTTP and test vote loading, all six reversible
+   vote transitions, repeat/idempotent requests, concurrent clients, a valid
+   submission, rejected malformed requests, and graceful behavior when
+   Supabase is unavailable.
 7. Run the Supabase Security Advisor and review the live grants and policies.
 
 ## Moderation and publication
@@ -239,6 +259,8 @@ from information_schema.role_routine_grants
 where routine_name in (
   'cast_glossary_vote',
   'get_glossary_vote_totals',
+  'set_glossary_vote',
+  'get_glossary_vote_state',
   'submit_glossary_term'
 )
 order by routine_schema, routine_name, grantee;

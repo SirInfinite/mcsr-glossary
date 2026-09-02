@@ -10,6 +10,8 @@ Contributions are welcome from runners, researchers, and newcomers who notice so
 
 Website submissions enter a private moderation queue. They do not automatically become public glossary entries.
 
+Published term pages also include **Suggest an edit**. This prefills the current term and adds correction context, but it still creates only a pending submission for manual review.
+
 ## Contributing through GitHub
 
 For a small factual correction, [open a correction issue](https://github.com/SirInfinite/mcsr-glossary/issues/new?template=incorrect-or-outdated-term.yml) with the term name, the exact problem, the proposed correction, and supporting links. To contribute the change directly:
@@ -32,6 +34,7 @@ Every entry follows the documented [glossary data contract](DATA_CONTRACT.md). I
 - Use `YYYY-MM-DD` for known editorial dates and an empty string when a date is unknown.
 - Do not fabricate a historical creation date.
 - Add the new UUID to a Supabase migration that seeds `glossary_vote_totals`.
+- Add structured `media` only when it teaches something the definition cannot show as clearly. Use the provider allowlist and required attribution fields in `DATA_CONTRACT.md`; never paste iframe or script markup into a definition.
 
 `data/termTemplate.txt` provides the field order used by the dataset. The validator prints the exact term and field when the contract is broken.
 
@@ -72,4 +75,4 @@ Keep pull requests focused. Do not combine factual content work with a redesign 
 - Validation or browser checks performed
 - Any remaining question that needs experienced MCSR review
 
-Never commit Supabase secret or service-role credentials. Browser code may use only a public publishable key or legacy anonymous key as described in the [Supabase setup guide](supabase/README.md).
+Never commit Supabase secret or service-role credentials. Browser code may use only a public publishable key or legacy anonymous key as described in the [Supabase setup guide](SUPABASE.md).

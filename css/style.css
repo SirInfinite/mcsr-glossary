@@ -35,8 +35,8 @@
 
     /* ── Text ───────────────────────────────────────────────────────── */
     --text:                #e8edf5;
-    --text-muted:          #7a8399;
-    --text-dim:            #4a5168;
+    --text-muted:          #9aa4bb;
+    --text-dim:            #7f899f;
 
     /* ── Accent (green) ─────────────────────────────────────────────── */
     --accent:              #5dbe6e;
@@ -100,7 +100,7 @@ html[data-theme="light"] {
 
     --text:                #1a1c14;
     --text-muted:          #5a5e50;
-    --text-dim:            #9a9e90;
+    --text-dim:            #606456;
 
     --accent:              #3d8a4d;
     --accent-dark:         #2a6235;

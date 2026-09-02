@@ -1146,7 +1146,7 @@
                         "name": "MCSR Glossary",
                         "url": "https://github.com/SirInfinite/mcsr-glossary"
                     },
-                    "sourceUrl": "https://github.com/SirInfinite/mcsr-glossary/blob/main/images/media/nether-coordinate-scaling.svg",
+                    "sourceUrl": "https://github.com/SirInfinite/mcsr-glossary",
                     "alt": "Overworld and Nether lanes showing an eight-to-one horizontal coordinate scale",
                     "width": 1200,
                     "height": 675
@@ -1953,7 +1953,7 @@
                         "name": "MCSR Glossary",
                         "url": "https://github.com/SirInfinite/mcsr-glossary"
                     },
-                    "sourceUrl": "https://github.com/SirInfinite/mcsr-glossary/blob/main/images/media/stronghold-triangulation.svg",
+                    "sourceUrl": "https://github.com/SirInfinite/mcsr-glossary",
                     "alt": "Two green eye-direction lines from separate throws intersecting at a highlighted stronghold estimate",
                     "width": 1200,
                     "height": 675

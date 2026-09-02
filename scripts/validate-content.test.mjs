@@ -4,6 +4,8 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { validateMediaItem } from "../js/content-contract.js";
+
 import {
     readSeededVoteIDs,
     validateGlossary,
@@ -158,6 +160,39 @@ test("accepts a valid structured media item and a term without media", () => {
     });
     assert.deepEqual(result.errors, []);
     assert.equal(result.mediaItemCount, 1);
+});
+
+test("accepts every supported structured media type", () => {
+    const common = {
+        title: "Verified media fixture",
+        caption: "A sufficiently descriptive caption for the validation fixture.",
+        credit: { name: "Fixture author", url: "https://example.com/author" },
+        sourceUrl: "https://example.com/source"
+    };
+    const fixtures = [
+        validYouTubeMedia(),
+        { ...common, type: "twitch", src: "VerifiedClipSlug" },
+        { ...common, type: "image", src: "images/media/example.svg", alt: "Example diagram for validation", width: 1280, height: 720 },
+        { ...common, type: "gif", src: "images/media/example.gif", poster: "images/media/example.webp", alt: "Example paused animation", width: 640, height: 360 },
+        { ...common, type: "video", src: "media/example.webm", width: 1280, height: 720, hasAudio: false },
+        { ...common, type: "link", src: "https://example.com/watch" }
+    ];
+    for (const fixture of fixtures) assert.deepEqual(validateMediaItem(fixture), []);
+});
+
+test("requires captions for local video with audio", () => {
+    const errors = validateMediaItem({
+        type: "video",
+        src: "media/example.mp4",
+        title: "Video fixture",
+        caption: "A local video fixture with an intentionally missing caption track.",
+        credit: { name: "Fixture author", url: "https://example.com/author" },
+        sourceUrl: "https://example.com/source",
+        width: 1280,
+        height: 720,
+        hasAudio: true
+    });
+    assert.ok(errors.includes("captions are required when hasAudio is true"));
 });
 
 test("rejects an unsupported media type", () => {

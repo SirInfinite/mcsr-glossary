@@ -1686,6 +1686,10 @@ async function init() {
     initBTT();
     populateSubmissionCategories();
 
+    document.querySelector(".skip-link")?.addEventListener("click", () => {
+        requestAnimationFrame(() => document.getElementById("main-content")?.focus());
+    });
+
     document.querySelectorAll(".nav-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             const page = btn.dataset.page;

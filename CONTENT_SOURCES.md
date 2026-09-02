@@ -360,6 +360,41 @@ Verified line-intersection triangulation and the uncertainty-aware calculator wo
 - https://github.com/Ninjabrain1/Ninjabrain-Bot
 - https://minecraft.wiki/w/Eye_of_Ender
 
+## v0.2 New Entries
+
+The v0.2 expansion prioritizes primary project documentation, current rules, official Ranked documentation, Minecraft Wiki mechanics, and the maintained Metacor route guide. Rule-sensitive tool entries deliberately tell readers to recheck current legality rather than treating this review date as permanent approval.
+
+| Term | Evidence reviewed |
+| --- | --- |
+| Atum | https://github.com/VoidXWalker/Atum · https://github.com/Minecraft-Java-Edition-Speedrunning/legal-mods |
+| Blaze Bed | https://github.com/Metacor/Minecraft-Speedrun-Guide · https://www.youtube.com/watch?v=3TD4jkuT8QA |
+| Bucket Portal | https://github.com/Metacor/Minecraft-Speedrun-Guide · https://minecraft.wiki/w/Nether_portal |
+| Buried Treasure | https://minecraft.wiki/w/Buried_Treasure · https://github.com/Metacor/Minecraft-Speedrun-Guide |
+| Desert Temple | https://minecraft.wiki/w/Desert_Pyramid · https://github.com/Metacor/Minecraft-Speedrun-Guide |
+| End Entry | https://github.com/Metacor/Minecraft-Speedrun-Guide · https://rules.minecraftspeedrunning.com/latest |
+| Flintless Portal | https://github.com/Metacor/Minecraft-Speedrun-Guide · https://minecraft.wiki/w/Nether_portal |
+| Forced Perch | https://wiki.mcsrranked.com/gameplay/rng |
+| Fortress Navigation | https://github.com/Metacor/Minecraft-Speedrun-Guide · https://www.youtube.com/watch?v=swSbv4AImzI |
+| FSG | https://github.com/AndyNovo/filteredseed · https://www.speedrun.com/mc |
+| Glitchless | https://rules.minecraftspeedrunning.com/latest · https://www.speedrun.com/mc |
+| Half Bow | https://wiki.mcsrranked.com/gameplay/rng · https://www.minecraftspeedrunning.com/public-resources/videos-and-guides |
+| Lava Pool | https://github.com/Metacor/Minecraft-Speedrun-Guide · https://minecraft.wiki/w/Nether_portal |
+| Magma Ravine | https://github.com/Metacor/Minecraft-Speedrun-Guide · https://minecraft.wiki/w/Ravine |
+| Matchmaking | https://wiki.mcsrranked.com/gameplay/matchmaking · https://wiki.mcsrranked.com/gameplay/elo_and_ranks |
+| Microlensing | https://www.minecraftspeedrunning.com/public-resources/videos-and-guides · https://www.youtube.com/watch?v=jvTfMLPnMSw |
+| Nether Entry | https://github.com/Metacor/Minecraft-Speedrun-Guide |
+| Placement Match | https://wiki.mcsrranked.com/gameplay/elo_and_ranks |
+| Portal Room | https://minecraft.wiki/w/Stronghold · https://minecraft.wiki/w/End_Portal |
+| RNG | https://wiki.mcsrranked.com/gameplay/rng · https://github.com/Metacor/Minecraft-Speedrun-Guide |
+| Ruined Portal | https://minecraft.wiki/w/Ruined_Portal · https://github.com/Metacor/Minecraft-Speedrun-Guide |
+| Shipwreck | https://minecraft.wiki/w/Shipwreck · https://github.com/Metacor/Minecraft-Speedrun-Guide |
+| SpeedRunIGT | https://github.com/tildejustin/speedrunigt · https://rules.minecraftspeedrunning.com/latest |
+| StandardSettings | https://github.com/contariaa/StandardSettings · https://rules.minecraftspeedrunning.com/latest |
+| Starter Staircase | https://minecraft.wiki/w/Stronghold · https://github.com/Metacor/Minecraft-Speedrun-Guide |
+| Stronghold Navigation | https://github.com/Metacor/Minecraft-Speedrun-Guide · https://www.youtube.com/watch?v=kQCt6JgWr6E |
+| Village | https://minecraft.wiki/w/Village · https://github.com/Metacor/Minecraft-Speedrun-Guide |
+| WorldPreview | https://github.com/Minecraft-Java-Edition-Speedrunning/worldpreview · https://github.com/Minecraft-Java-Edition-Speedrunning/legal-mods |
+
 ## Structured Media Provenance
 
 The v0.2 media layer embeds or links the original public source; no third-party video or imagery is copied into this repository. YouTube examples use privacy-enhanced, click-to-load embeds and retain a direct source link. The two local SVG diagrams are original project assets.
@@ -368,19 +403,23 @@ All external media URLs below were rechecked on 2026-09-02.
 
 | Term | Media and creator | Original source |
 | --- | --- | --- |
+| Blaze Bed | Blaze bedding tutorial — k4yfour | https://www.youtube.com/watch?v=3TD4jkuT8QA |
 | Blind | Blind and educated travel tutorial — BoomerPlayz | https://www.youtube.com/watch?v=0N8Wj8hOVKM |
 | Bridge Bastion | Bridge bastion route tutorial — T_Wagz | https://www.youtube.com/watch?v=2pzMpX1RJGI&t=128s |
+| Bucket Portal | Lava-pool portal construction — unfried EXTRA | https://www.youtube.com/watch?v=La-yHiEr7QM |
 | Calculated Travel | Calculated travel explained — Four | https://www.youtube.com/watch?v=Rx8i7e5lu7g |
 | Divine Travel | Divine travel tutorial — k4yfour | https://www.youtube.com/watch?v=SXem01c44-I |
 | Educated Travel | Educated travel demonstration — BoomerPlayz | https://www.youtube.com/watch?v=0N8Wj8hOVKM&t=516s |
 | Housing Bastion | Housing bastion route tutorial — T_Wagz | https://www.youtube.com/watch?v=BoNr-pbEITM&t=132s |
 | Mapless | Mapless buried treasure tutorial — MoleyG | https://www.youtube.com/watch?v=ho1rwmooHRg |
+| Microlensing | Original bastion microlensing guide — k4yfour | https://www.youtube.com/watch?v=jvTfMLPnMSw |
 | Nether Fortress | Nether fortress navigation — Lucas Chan | https://www.youtube.com/watch?v=swSbv4AImzI&t=87s |
 | Nether Travel | Original 1:8 coordinate-scaling diagram — MCSR Glossary | https://github.com/SirInfinite/mcsr-glossary/blob/main/images/media/nether-coordinate-scaling.svg |
 | One Cycle | One-cycle Ender Dragon tutorial — Marcus Fireworks | https://www.youtube.com/watch?v=JaVyuTyDxxs |
 | Perch | How the Ender Dragon perches — T_Wagz | https://www.youtube.com/watch?v=6V2sQthCzOc |
 | Stables Bastion | Stables bastion route tutorial — T_Wagz | https://www.youtube.com/watch?v=TioQsF5ygOg&t=149s |
 | Stronghold | Stronghold navigation tutorial — k4yfour | https://www.youtube.com/watch?v=kQCt6JgWr6E |
+| Fortress Navigation | Reading Nether fortress structure pieces — Lucas Chan | https://www.youtube.com/watch?v=swSbv4AImzI&t=87s |
 | Treasure Bastion | Treasure bastion route tutorial — T_Wagz | https://www.youtube.com/watch?v=A9GGUWwNcrY&t=132s |
 | Triangulation | Stronghold triangulation tutorial — BoomerPlayz | https://www.youtube.com/watch?v=8c29j0We2VQ |
 | Triangulation | Original two-throw diagram — MCSR Glossary | https://github.com/SirInfinite/mcsr-glossary/blob/main/images/media/stronghold-triangulation.svg |

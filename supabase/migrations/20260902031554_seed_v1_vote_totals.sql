@@ -57,4 +57,24 @@ insert into public.glossary_vote_totals (term_id) values
     ('d6bf8493-878b-4616-b906-f46705905345'::uuid)  -- Zero Cycle
 on conflict (term_id) do nothing;
 
+-- Preserve totals from the deprecated prototype when a legacy term ID matches
+-- a canonical UUID. GREATEST makes this idempotent and never lowers a count.
+do $legacy$
+begin
+    if to_regclass('public.votes') is not null then
+        execute $copy$
+            update public.glossary_vote_totals as totals
+               set upvotes = greatest(totals.upvotes, greatest(coalesce(legacy.upvotes::bigint, 0), 0)),
+                   downvotes = greatest(totals.downvotes, greatest(coalesce(legacy.downvotes::bigint, 0), 0)),
+                   updated_at = pg_catalog.now()
+              from public.votes as legacy
+             where totals.term_id::text = legacy.term_id
+        $copy$;
+    end if;
+end;
+$legacy$;
+
+notify pgrst, 'reload schema';
+
 commit;
+

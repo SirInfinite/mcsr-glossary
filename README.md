@@ -20,7 +20,7 @@ Content and behavior may still change, and tester feedback is welcome.
 
 ## Tech
 
-The site is plain HTML, CSS, and JavaScript with no framework or build step. Glossary content lives in [`data/terms.json`](data/terms.json), browser code uses native JavaScript modules, and small vendored libraries handle Markdown rendering, sanitization, and CSS normalization. An optional Supabase integration supports moderated submissions and voting when a public project URL and publishable key are configured.
+The site is plain HTML, CSS, and JavaScript with no framework or build step. Glossary content lives in [`data/terms.json`](data/terms.json), browser code uses native JavaScript modules, and small vendored libraries handle Markdown rendering, sanitization, and CSS normalization. The configured Supabase beta integration supports private moderated submissions and atomic voting through a public project URL and publishable key; see [`SUPABASE.md`](SUPABASE.md) for the security and deployment model.
 
 ## Running Locally
 

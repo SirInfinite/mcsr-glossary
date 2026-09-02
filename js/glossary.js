@@ -104,9 +104,6 @@ const sb = {
         }
         return payload;
     },
-    async get(table, query = "") {
-        return this.request(`/rest/v1/${encodeURIComponent(table)}${query}`);
-    },
     async rpc(functionName, body) {
         return this.request(`/rest/v1/rpc/${encodeURIComponent(functionName)}`, {
             method: "POST",
@@ -1032,7 +1029,7 @@ async function loadVotes() {
     if (!sb.enabled) return false;
 
     try {
-        const rows = await sb.get("glossary_vote_totals", "?select=term_id,upvotes,downvotes");
+        const rows = await sb.rpc("get_glossary_vote_totals", {});
         if (!Array.isArray(rows)) throw new Error("Unexpected vote response.");
         votesCache = {};
         rows.forEach(row => {

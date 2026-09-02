@@ -1,7 +1,15 @@
 import { TERM_CONTRACT, isValidEditorialDate, slugifyTermName as slugify } from "./content-contract.js";
-import { classifyMediaItem, getVoteTarget, normalizeVoteValue, projectVoteTotals } from "./glossary-core.js";
+import {
+    classifyMediaItem,
+    getMediaPresentations,
+    getVoteTarget,
+    normalizeVoteValue,
+    projectVoteTotals,
+    resolveRelatedTerms,
+    resolveTermRoute,
+    searchTerms
+} from "./glossary-core.js";
 
-const GITHUB_REPO = "SirInfinite/mcsr-glossary";
 const REQUEST_TIMEOUT_MS = 8000;
 
 const runtimeConfig = window.MCSR_CONFIG || {};
@@ -394,8 +402,7 @@ function createMediaFallback(item, index, fallbackURL = "") {
     return fallback;
 }
 
-function createMediaFigure(item, index) {
-    const presentation = classifyMediaItem(item);
+function createMediaFigure(item, index, presentation = classifyMediaItem(item)) {
     const body = presentation.kind === "media"
         ? createMediaBody(item)
         : presentation.kind === "fallback"
@@ -430,8 +437,8 @@ function renderMediaGallery(items, container) {
     if (!container || !Array.isArray(items)) return 0;
     container.replaceChildren();
     let renderedCount = 0;
-    items.forEach((item, index) => {
-        const figure = createMediaFigure(item, index);
+    getMediaPresentations(items).forEach(({ item, index, presentation }) => {
+        const figure = createMediaFigure(item, index, presentation);
         if (!figure) return;
         container.appendChild(figure);
         renderedCount += 1;
@@ -514,11 +521,11 @@ function applyTheme(theme) {
 
     const icon = document.querySelector("#theme-toggle img");
     if (icon) {
-        icon.src = isDark ? "images/dark-mode.png" : "images/light-mode.png";
+        icon.src = isDark ? "images/dark-mode.webp" : "images/light-mode.webp";
     }
 
     const logo = document.getElementById("logo");
-    if (logo) logo.src = isDark ? "images/logo.png" : "images/logo-dark.png";
+    if (logo) logo.src = isDark ? "images/logo.webp" : "images/logo-dark.webp";
 
     const toggle = document.getElementById("theme-toggle");
     if (toggle) {
@@ -533,12 +540,12 @@ function handleURLRouting() {
     const page = params.get("page");
 
     if (t) {
-        const term = data.terms.find(term => slugify(term.name) === t || term.id === t);
+        const term = resolveTermRoute(data.terms, t);
         if (term) { showPage("term", term.id); return; }
     }
 
-    if (page && ["stats", "changelog", "credits", "home"].includes(page)) {
-        showPage(page); return;
+    if (page && ["stats", "changelog", "credits", "about", "home"].includes(page)) {
+        showPage(page === "credits" ? "about" : page); return;
     }
 
     showPage("home");
@@ -572,11 +579,12 @@ function showPage(page, termId) {
     if (page === "changelog") renderChangelog();
 
     if (page !== "term") {
-        const titles = { home: "MCSR Glossary", stats: "Stats | MCSR Glossary", changelog: "Changelog | MCSR Glossary", credits: "Credits | MCSR Glossary" };
+        const titles = { home: "MCSR Glossary", stats: "Stats | MCSR Glossary", changelog: "Changelog | MCSR Glossary", about: "About | MCSR Glossary" };
         document.title = titles[page] || "MCSR Glossary";
     }
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
 }
 
 function navigateToTerm(term) {
@@ -585,10 +593,18 @@ function navigateToTerm(term) {
     showPage("term", term.id);
 }
 
+function getDefinitionPreview(term, maxLength = 220) {
+    const text = plainText(parseDefinition(term?.definition || ""))
+        .replace(/\s+/g, " ")
+        .trim();
+    if (text.length <= maxLength) return text;
+    const shortened = text.slice(0, maxLength + 1).replace(/\s+\S*$/, "").trim();
+    return `${shortened || text.slice(0, maxLength).trim()}…`;
+}
+
 function buildTermCard(term, delay = 0) {
-    const card = document.createElement("div");
+    const card = document.createElement("article");
     card.className = "term";
-    card.setAttribute("role", "listitem");
     card.setAttribute("id", `term-${term.id}`);
     card.style.animationDelay = `${delay}ms`;
 
@@ -597,6 +613,8 @@ function buildTermCard(term, delay = 0) {
 
     const headerLeft = document.createElement("div");
     headerLeft.className = "term-header-left";
+    const heading = document.createElement("h3");
+    heading.className = "term-name-heading";
     const nameButton = document.createElement("button");
     nameButton.type = "button";
     nameButton.className = "term-name term-name-link";
@@ -606,7 +624,8 @@ function buildTermCard(term, delay = 0) {
     const category = document.createElement("span");
     category.className = "term-category";
     category.textContent = term.category || "";
-    headerLeft.append(nameButton, category);
+    heading.appendChild(nameButton);
+    headerLeft.append(heading, category);
     cardHead.appendChild(headerLeft);
 
     if (term.aliases?.length) {
@@ -618,16 +637,30 @@ function buildTermCard(term, delay = 0) {
 
     card.appendChild(cardHead);
 
-    if (term.tags?.length || term.needsUpdating) {
+    if (term.tags?.length || term.needsUpdating || term.media?.length) {
         const tagsDiv = document.createElement("div");
         tagsDiv.className = "term-tags";
 
-        (term.tags || []).forEach(tag => {
+        (term.tags || []).slice(0, 3).forEach(tag => {
             const badge = document.createElement("span");
             badge.className = "term-tag";
             badge.textContent = tag;
             tagsDiv.appendChild(badge);
         });
+        if ((term.tags || []).length > 3) {
+            const more = document.createElement("span");
+            more.className = "term-tag";
+            more.textContent = `+${term.tags.length - 3}`;
+            more.setAttribute("aria-label", `${term.tags.length - 3} more tags`);
+            tagsDiv.appendChild(more);
+        }
+
+        if (term.media?.length) {
+            const mediaBadge = document.createElement("span");
+            mediaBadge.className = "term-tag media-tag";
+            mediaBadge.textContent = `${term.media.length} ${term.media.length === 1 ? "example" : "examples"}`;
+            tagsDiv.appendChild(mediaBadge);
+        }
 
         if (term.needsUpdating) {
             const warn = document.createElement("span");
@@ -639,10 +672,22 @@ function buildTermCard(term, delay = 0) {
         card.appendChild(tagsDiv);
     }
 
-    const defDiv = document.createElement("div");
-    defDiv.className = "term-content";
-    defDiv.innerHTML = parseDefinition(term.definition, { includeMedia: false });
-    card.appendChild(defDiv);
+    const preview = document.createElement("p");
+    preview.className = "term-card-preview";
+    preview.textContent = getDefinitionPreview(term);
+    card.appendChild(preview);
+
+    const footer = document.createElement("div");
+    footer.className = "term-card-footer";
+    const relatedCount = document.createElement("span");
+    relatedCount.textContent = `${term.relatedTerms?.length || 0} related`;
+    const openButton = document.createElement("button");
+    openButton.type = "button";
+    openButton.className = "term-open-btn";
+    openButton.textContent = "Read definition →";
+    openButton.addEventListener("click", () => navigateToTerm(term));
+    footer.append(relatedCount, openButton);
+    card.appendChild(footer);
 
     card.addEventListener("click", event => {
         if (event.target.closest("a, button, input, iframe, video")) return;
@@ -651,22 +696,94 @@ function buildTermCard(term, delay = 0) {
     return card;
 }
 
+function getActiveFilterCount() {
+    return (filterState.category === "all" ? 0 : 1) + filterState.tags.size;
+}
+
+function hasActiveBrowseState() {
+    return Boolean(searchQuery.trim())
+        || getActiveFilterCount() > 0
+        || activeIndexLetter !== "ALL";
+}
+
+function updateResultsToolbar(count) {
+    const resultCount = document.getElementById("result-count");
+    const clearAll = document.getElementById("clear-all-filters");
+    const filterCount = document.getElementById("filter-count");
+    const filterButton = document.getElementById("filter-btn");
+    const activeFilters = getActiveFilterCount();
+
+    if (resultCount) {
+        if (searchQuery.trim()) {
+            resultCount.textContent = `${count} ${count === 1 ? "result" : "results"} for “${searchQuery.trim()}”`;
+        } else if (activeFilters || activeIndexLetter !== "ALL") {
+            resultCount.textContent = `Showing ${count} of ${data.terms.length} terms`;
+        } else {
+            resultCount.textContent = `Showing ${count} terms`;
+        }
+    }
+    if (clearAll) clearAll.hidden = !hasActiveBrowseState();
+    if (filterCount) {
+        filterCount.hidden = activeFilters === 0;
+        filterCount.textContent = String(activeFilters);
+    }
+    filterButton?.classList.toggle("has-active-filters", activeFilters > 0);
+}
+
+function clearAllBrowseState({ focusSearch = false } = {}) {
+    searchQuery = "";
+    activeIndexLetter = "ALL";
+    filterState.category = "all";
+    filterState.tags.clear();
+    filterState.tagMatch = "any";
+
+    const input = document.getElementById("search-input");
+    if (input) input.value = "";
+    const clearButton = document.getElementById("search-clear");
+    if (clearButton) clearButton.style.display = "none";
+    document.querySelectorAll("#category-filters .chip").forEach(chip => {
+        const active = chip.dataset.value === "all";
+        chip.classList.toggle("active", active);
+        chip.setAttribute("aria-pressed", String(active));
+    });
+    document.querySelectorAll("#tag-dropdown-list input[type='checkbox']").forEach(inputElement => {
+        inputElement.checked = false;
+    });
+    document.querySelectorAll("input[name='tag-match']").forEach(radio => {
+        radio.checked = radio.value === "any";
+    });
+    updateTagDropdownLabel();
+    updateIndexHighlights();
+    hideSearchTooltip();
+    renderTermsList(filterAndSearch());
+    if (focusSearch) input?.focus();
+}
+
 function renderTermsList(terms) {
     const container = document.getElementById("terms");
     if (!container) return;
 
     container.innerHTML = "";
+    updateResultsToolbar(terms.length);
 
     if (!terms.length) {
         const msg = document.createElement("div");
         msg.id = "no-results";
         msg.setAttribute("role", "status");
-        msg.textContent = "No matching terms found.";
+        const heading = document.createElement("h3");
+        heading.textContent = "No glossary terms match yet.";
+        const detail = document.createElement("p");
+        detail.textContent = "Try a shorter search, remove a filter, or suggest terminology that is missing.";
+        const reset = document.createElement("button");
+        reset.type = "button";
+        reset.textContent = "Clear search and filters";
+        reset.addEventListener("click", () => clearAllBrowseState({ focusSearch: true }));
+        msg.append(heading, detail, reset);
         container.appendChild(msg);
         return;
     }
 
-    terms.forEach((term, i) => container.appendChild(buildTermCard(term, i * 18)));
+    terms.forEach((term, i) => container.appendChild(buildTermCard(term, Math.min(i, 12) * 18)));
 }
 
 function renderTermDetail(id) {
@@ -690,55 +807,88 @@ function renderTermDetail(id) {
     const dateStr = updatedDate && !Number.isNaN(updatedDate.getTime())
         ? updatedDate.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
         : "";
-    const relatedTerms = (term.relatedTerms || [])
-        .map(name => data.terms.find(candidate => toLower(candidate.name) === toLower(name)))
-        .filter((related, index, items) => related && items.findIndex(item => item?.id === related.id) === index);
+    const relatedTerms = resolveRelatedTerms(term, data.terms, 6);
 
     page.innerHTML = `
-        <div class="container" style="padding-top:1em;">
-            <button class="back-btn" id="detail-back" type="button">
-                <i class="fa-solid fa-arrow-left"></i> Back
-            </button>
-            <div class="term-detail-header">
-                <h1 class="term-detail-name">${escapeHTML(term.name)}</h1>
-                <div class="term-detail-meta">
-                    <span class="term-category">${escapeHTML(term.category || "")}</span>
-                    ${term.aliases?.length ? `<span>· aka ${term.aliases.map(escapeHTML).join(", ")}</span>` : ""}
-                    ${dateStr ? `<span>· Updated ${dateStr}</span>` : ""}
-                    <button class="term-share-btn" id="share-btn" type="button">
-                        <i class="fa-solid fa-link"></i> Copy link
-                    </button>
+        <div class="container term-detail-shell">
+            <button class="back-btn" id="detail-back" type="button">← Browse glossary</button>
+            <article class="term-detail-article">
+                <header class="term-detail-header">
+                    <p class="eyebrow">${escapeHTML(term.category || "Glossary term")}</p>
+                    <h1 class="term-detail-name">${escapeHTML(term.name)}</h1>
+                    ${term.aliases?.length ? `<p class="term-aliases"><strong>Also known as:</strong> ${term.aliases.map(escapeHTML).join(", ")}</p>` : ""}
+                    <div class="term-detail-meta">
+                        ${dateStr ? `<span>Reviewed ${dateStr}</span>` : ""}
+                        <span>${relatedTerms.length} related ${relatedTerms.length === 1 ? "term" : "terms"}</span>
+                        ${term.media?.length ? `<span>${term.media.length} visual ${term.media.length === 1 ? "example" : "examples"}</span>` : ""}
+                    </div>
+                    ${term.tags?.length || term.needsUpdating ? `
+                    <div class="term-tags term-detail-tags">
+                        ${(term.tags || []).map(t => `<span class="term-tag">${escapeHTML(t)}</span>`).join("")}
+                        ${term.needsUpdating ? `<span class="term-tag update-tag">Needs review</span>` : ""}
+                    </div>` : ""}
+                    <div class="term-detail-actions">
+                        <button class="term-action-btn" id="share-btn" type="button">Copy link</button>
+                        <button class="term-action-btn" id="suggest-edit-btn" type="button">Suggest an edit</button>
+                        <a class="term-action-btn" href="https://github.com/SirInfinite/mcsr-glossary/blob/main/CONTENT_SOURCES.md" target="_blank" rel="noopener noreferrer">Review sources ↗</a>
+                    </div>
+                </header>
+                <div class="term-reading-layout">
+                    <div class="term-reading-main">
+                        <section class="term-definition" aria-labelledby="term-definition-title">
+                            <h2 class="sr-only" id="term-definition-title">Definition</h2>
+                            <div class="term-detail-body term-content">${parseDefinition(term.definition)}</div>
+                        </section>
+                        <section class="term-media" id="term-media" aria-labelledby="term-media-title">
+                            <div class="section-heading-row">
+                                <div>
+                                    <p class="section-kicker">See it in context</p>
+                                    <h2 id="term-media-title">Examples &amp; media</h2>
+                                </div>
+                            </div>
+                            <div class="media-gallery" id="term-media-gallery"></div>
+                        </section>
+                        ${relatedTerms.length ? `
+                        <section class="related-terms" aria-labelledby="related-terms-title">
+                            <div class="section-heading-row">
+                                <div>
+                                    <p class="section-kicker">Keep learning</p>
+                                    <h2 id="related-terms-title">Related terms</h2>
+                                </div>
+                            </div>
+                            <div class="related-term-grid">
+                                ${relatedTerms.map(related => `
+                                    <button class="related-card" type="button" data-id="${related.id}">
+                                        <span class="related-card-top"><strong>${escapeHTML(related.name)}</strong><span>${escapeHTML(related.category)}</span></span>
+                                        <span class="related-card-preview">${escapeHTML(getDefinitionPreview(related, 105))}</span>
+                                        <span class="related-card-link">Open definition →</span>
+                                    </button>
+                                `).join("")}
+                            </div>
+                        </section>` : ""}
+                    </div>
+                    <aside class="term-reading-side" aria-label="Definition feedback and review information">
+                        <section class="vote-section">
+                            <p class="section-kicker">Community feedback</p>
+                            <h2>Was this useful?</h2>
+                            <div class="vote-row" id="vote-row">
+                                <button class="vote-btn upvote ${currentVote === 1 ? 'voted' : ''}" id="vote-up" type="button" aria-label="Upvote ${escapeHTML(term.name)}" aria-pressed="${currentVote === 1}" ${votingEnabled ? '' : 'disabled'}>
+                                    <span aria-hidden="true">▲</span> Helpful <span id="vote-up-count">${votes.up}</span>
+                                </button>
+                                <button class="vote-btn downvote ${currentVote === -1 ? 'voted' : ''}" id="vote-down" type="button" aria-label="Downvote ${escapeHTML(term.name)}" aria-pressed="${currentVote === -1}" ${votingEnabled ? '' : 'disabled'}>
+                                    <span aria-hidden="true">▼</span> Needs work <span id="vote-down-count">${votes.down}</span>
+                                </button>
+                            </div>
+                            <p class="vote-note" id="vote-status" role="status" aria-live="polite">${escapeHTML(voteNote)}</p>
+                        </section>
+                        <section class="review-note">
+                            <p class="section-kicker">Editorial model</p>
+                            <h2>Reviewed before publishing</h2>
+                            <p>Definitions are maintained in the public dataset. Community corrections enter a private review queue and never edit this page automatically.</p>
+                        </section>
+                    </aside>
                 </div>
-                ${term.tags?.length || term.needsUpdating ? `
-                <div class="term-tags" style="margin-top:0.6em;">
-                    ${(term.tags || []).map(t => `<span class="term-tag">${escapeHTML(t)}</span>`).join("")}
-                    ${term.needsUpdating ? `<span class="term-tag update-tag">⚠️ Needs updating</span>` : ""}
-                </div>` : ""}
-            </div>
-            <div class="term-detail-body term-content">
-                ${parseDefinition(term.definition)}
-            </div>
-            <section class="term-media" id="term-media" aria-labelledby="term-media-title">
-                <h2 id="term-media-title">Examples &amp; media</h2>
-                <div class="media-gallery" id="term-media-gallery"></div>
-            </section>
-            ${relatedTerms.length ? `
-            <div class="related-terms">
-                <h3>Related Terms</h3>
-                ${relatedTerms.map(related => `<button class="related-tag" type="button" data-id="${related.id}">${escapeHTML(related.name)}</button>`).join("")}
-            </div>` : ""}
-            <div class="vote-section">
-                <h2>Was this definition useful?</h2>
-                <div class="vote-row" id="vote-row">
-                    <button class="vote-btn upvote ${currentVote === 1 ? 'voted' : ''}" id="vote-up" type="button" aria-label="Upvote ${escapeHTML(term.name)}" aria-pressed="${currentVote === 1}" ${votingEnabled ? '' : 'disabled'}>
-                        ▲ <span id="vote-up-count">${votes.up}</span>
-                    </button>
-                    <button class="vote-btn downvote ${currentVote === -1 ? 'voted' : ''}" id="vote-down" type="button" aria-label="Downvote ${escapeHTML(term.name)}" aria-pressed="${currentVote === -1}" ${votingEnabled ? '' : 'disabled'}>
-                        ▼ <span id="vote-down-count">${votes.down}</span>
-                    </button>
-                </div>
-                <p class="vote-note" id="vote-status" role="status" aria-live="polite">${escapeHTML(voteNote)}</p>
-            </div>
+            </article>
         </div>
     `;
     document.title = `${term.name} | MCSR Glossary`;
@@ -758,6 +908,10 @@ function renderTermDetail(id) {
     document.getElementById("share-btn")?.addEventListener("click", async () => {
         const url = `${location.origin}${location.pathname}?t=${slugify(term.name)}`;
         showToast(await copyText(url) ? "Link copied!" : "Could not copy the link.");
+    });
+
+    document.getElementById("suggest-edit-btn")?.addEventListener("click", () => {
+        document.dispatchEvent(new CustomEvent("mcsr:open-submission", { detail: { term } }));
     });
 
     function updateVoteControls(vote, totals, enabled = true) {
@@ -824,7 +978,7 @@ function renderTermDetail(id) {
     document.getElementById("vote-up")?.addEventListener("click", () => handleVote(1));
     document.getElementById("vote-down")?.addEventListener("click", () => handleVote(-1));
 
-    page.querySelectorAll(".related-tag[data-id]").forEach(el => {
+    page.querySelectorAll(".related-card[data-id]").forEach(el => {
         el.addEventListener("click", () => {
             const related = data.terms.find(t => t.id === el.dataset.id);
             navigateToTerm(related);
@@ -871,11 +1025,19 @@ function showSearchTooltip(query) {
         item.setAttribute("role", "option");
         item.setAttribute("aria-selected", "false");
         item.id = `search-option-${term.id}`;
-        const preview = plainText(parseDefinition(term.definition, { includeMedia: false })).slice(0, 120);
+        const matchingAlias = (term.aliases || []).find(alias => toLower(alias).includes(query));
+        const matchingTag = (term.tags || []).find(tag => toLower(tag).includes(query));
+        const matchContext = matchingAlias
+            ? `Alias: ${matchingAlias}`
+            : matchingTag
+                ? `Tag: ${matchingTag}`
+                : toLower(term.category).includes(query)
+                    ? `Category: ${term.category}`
+                    : getDefinitionPreview(term, 120);
         item.innerHTML = `
             <span class="tooltip-name">${highlightMatch(term.name, query)}</span>
             <span class="tooltip-category">${escapeHTML(term.category || "")}</span>
-            <span class="tooltip-preview">${escapeHTML(preview)}…</span>
+            <span class="tooltip-preview">${highlightMatch(matchContext, query)}</span>
         `;
         // mousedown fires before blur, so we prevent default to stop input losing focus
         item.addEventListener("mousedown", e => { e.preventDefault(); selectTooltipItem(term); });
@@ -927,6 +1089,8 @@ function buildIndex() {
     allLink.type = "button";
     allLink.className = "index-letter active";
     allLink.textContent = "ALL";
+    allLink.setAttribute("aria-label", "Show all terms");
+    allLink.setAttribute("aria-current", "true");
     allLink.addEventListener("click", () => setIndexLetter("ALL"));
     container.appendChild(allLink);
 
@@ -936,6 +1100,7 @@ function buildIndex() {
         const exists = usedLetters.has(letter);
         a.className = "index-letter" + (exists ? "" : " inactive");
         a.textContent = letter;
+        a.setAttribute("aria-label", exists ? `Show terms beginning with ${letter}` : `No terms begin with ${letter}`);
         if (exists) {
             a.addEventListener("click", () => setIndexLetter(letter));
         } else a.disabled = true;
@@ -959,7 +1124,10 @@ function setIndexLetter(letter) {
 
 function updateIndexHighlights() {
     document.querySelectorAll(".index-letter").forEach(el => {
-        el.classList.toggle("active", el.textContent === activeIndexLetter);
+        const active = el.textContent === activeIndexLetter;
+        el.classList.toggle("active", active);
+        if (active) el.setAttribute("aria-current", "true");
+        else el.removeAttribute("aria-current");
     });
 }
 
@@ -978,6 +1146,7 @@ function buildCategoryFilters() {
         chip.className = "chip";
         chip.dataset.value = category;
         chip.textContent = category.replace(/\b\w/g, letter => letter.toUpperCase());
+        chip.setAttribute("aria-pressed", "false");
         container.appendChild(chip);
     });
 }
@@ -1030,6 +1199,15 @@ function initTagDropdown() {
         }
     });
 
+    dropdown.addEventListener("keydown", event => {
+        if (event.key !== "Escape") return;
+        event.preventDefault();
+        tagDropdownOpen = false;
+        dropdown.style.display = "none";
+        btn.setAttribute("aria-expanded", "false");
+        btn.focus();
+    });
+
     buildTagDropdown();
 }
 
@@ -1038,8 +1216,12 @@ function initFilters() {
         const groupName = group.dataset.group;
         group.querySelectorAll(".chip").forEach(chip => {
             chip.addEventListener("click", () => {
-                group.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+                group.querySelectorAll(".chip").forEach(c => {
+                    c.classList.remove("active");
+                    c.setAttribute("aria-pressed", "false");
+                });
                 chip.classList.add("active");
+                chip.setAttribute("aria-pressed", "true");
                 filterState[groupName] = chip.dataset.value;
                 applyFilterAndSearch();
             });
@@ -1092,21 +1274,10 @@ function filterAndSearch() {
             if ((term.name || "").charAt(0).toUpperCase() !== activeIndexLetter) return false;
         }
 
-        if (query) {
-            const aliases = (term.aliases || []).map(toLower);
-            return (
-                toLower(term.name).includes(query) ||
-                category.includes(query) ||
-                aliases.some(a => a.includes(query)) ||
-                tags.some(t => t.includes(query)) ||
-                toLower(term.definition).includes(query)
-            );
-        }
-
         return true;
     });
 
-    return sortTerms(filtered);
+    return query ? searchTerms(filtered, query) : sortTerms(filtered);
 }
 
 function parseCommaSeparatedList(value, { label, maxItems, maxItemLength, lowercase = false }) {
@@ -1331,9 +1502,20 @@ function renderStats() {
     if (!grid) return;
     grid.innerHTML = "";
 
+    const allTags = new Set(data.terms.flatMap(term => term.tags || []));
+    const categories = TERM_CONTRACT.categories
+        .map(category => ({ category, count: data.terms.filter(term => term.category === category).length }))
+        .filter(item => item.count > 0)
+        .sort((a, b) => b.count - a.count);
+    const recentTerms = [...data.terms]
+        .sort((a, b) => (b.updatedDate || b.creationDate || "").localeCompare(a.updatedDate || a.creationDate || "") || a.name.localeCompare(b.name))
+        .slice(0, 8);
     const cards = [
-        { label: "Total Terms", value: data.terms.length },
-        { label: "Needs Updating", value: data.terms.filter(t => t.needsUpdating).length }
+        { label: "Published terms", value: data.terms.length },
+        { label: "Categories", value: categories.length },
+        { label: "Topic tags", value: allTags.size },
+        { label: "Media-backed", value: data.terms.filter(term => term.media?.length).length },
+        { label: "Needs review", value: data.terms.filter(term => term.needsUpdating).length }
     ];
 
     cards.forEach(({ label, value }) => {
@@ -1342,48 +1524,75 @@ function renderStats() {
         card.innerHTML = `<span class="stat-number">${value}</span><span class="stat-label">${escapeHTML(label)}</span>`;
         grid.appendChild(card);
     });
+
+    const categoryStats = document.getElementById("category-stats");
+    if (categoryStats) {
+        categoryStats.innerHTML = categories.map(({ category, count }) => {
+            const percent = data.terms.length ? Math.round((count / data.terms.length) * 100) : 0;
+            return `
+                <div class="category-stat-row">
+                    <div class="category-stat-label"><span>${escapeHTML(category.replace(/\b\w/g, letter => letter.toUpperCase()))}</span><strong>${count}</strong></div>
+                    <div class="category-stat-track" role="img" aria-label="${count} ${escapeHTML(category)} terms, ${percent} percent of the glossary">
+                        <span style="width:${percent}%"></span>
+                    </div>
+                </div>`;
+        }).join("");
+    }
+
+    const recent = document.getElementById("recent-terms");
+    if (recent) {
+        recent.replaceChildren();
+        recentTerms.forEach(term => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "mini-term-card";
+            button.innerHTML = `<strong>${escapeHTML(term.name)}</strong><span>${escapeHTML(term.category)} · ${escapeHTML(term.updatedDate || term.creationDate || "Date not recorded")}</span>`;
+            button.addEventListener("click", () => navigateToTerm(term));
+            recent.appendChild(button);
+        });
+    }
+
+    const community = document.getElementById("community-stats");
+    if (community) {
+        const rated = getFeaturedTerms(5);
+        if (!rated.length) {
+            community.innerHTML = `<div class="stats-empty"><strong>Ratings are just getting started.</strong><p>Open a definition and mark whether it was useful. Only aggregate totals appear here; browser voter IDs remain private.</p></div>`;
+        } else {
+            community.replaceChildren();
+            const intro = document.createElement("p");
+            intro.className = "stats-note";
+            intro.textContent = "Highest net-rated definitions from the public aggregate totals.";
+            const list = document.createElement("div");
+            list.className = "community-rating-list";
+            rated.forEach(term => {
+                const totals = getVotes(term.id);
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "community-rating-row";
+                button.innerHTML = `<span><strong>${escapeHTML(term.name)}</strong><small>${escapeHTML(term.category)}</small></span><span class="rating-totals"><span>▲ ${totals.up}</span><span>▼ ${totals.down}</span></span>`;
+                button.addEventListener("click", () => navigateToTerm(term));
+                list.appendChild(button);
+            });
+            community.append(intro, list);
+        }
+    }
 }
 
 async function renderChangelog() {
     const content = document.getElementById("changelog-content");
     if (!content) return;
 
-    if (!GITHUB_REPO?.includes("/")) {
-        content.innerHTML = `<p class="changelog-error">Release notes are not available yet.</p>`;
-        return;
-    }
-
-    content.innerHTML = `<p class="changelog-error">Loading commits…</p>`;
+    content.innerHTML = `<p class="changelog-error" role="status">Loading project release notes…</p>`;
 
     try {
-        const resp = await fetchWithTimeout(`https://api.github.com/repos/${GITHUB_REPO}/commits?per_page=30`);
-        if (!resp.ok) throw new Error(`GitHub API error: ${resp.status}`);
-
-        const commits = await resp.json();
-        if (!Array.isArray(commits) || !commits.length) {
-            content.innerHTML = `<p class="changelog-error">No release notes are available yet.</p>`;
-            return;
-        }
-
-        content.innerHTML = "";
-        commits.forEach(commit => {
-            if (!commit?.commit?.message || !commit?.sha) return;
-            const author = commit.commit.author || {};
-            const date = author.date ? new Date(author.date) : null;
-            const dateLabel = date && !Number.isNaN(date.getTime())
-                ? date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
-                : "Date unavailable";
-            const entry = document.createElement("div");
-            entry.className = "changelog-entry";
-            entry.innerHTML = `
-                <a class="changelog-sha" href="${escapeHTML(commit.html_url || `https://github.com/${GITHUB_REPO}/commit/${commit.sha}`)}" target="_blank" rel="noopener noreferrer">${escapeHTML(commit.sha.slice(0, 7))}</a>
-                <div class="changelog-message">${escapeHTML(commit.commit.message.split("\n")[0])}</div>
-                <div class="changelog-meta">${escapeHTML(author.name || "Unknown author")} · ${dateLabel}</div>
-            `;
-            content.appendChild(entry);
-        });
+        const response = await fetchWithTimeout("CHANGELOG.md");
+        if (!response.ok) throw new Error(`Changelog request failed: ${response.status}`);
+        const markdown = (await response.text()).replace(/^#\s+changelog\s*$/im, "").trim();
+        content.className = "term-content changelog-markdown";
+        content.innerHTML = parseDefinition(markdown);
     } catch {
-        content.innerHTML = `<p class="changelog-error" role="status">The changelog is temporarily unavailable. Please try again later.</p>`;
+        content.className = "";
+        content.innerHTML = `<div class="changelog-error" role="status"><p>The local release notes could not be loaded.</p><a href="https://github.com/SirInfinite/mcsr-glossary/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">Read the changelog on GitHub ↗</a></div>`;
     }
 }
 
@@ -1391,14 +1600,17 @@ function renderFeatured() {
     const section = document.getElementById("featured-section");
     if (!section) return;
 
-    const featured = getFeaturedTerms(5);
+    const rated = getFeaturedTerms(5);
+    const curatedNames = ["Mapless", "Nether Travel", "One Cycle", "Triangulation", "Zero Cycle"];
+    const curated = curatedNames.map(name => data.terms.find(term => term.name === name)).filter(Boolean);
+    const useRatings = rated.length >= 3;
+    const featured = (useRatings ? rated : curated).slice(0, 5);
+    if (!featured.length) return;
 
-    if (!featured.length) {
-        section.style.display = "none";
-        return;
-    }
-
-    section.style.display = "block";
+    document.getElementById("featured-title").textContent = useRatings ? "Community-rated definitions" : "Explore visual techniques";
+    document.getElementById("featured-note").textContent = useRatings
+        ? "Definitions with the strongest current aggregate feedback."
+        : "A curated starting point while community ratings grow.";
     const list = document.getElementById("featured-list");
     list.innerHTML = "";
 
@@ -1408,9 +1620,8 @@ function renderFeatured() {
         card.type = "button";
         card.className = "featured-card";
         card.innerHTML = `
-            <div class="featured-card-name">${escapeHTML(term.name)}</div>
-            <div class="featured-card-category">${escapeHTML(term.category)}</div>
-            <div class="featured-card-votes">▲ ${v.up}</div>
+            <span class="featured-card-copy"><strong class="featured-card-name">${escapeHTML(term.name)}</strong><span class="featured-card-category">${escapeHTML(term.category)}</span></span>
+            <span class="featured-card-votes">${useRatings ? `▲ ${v.up} · ▼ ${v.down}` : term.media?.length ? `${term.media.length} visual ${term.media.length === 1 ? "example" : "examples"}` : "Read definition"}</span>
         `;
         card.addEventListener("click", () => navigateToTerm(term));
         list.appendChild(card);
@@ -1489,6 +1700,7 @@ async function init() {
         applyTheme(current === "dark" ? "light" : "dark");
     });
     document.getElementById("random-btn")?.addEventListener("click", goToRandomTerm);
+    document.getElementById("clear-all-filters")?.addEventListener("click", () => clearAllBrowseState({ focusSearch: true }));
     window.addEventListener("popstate", handleURLRouting);
 
     const searchInput = document.getElementById("search-input");
@@ -1516,7 +1728,16 @@ async function init() {
             if (event.key === "ArrowDown" && tooltipOpen) { event.preventDefault(); moveFocus(1); }
             else if (event.key === "ArrowUp" && tooltipOpen) { event.preventDefault(); moveFocus(-1); }
             else if (event.key === "Enter" && tooltipItems[tooltipFocusIdx]) { event.preventDefault(); selectTooltipItem(tooltipItems[tooltipFocusIdx]); }
-            else if (event.key === "Escape") hideSearchTooltip();
+            else if (event.key === "Escape") {
+                event.preventDefault();
+                if (tooltipOpen) hideSearchTooltip();
+                else if (searchQuery) {
+                    searchInput.value = "";
+                    searchQuery = "";
+                    clearBtn.style.display = "none";
+                    applyFilterAndSearch();
+                }
+            }
         });
 
         searchInput.addEventListener("focus", () => {
@@ -1530,6 +1751,19 @@ async function init() {
         if (tooltip?.style.display !== "none") positionTooltip();
     });
 
+    document.addEventListener("keydown", event => {
+        if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey) return;
+        const target = event.target;
+        if (target instanceof HTMLElement && (target.matches("input, textarea, select") || target.isContentEditable)) return;
+        if (!document.getElementById("submit-modal")?.hidden) return;
+        event.preventDefault();
+        if (currentPage !== "home") {
+            setURLParams({ page: null, t: null });
+            showPage("home");
+        }
+        searchInput?.focus();
+    });
+
     const submitTrigger = document.getElementById("submit-trigger");
     const submitModal = document.getElementById("submit-modal");
     const submitModalClose = document.getElementById("submit-modal-close");
@@ -1537,20 +1771,47 @@ async function init() {
     const submitForm = document.getElementById("submit-form");
     const submitButton = document.getElementById("sub-submit");
     const submitStatus = document.getElementById("sub-status");
+    const submitTitle = document.getElementById("submit-modal-title");
+    const submitDescription = document.getElementById("submit-modal-description");
+    const definitionInput = document.getElementById("sub-definition");
+    const definitionCount = document.getElementById("sub-definition-count");
     let returnFocus = null;
+    let submissionMode = "new";
 
     if (!sb.enabled) {
-        document.getElementById("submit-modal-description").textContent = "Online review is temporarily unavailable. Complete the form to copy a formatted submission you can share with the project maintainer.";
+        submitDescription.textContent = "Online review is temporarily unavailable. Complete the form to copy a formatted submission you can share with the project maintainer.";
         submitButton.textContent = "Copy Submission";
     }
 
-    function openSubmitModal() {
+    function updateDefinitionCount() {
+        if (definitionCount && definitionInput) definitionCount.textContent = `${definitionInput.value.length} / ${TERM_CONTRACT.limits.definitionMax}`;
+    }
+
+    function openSubmitModal(term = null) {
         if (!submitModal) return;
         returnFocus = document.activeElement;
+        submitForm?.reset();
+        submissionMode = term ? "correction" : "new";
+        if (term) {
+            submitTitle.textContent = `Suggest an edit to ${term.name}`;
+            submitDescription.textContent = "Describe a correction or clearer replacement. It enters the same private review queue and cannot change the published definition automatically.";
+            document.getElementById("sub-name").value = term.name;
+            document.getElementById("sub-category").value = term.category;
+            document.getElementById("sub-aliases").value = (term.aliases || []).join(", ");
+            document.getElementById("sub-tags").value = [...new Set([...(term.tags || []), "correction"])].join(", ");
+            definitionInput.value = `Correction for the published term “${term.name}”:\n\nWhat should change and why:\n`;
+        } else {
+            submitTitle.textContent = "Submit a Term";
+            submitDescription.textContent = sb.enabled
+                ? "Submissions are reviewed before publication. They never change the published glossary automatically."
+                : "Online review is temporarily unavailable. Complete the form to copy a formatted submission you can share with the project maintainer.";
+        }
+        submitButton.textContent = sb.enabled ? (term ? "Submit Edit for Review" : "Submit for Review") : "Copy Submission";
+        updateDefinitionCount();
         submitModal.hidden = false;
         document.body.style.overflow = "hidden";
         submitStatus.hidden = true;
-        document.getElementById("sub-name")?.focus();
+        (term ? definitionInput : document.getElementById("sub-name"))?.focus();
     }
 
     function closeSubmitModal() {
@@ -1561,9 +1822,11 @@ async function init() {
         returnFocus?.focus?.();
     }
 
-    submitTrigger?.addEventListener("click", openSubmitModal);
+    submitTrigger?.addEventListener("click", () => openSubmitModal());
+    document.addEventListener("mcsr:open-submission", event => openSubmitModal(event.detail?.term || null));
     submitModalClose?.addEventListener("click", closeSubmitModal);
     submitBackdrop?.addEventListener("click", closeSubmitModal);
+    definitionInput?.addEventListener("input", updateDefinitionCount);
 
     document.addEventListener("keydown", event => {
         if (!submitModal || submitModal.hidden) return;
@@ -1599,9 +1862,12 @@ async function init() {
 
         submitStatus.hidden = false;
         if (result.ok && result.sent) {
-            submitStatus.textContent = "Submitted successfully. Your term will appear after review.";
+            submitStatus.textContent = submissionMode === "correction"
+                ? "Edit suggestion submitted. It will be reviewed before any published definition changes."
+                : "Submitted successfully. Your term will appear only after review.";
             submitStatus.style.color = "var(--accent)";
             submitForm.reset();
+            updateDefinitionCount();
             setTimeout(closeSubmitModal, 1800);
         } else if (result.ok) {
             submitStatus.textContent = `${result.reason} A copy was placed on your clipboard; it has not been sent.`;
@@ -1612,7 +1878,9 @@ async function init() {
         }
 
         submitButton.disabled = false;
-        submitButton.textContent = sb.enabled ? "Submit for Review" : "Copy Submission";
+        submitButton.textContent = sb.enabled
+            ? (submissionMode === "correction" ? "Submit Edit for Review" : "Submit for Review")
+            : "Copy Submission";
     });
 
     try {
@@ -1638,6 +1906,10 @@ async function init() {
         renderTermsList(data.terms);
     }
 
+    document.getElementById("hero-term-count").textContent = String(data.terms.length);
+    document.getElementById("hero-media-count").textContent = String(data.terms.filter(term => term.media?.length).length);
+    document.getElementById("footer-term-count").textContent = String(data.terms.length);
+    renderFeatured();
     await loadVotes();
     renderFeatured();
     handleURLRouting();

@@ -1,12 +1,19 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
     classifyMediaItem,
+    getMediaPresentations,
     getVoteTarget,
     normalizeVoteValue,
-    projectVoteTotals
+    projectVoteTotals,
+    resolveRelatedTerms,
+    resolveTermRoute,
+    searchTerms
 } from "../js/glossary-core.js";
+
+const glossary = JSON.parse(await readFile(new URL("../data/terms.json", import.meta.url), "utf8"));
 
 const validMedia = {
     type: "youtube",
@@ -63,4 +70,52 @@ test("invalid media degrades to its safe original source", () => {
 test("invalid media without a safe source is ignored", () => {
     const result = classifyMediaItem({ type: "unsupported", src: "javascript:alert(1)" });
     assert.equal(result.kind, "ignored");
+});
+
+test("term media presentation handles media-backed and text-only definitions", () => {
+    const mapless = glossary.terms.find(term => term.name === "Mapless");
+    const anyPercent = glossary.terms.find(term => term.name === "Any%");
+    assert.equal(getMediaPresentations(mapless.media).length, 1);
+    assert.deepEqual(getMediaPresentations(anyPercent.media), []);
+    assert.deepEqual(getMediaPresentations(undefined), []);
+});
+
+test("invalid UI media is ignored while a safe-source fallback remains available", () => {
+    const presentations = getMediaPresentations([
+        { type: "unsupported", src: "javascript:alert(1)" },
+        { ...validMedia, type: "unsupported" }
+    ]);
+    assert.equal(presentations.length, 1);
+    assert.equal(presentations[0].presentation.kind, "fallback");
+});
+
+test("search ranks an exact canonical name before broader matches", () => {
+    const results = searchTerms(glossary.terms, "rsg");
+    assert.equal(results[0].name, "RSG");
+});
+
+test("search finds exact aliases, partial names, tags, definitions, and ignores case", () => {
+    assert.equal(searchTerms(glossary.terms, "SSG")[0].name, "Set Seed");
+    assert.ok(searchTerms(glossary.terms, "micro").some(term => term.name === "Microlensing"));
+    assert.ok(searchTerms(glossary.terms, "NAVIGATION").some(term => term.tags.includes("navigation")));
+    assert.ok(searchTerms(glossary.terms, "uncertainty").some(term => term.name === "Ninjabrain Bot"));
+});
+
+test("search returns no result for a nonsense query", () => {
+    assert.deepEqual(searchTerms(glossary.terms, "zzzz-no-such-mcsr-term"), []);
+});
+
+test("direct term routes resolve by slug and stable UUID", () => {
+    const mapless = glossary.terms.find(term => term.name === "Mapless");
+    assert.equal(resolveTermRoute(glossary.terms, "mapless")?.id, mapless.id);
+    assert.equal(resolveTermRoute(glossary.terms, mapless.id)?.name, "Mapless");
+    assert.equal(resolveTermRoute(glossary.terms, "missing-route"), null);
+});
+
+test("related terms resolve to real unique term records", () => {
+    const stronghold = glossary.terms.find(term => term.name === "Stronghold");
+    const related = resolveRelatedTerms(stronghold, glossary.terms);
+    assert.ok(related.length > 0 && related.length <= 6);
+    assert.ok(related.every(term => glossary.terms.includes(term)));
+    assert.equal(new Set(related.map(term => term.id)).size, related.length);
 });

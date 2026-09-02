@@ -1,4 +1,60 @@
-import { validateMediaItem } from "./content-contract.js";
+import { slugifyTermName, validateMediaItem } from "./content-contract.js";
+
+function normalizeSearchText(value) {
+    return String(value || "").trim().toLocaleLowerCase("en-US");
+}
+
+export function rankTermForQuery(term, rawQuery) {
+    const query = normalizeSearchText(rawQuery);
+    if (!query || !term) return 0;
+
+    const name = normalizeSearchText(term.name);
+    const aliases = (term.aliases || []).map(normalizeSearchText);
+    const tags = (term.tags || []).map(normalizeSearchText);
+    const category = normalizeSearchText(term.category);
+    const definition = normalizeSearchText(term.definition);
+
+    if (name === query) return 1000;
+    if (aliases.some(alias => alias === query)) return 950;
+    if (name.startsWith(query)) return 850;
+    if (aliases.some(alias => alias.startsWith(query))) return 800;
+    if (name.split(/\s+/).some(word => word.startsWith(query))) return 760;
+    if (name.includes(query)) return 700;
+    if (aliases.some(alias => alias.includes(query))) return 650;
+    if (tags.some(tag => tag === query)) return 600;
+    if (category === query) return 580;
+    if (tags.some(tag => tag.startsWith(query))) return 540;
+    if (category.startsWith(query)) return 520;
+    if (tags.some(tag => tag.includes(query))) return 480;
+    if (category.includes(query)) return 460;
+    if (definition.includes(query)) return 300;
+    return 0;
+}
+
+export function searchTerms(terms, rawQuery) {
+    const query = normalizeSearchText(rawQuery);
+    if (!query) return [...terms].sort((a, b) => normalizeSearchText(a.name).localeCompare(normalizeSearchText(b.name)));
+
+    return terms
+        .map(term => ({ term, score: rankTermForQuery(term, query) }))
+        .filter(result => result.score > 0)
+        .sort((a, b) => b.score - a.score || normalizeSearchText(a.term.name).localeCompare(normalizeSearchText(b.term.name)))
+        .map(result => result.term);
+}
+
+export function resolveTermRoute(terms, route) {
+    const value = String(route || "").trim();
+    if (!value) return null;
+    return terms.find(term => term.id === value || slugifyTermName(term.name) === value) || null;
+}
+
+export function resolveRelatedTerms(term, terms, limit = 6) {
+    const names = new Set((term?.relatedTerms || []).map(normalizeSearchText));
+    return terms
+        .filter(candidate => names.has(normalizeSearchText(candidate.name)) && candidate.id !== term?.id)
+        .filter((candidate, index, items) => items.findIndex(item => item.id === candidate.id) === index)
+        .slice(0, Math.max(0, limit));
+}
 
 function safeHTTPSURL(value) {
     try {
@@ -19,6 +75,13 @@ export function classifyMediaItem(item) {
         fallbackURL,
         errors
     };
+}
+
+export function getMediaPresentations(items) {
+    if (!Array.isArray(items)) return [];
+    return items
+        .map((item, index) => ({ item, index, presentation: classifyMediaItem(item) }))
+        .filter(entry => entry.presentation.kind !== "ignored");
 }
 
 export function normalizeVoteValue(value) {

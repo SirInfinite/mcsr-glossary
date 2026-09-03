@@ -19,7 +19,7 @@ Every term contains the required fields below and may contain the documented opt
 | `category` | string | One value from the controlled category list below. |
 | `aliases` | string[] | Genuine alternate names, at most 10 values of at most 80 characters each. Values are trimmed, unique case-insensitively, and may not collide with any canonical name or another term's alias. |
 | `tags` | string[] | Descriptive filter labels, at most 12 values of at most 40 characters each. Values are unique lowercase kebab-case strings such as `nether-travel` or `version-1-16-1`. |
-| `definition` | string | Trimmed Markdown, 20–5000 characters. Definitions under 80 or over 1200 characters produce review warnings. Raw iframe HTML and legacy media directives are prohibited; media belongs in the structured field below. |
+| `definition` | string | Trimmed Markdown, 20–5000 characters. Definitions under 80 or over 1200 characters produce review warnings. Raw iframe HTML and legacy media directives are prohibited. A media-backed definition places validated items with the inline token described below. |
 | `relatedTerms` | string[] | At most 20 exact, case-sensitive canonical term names. Every value must resolve, be unique, and not point back to the current term. |
 | `creationDate` | string | Editorial record creation date in `YYYY-MM-DD`, or an empty string when unknown. It is not the date the community term was invented. |
 | `needsUpdating` | boolean | Editorial review flag. Use `true` when known content work remains; record the reason in the content audit or source notes. |
@@ -28,18 +28,32 @@ Every term contains the required fields below and may contain the documented opt
 
 ### Media schema
 
-Media is presentation data, never arbitrary HTML. Each item requires `type`, `src`, `title`, `caption`, `credit`, and `sourceUrl`. `credit` is exactly `{ "name": "…", "url": "https://…" }`; `sourceUrl` is the original HTTPS source shown below the media. Titles, captions, and credit names must be trimmed and remain within the limits in `js/content-contract.js`.
+Media is presentation data, never arbitrary HTML. Each item requires `type`, `src`, `title`, `caption`, `credit`, and `sourceUrl`. `credit` is exactly `{ "name": "…", "url": "https://…" }`; `sourceUrl` is the original HTTPS source linked from the understated caption line. Titles, captions, and credit names must be trimmed and remain within the limits in `js/content-contract.js`.
 
 | Type | `src` | Additional fields | Browser behavior |
 | --- | --- | --- | --- |
-| `youtube` | Exact 11-character video ID | Optional integer `start`, 0–86400 seconds | Click-to-load iframe from `youtube-nocookie.com`; no remote request is made before activation. |
-| `twitch` | Exact Twitch clip slug | None | Click-to-load clip iframe with the current hostname supplied as `parent`. |
+| `youtube` | Exact 11-character video ID | Optional integer `start`, 0–86400 seconds | Lazy iframe from `youtube-nocookie.com`, initialized with no autoplay. |
+| `twitch` | Exact Twitch clip slug | None | Lazy clip iframe with the current hostname supplied as `parent` and autoplay disabled. |
 | `image` | Local image under `images/media/`, or HTTPS from the explicit host allowlist | Required `alt`, integer `width`, integer `height` | Lazy image with an accessible click-to-expand dialog. |
-| `gif` | Local GIF under `images/media/`, or allowlisted HTTPS GIF | Required `alt`, `width`, `height`, and local static `poster` | Starts paused on the poster; the visitor explicitly plays or pauses it. |
+| `gif` | Local GIF under `images/media/`, or allowlisted HTTPS GIF | Required `alt`, `width`, `height`, and local static `poster` | Lazy animated image with accessible alt text and click-to-expand behavior; the poster remains a static fallback. |
 | `video` | Local `.mp4` or `.webm` under `media/` | Required `width`, `height`, `hasAudio`; optional local `poster` and `.vtt` `captions` | Native controls, metadata preload, inline playback, and no autoplay. Captions are mandatory when `hasAudio` is true. |
 | `link` | HTTPS URL | None | Safe external preview/link only; useful for providers that should not be embedded. |
 
 Unsupported fields or providers fail repository validation. At runtime, an invalid item with a safe HTTPS source degrades to a normal source link; an item without even a safe source is omitted. External image hosts are intentionally limited to `minecraft.wiki` and `upload.wikimedia.org`. Expanding any embed or image host requires both a contract change and a matching CSP review.
+
+### Inline media placement
+
+The `media` array owns validated provider metadata. The definition controls reading order with a zero-based token on its own line:
+
+```text
+Paragraph introducing the technique.
+
+{{media:0}}
+
+Paragraph explaining what to notice.
+```
+
+Every media item must be referenced exactly once, every index must exist, and each token must be surrounded by blank lines. Terms without media need no token and continue to use ordinary Markdown. The browser replaces tokens with inert markers, renders and sanitizes the complete Markdown document once, then swaps only exact marker paragraphs for media elements created by trusted JavaScript. Tokens never become arbitrary HTML or iframe input.
 
 ## Categories
 

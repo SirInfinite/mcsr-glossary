@@ -5,12 +5,13 @@
 ### v0.2 showcase work
 
 - Expanded the reviewed glossary from 52 to 80 published terms and strengthened 21 existing definitions with clearer context and relationships.
-- Added a validated structured-media contract and 21 attributed examples across 20 definitions, with click-to-load privacy controls, safe fallbacks, and accessible image expansion.
+- Added a validated structured-media contract and 21 attributed examples across 20 definitions, placed inline with the explanatory text, loaded lazily from allowlisted providers, and paired with safe fallbacks and accessible image expansion.
 - Added atomic reversible voting: visitors can add, remove, or switch a vote while the database returns authoritative current state and totals.
 - Reworked search ranking, suggestions, filters, result feedback, keyboard shortcuts, term cards, related-term discovery, and empty states.
-- Added complete term-detail layouts, a source-review link, pending edit suggestions, expanded truthful stats, and a maintained About page.
+- Refined term pages into compact reference articles with inline media, icon-first link/edit/report actions, pending edit suggestions, reversible ratings, compact related terms, and no public editorial-review panel.
+- Added a private, RLS-protected term-report queue for inaccurate content, inappropriate content, broken media, spam, and other serious issues.
 - Removed remote font/icon dependencies, optimized header artwork, strengthened CSP provider limits, and improved responsive and keyboard behavior.
-- Expanded the automated suite to 46 content-contract and UI-core tests.
+- Expanded the automated suite to 53 content-contract and UI-core tests.
 
 Definitions remain under active review, and community terminology or correction submissions are reviewed before publication.
 

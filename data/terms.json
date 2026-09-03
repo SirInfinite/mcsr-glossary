@@ -122,7 +122,7 @@
                 "fortress",
                 "nether"
             ],
-            "definition": "Blaze Bedding uses a bed explosion to clear blocks around a Nether Fortress Blaze spawner, increasing the valid dark space where Blazes can spawn. The runner detonates the bed from cover, then quickly extinguishes fires because bright blocks can suppress spawning. It can save mining time, but a poor setup can damage the runner or block spawn positions.",
+            "definition": "Blaze Bedding uses a bed explosion to clear blocks around a Nether Fortress Blaze spawner, increasing the valid dark space where Blazes can spawn. The runner detonates the bed from cover, then quickly extinguishes fires because bright blocks can suppress spawning.\n\n{{media:0}}\n\nIt can save mining time, but a poor setup can damage the runner or block spawn positions.",
             "relatedTerms": [
                 "Blaze",
                 "Blaze Rods",
@@ -137,7 +137,7 @@
                     "src": "3TD4jkuT8QA",
                     "start": 0,
                     "title": "Blaze bedding tutorial",
-                    "caption": "k4yfour demonstrates open and enclosed bed setups for clearing blocks around a Blaze spawner efficiently.",
+                    "caption": "Open and enclosed bed setups demonstrate how runners clear blocks around a Blaze spawner efficiently.",
                     "credit": {
                         "name": "k4yfour",
                         "url": "https://www.youtube.com/@k4yfour"
@@ -181,7 +181,7 @@
                 "rsg",
                 "stronghold"
             ],
-            "definition": "Blind travel is a Java 1.16 RSG strategy in which a runner moves through the Nether to a selected coordinate and builds an exit portal without first using an Eye of Ender to learn the stronghold's direction or distance. The goal is to emerge near a first-ring Stronghold, after which an eye can correct the route. It is distinct from educated and calculated travel.",
+            "definition": "Blind travel is a Java 1.16 RSG strategy in which a runner moves through the Nether to a selected coordinate and builds an exit portal without first using an Eye of Ender to learn the stronghold's direction or distance. The goal is to emerge near a first-ring Stronghold, after which an eye can correct the route.\n\n{{media:0}}\n\nIt is distinct from educated and calculated travel.",
             "relatedTerms": [
                 "Educated Travel",
                 "Eye of Ender",
@@ -197,7 +197,7 @@
                     "src": "0N8Wj8hOVKM",
                     "start": 0,
                     "title": "Blind and educated travel tutorial",
-                    "caption": "BoomerPlayz introduces practical blind-travel coordinates before explaining how an eye throw can refine the route.",
+                    "caption": "Practical blind-travel coordinates are followed by an explanation of how an eye throw can refine the route.",
                     "credit": {
                         "name": "BoomerPlayz",
                         "url": "https://www.youtube.com/@boomerplayz1"
@@ -218,7 +218,7 @@
                 "nether",
                 "structure"
             ],
-            "definition": "Bridge Bastion is one of the four Bastion Remnant layouts. It is distinguished by its large ruined bridge and a prominent gold-block structure often called the gold chalice. Speedrun routes use its exposed gold and layout-specific piglin positions, so it is routed differently from Housing, Stables, and Treasure bastions.",
+            "definition": "Bridge Bastion is one of the four Bastion Remnant layouts. It is distinguished by its large ruined bridge and a prominent gold-block structure often called the gold chalice.\n\n{{media:0}}\n\nSpeedrun routes use its exposed gold and layout-specific piglin positions, so it is routed differently from Housing, Stables, and Treasure bastions.",
             "relatedTerms": [
                 "Bastion",
                 "Bastion Route",
@@ -233,7 +233,7 @@
                     "src": "2pzMpX1RJGI",
                     "start": 128,
                     "title": "Bridge bastion route tutorial",
-                    "caption": "A route demonstration showing the bridge layout, gold collection, piglin setup, and exits used in Java 1.16.1 runs.",
+                    "caption": "A concise Bridge overview showing its layout, exposed gold, piglin setup, and route exits.",
                     "credit": {
                         "name": "T_Wagz",
                         "url": "https://www.youtube.com/@TWagz"
@@ -254,7 +254,7 @@
                 "overworld",
                 "portal"
             ],
-            "definition": "A Bucket Portal is a Nether portal built by casting a lava pool into obsidian with a water bucket instead of mining ten obsidian blocks. Runners place water and redirect lava source blocks into a portal frame, then light it with flint and steel or a flintless setup. Fast construction makes accessible lava pools one of the most valuable early RSG resources.",
+            "definition": "A Bucket Portal is a Nether portal built by casting a lava pool into obsidian with a water bucket instead of mining ten obsidian blocks. Runners place water and redirect lava source blocks into a portal frame, then light it with flint and steel or a flintless setup.\n\n{{media:0}}\n\nFast construction makes accessible lava pools one of the most valuable early RSG resources.",
             "relatedTerms": [
                 "Flintless Portal",
                 "Obsidian"
@@ -268,7 +268,7 @@
                     "src": "La-yHiEr7QM",
                     "start": 0,
                     "title": "Lava-pool portal construction",
-                    "caption": "unfried EXTRA demonstrates a repeatable water-and-lava sequence for building a fast Nether portal without mining obsidian.",
+                    "caption": "A repeatable water-and-lava sequence builds a fast Nether portal without mining obsidian.",
                     "credit": {
                         "name": "unfried EXTRA",
                         "url": "https://www.youtube.com/@unfriedextra"
@@ -310,7 +310,7 @@
                 "nether",
                 "stronghold"
             ],
-            "definition": "Calculated Travel is a Nether-travel method that estimates both the direction and distance to a stronghold from precise Eye of Ender measurements, usually with a calculator. The runner converts the estimated Overworld target to Nether coordinates and builds a second portal nearby. It can produce a much closer exit than a blind or direction-only travel.",
+            "definition": "Calculated Travel is a Nether-travel method that estimates both the direction and distance to a stronghold from precise Eye of Ender measurements, usually with a calculator. The runner converts the estimated Overworld target to Nether coordinates and builds a second portal nearby.\n\n{{media:0}}\n\nIt can produce a much closer exit than a blind or direction-only travel.",
             "relatedTerms": [
                 "Educated Travel",
                 "Nether Travel",
@@ -326,7 +326,7 @@
                     "src": "Rx8i7e5lu7g",
                     "start": 0,
                     "title": "Calculated travel explained",
-                    "caption": "Four demonstrates how measured eye information and a calculator produce a stronghold target for a precise second portal.",
+                    "caption": "Measured eye information and a calculator produce a stronghold target for a more precise second portal.",
                     "credit": {
                         "name": "Four",
                         "url": "https://www.youtube.com/@FourSR"
@@ -390,7 +390,7 @@
                 "stronghold",
                 "version-1-16-1"
             ],
-            "definition": "Divine Travel is a Java Edition 1.16.1 technique that uses the position of a Nether fossil in a particular chunk to infer where a stronghold can be reached through another portal. It depends on world-generation correlations and is highly version-specific. It does not work in MCSR Ranked, where the Overworld and Nether seeds are generated independently.",
+            "definition": "Divine Travel is a Java Edition 1.16.1 technique that uses the position of a Nether fossil in a particular chunk to infer where a stronghold can be reached through another portal. It depends on world-generation correlations and is highly version-specific.\n\n{{media:0}}\n\nIt does not work in MCSR Ranked, where the Overworld and Nether seeds are generated independently.",
             "relatedTerms": [
                 "Nether Travel",
                 "Stronghold"
@@ -404,7 +404,7 @@
                     "src": "SXem01c44-I",
                     "start": 0,
                     "title": "Divine travel tutorial",
-                    "caption": "k4yfour explains the version-specific fossil and chunk relationship used to choose a divine-travel exit portal.",
+                    "caption": "The version-specific fossil and chunk relationship is used to choose a Divine Travel exit portal.",
                     "credit": {
                         "name": "k4yfour",
                         "url": "https://www.youtube.com/@k4yfour"
@@ -425,7 +425,7 @@
                 "nether",
                 "stronghold"
             ],
-            "definition": "Educated Travel is a two-portal Nether-travel method that uses an Eye of Ender throw after the first exit to learn the stronghold's direction. The runner re-enters the Nether, moves along the corresponding direction, and builds a second exit portal nearer the stronghold ring. It improves direction over a blind travel without calculating a precise stronghold position.",
+            "definition": "Educated Travel is a two-portal Nether-travel method that uses an Eye of Ender throw after the first exit to learn the stronghold's direction. The runner re-enters the Nether, moves along the corresponding direction, and builds a second exit portal nearer the stronghold ring.\n\n{{media:0}}\n\nIt improves direction over a blind travel without calculating a precise stronghold position.",
             "relatedTerms": [
                 "Blind",
                 "Eye of Ender",
@@ -441,7 +441,7 @@
                     "src": "0N8Wj8hOVKM",
                     "start": 516,
                     "title": "Educated travel demonstration",
-                    "caption": "The second half of this tutorial shows how a post-blind eye direction guides a return through the Nether toward a closer exit.",
+                    "caption": "Starting at 8:36, a post-blind eye direction guides the return through the Nether toward a closer exit.",
                     "credit": {
                         "name": "BoomerPlayz",
                         "url": "https://www.youtube.com/@boomerplayz1"
@@ -637,7 +637,7 @@
                 "navigation",
                 "nether"
             ],
-            "definition": "Fortress Navigation is the skill of reading Nether Fortress structure pieces to reach a Blaze spawner quickly. Runners distinguish the exterior bridge section, where spawner platforms generate, from the interior section and use junctions, balconies, staircases, and the lava-well room to avoid searching dead ends. Good navigation turns an unfamiliar layout into a small set of informed route choices.",
+            "definition": "Fortress Navigation is the skill of reading Nether Fortress structure pieces to reach a Blaze spawner quickly. Runners distinguish the exterior bridge section, where spawner platforms generate, from the interior section and use junctions, balconies, staircases, and the lava-well room to avoid searching dead ends.\n\n{{media:0}}\n\nGood navigation turns an unfamiliar layout into a small set of informed route choices.",
             "relatedTerms": [
                 "Blaze Bed",
                 "Blaze Rods",
@@ -652,7 +652,7 @@
                     "src": "swSbv4AImzI",
                     "start": 87,
                     "title": "Reading Nether fortress structure pieces",
-                    "caption": "Lucas Chan maps the recurring rooms and connections that let runners identify the spawner-bearing side of a fortress.",
+                    "caption": "Recurring rooms and connections help identify the spawner-bearing exterior section of a fortress.",
                     "credit": {
                         "name": "Lucas Chan",
                         "url": "https://www.youtube.com/@PupleeL"
@@ -741,7 +741,7 @@
                 "nether",
                 "structure"
             ],
-            "definition": "Housing Bastion is one of the four Bastion Remnant layouts. It contains two ramparts connected through a central housing section, with layout-specific gold, chests, and piglin positions. Runners identify it quickly because its safe and efficient route differs from Bridge, Stables, and Treasure bastions.",
+            "definition": "Housing Bastion is one of the four Bastion Remnant layouts. It contains two ramparts connected through a central housing section, with layout-specific gold, chests, and piglin positions.\n\n{{media:0}}\n\nRunners identify it quickly because its safe and efficient route differs from Bridge, Stables, and Treasure bastions.",
             "relatedTerms": [
                 "Bastion",
                 "Bastion Route",
@@ -756,7 +756,7 @@
                     "src": "BoNr-pbEITM",
                     "start": 132,
                     "title": "Housing bastion route tutorial",
-                    "caption": "A complete housing-units route demonstration covering recognition, gold collection, piglin positioning, and safe exits.",
+                    "caption": "A concise Housing Units route covering recognition, gold collection, piglin positioning, and the exit.",
                     "credit": {
                         "name": "T_Wagz",
                         "url": "https://www.youtube.com/@TWagz"
@@ -909,7 +909,7 @@
                 "overworld",
                 "version-specific"
             ],
-            "definition": "Mapless is a Java Edition technique for locating Buried Treasure without obtaining its map. The runner first uses a version-specific Pie Chart profiler path and chunk-boundary changes to identify the treasure chunk, then digs at chunk-relative X/Z coordinates `9, 9`. That coordinate only locates the chest inside a known treasure chunk; using `9, 9` in an arbitrary chunk does not find treasure.",
+            "definition": "Mapless is a Java Edition technique for locating Buried Treasure without obtaining its map. The runner first uses a version-specific Pie Chart profiler path and chunk-boundary changes to identify the treasure chunk, then digs at chunk-relative X/Z coordinates `9, 9`.\n\n{{media:0}}\n\nThat coordinate only locates the chest inside a known treasure chunk; using `9, 9` in an arbitrary chunk does not find treasure.",
             "relatedTerms": [
                 "F3",
                 "Pie Chart"
@@ -923,7 +923,7 @@
                     "src": "ho1rwmooHRg",
                     "start": 0,
                     "title": "Mapless buried treasure tutorial",
-                    "caption": "MoleyG demonstrates the Pie Chart and chunk-position process used to identify and dig a buried treasure chest without a map.",
+                    "caption": "The Pie Chart and chunk-position process identifies and locates Buried Treasure without a map.",
                     "credit": {
                         "name": "MoleyG",
                         "url": "https://www.youtube.com/@moleyg"
@@ -991,7 +991,7 @@
                 "java",
                 "navigation"
             ],
-            "definition": "Microlensing is a Java 1.16 debug-screen technique that samples entity counts while the runner narrows and turns the camera to infer the direction of a hidden Bastion. A concentrated change in the entity reading can reveal where the structure's piglins are behind terrain. The method improves search decisions but does not reveal an exact route, and it depends on version-specific F3 behavior.",
+            "definition": "Microlensing is a Java 1.16 debug-screen technique that samples entity counts while the runner narrows and turns the camera to infer the direction of a hidden Bastion. A concentrated change in the entity reading can reveal where the structure's piglins are behind terrain.\n\n{{media:0}}\n\nThe method improves search decisions but does not reveal an exact route, and it depends on version-specific F3 behavior.",
             "relatedTerms": [
                 "Bastion",
                 "F3",
@@ -1005,7 +1005,7 @@
                     "type": "youtube",
                     "src": "jvTfMLPnMSw",
                     "start": 0,
-                    "title": "Original bastion microlensing guide",
+                    "title": "2020 bastion microlensing guide",
                     "caption": "k4yfour demonstrates the F3 entity-count and camera technique used to infer a Bastion's direction through Nether terrain.",
                     "credit": {
                         "name": "k4yfour",
@@ -1093,7 +1093,7 @@
                 "nether",
                 "structure"
             ],
-            "definition": "A Nether Fortress is a Nether structure whose Blaze spawners provide the Blaze Rods required for Eyes of Ender. In Java 1.16.1 routes, runners often visit a Bastion first for pearls, obsidian, and Fire Resistance, then locate and navigate a fortress for rods. Fortress layout and spawner access strongly affect a run's pace.",
+            "definition": "A Nether Fortress is a Nether structure whose Blaze spawners provide the Blaze Rods required for Eyes of Ender. In Java 1.16.1 routes, runners often visit a Bastion first for pearls, obsidian, and Fire Resistance, then locate and navigate a fortress for rods.\n\n{{media:0}}\n\nFortress layout and spawner access strongly affect a run's pace.",
             "relatedTerms": [
                 "Bastion",
                 "Blaze",
@@ -1108,7 +1108,7 @@
                     "src": "swSbv4AImzI",
                     "start": 87,
                     "title": "Nether fortress navigation",
-                    "caption": "Lucas Chan explains fortress structure pieces and navigation cues that help runners locate a Blaze spawner efficiently.",
+                    "caption": "Structure pieces and navigation cues help runners locate a Blaze spawner efficiently.",
                     "credit": {
                         "name": "Lucas Chan",
                         "url": "https://www.youtube.com/@PupleeL"
@@ -1127,7 +1127,7 @@
                 "navigation",
                 "stronghold"
             ],
-            "definition": "Nether Travel uses the Nether's 1:8 horizontal coordinate scale to cover Overworld distance quickly. In Java Edition RSG, a runner can build another portal in the Nether so its Overworld exit is closer to a stronghold. Blind, Educated Travel, and Calculated Travel differ in how precisely the runner estimates that destination.",
+            "definition": "Nether Travel uses the Nether's 1:8 horizontal coordinate scale to cover Overworld distance quickly.\n\n{{media:0}}\n\nIn Java Edition RSG, a runner can build another portal in the Nether so its Overworld exit is closer to a stronghold. Blind, Educated Travel, and Calculated Travel differ in how precisely the runner estimates that destination.",
             "relatedTerms": [
                 "Blind",
                 "Stronghold",
@@ -1146,7 +1146,7 @@
                         "name": "MCSR Glossary",
                         "url": "https://github.com/SirInfinite/mcsr-glossary"
                     },
-                    "sourceUrl": "https://github.com/SirInfinite/mcsr-glossary",
+                    "sourceUrl": "https://github.com/SirInfinite/mcsr-glossary/blob/main/images/media/nether-coordinate-scaling.svg",
                     "alt": "Overworld and Nether lanes showing an eight-to-one horizontal coordinate scale",
                     "width": 1200,
                     "height": 675
@@ -1209,7 +1209,7 @@
                 "end",
                 "java"
             ],
-            "definition": "A one cycle defeats the Ender Dragon during a single perch at the exit portal. In modern Java speedruns, runners normally time bed explosions against the dragon's head as it perches; respawn-anchor variants or backups also exist. The technique depends on the post-1.9 dragon fight and does not describe older pre-1.9 End fights.",
+            "definition": "A one cycle defeats the Ender Dragon during a single perch at the exit portal. In modern Java speedruns, runners normally time bed explosions against the dragon's head as it perches; respawn-anchor variants or backups also exist.\n\n{{media:0}}\n\nThe technique depends on the post-1.9 dragon fight and does not describe older pre-1.9 End fights.",
             "relatedTerms": [
                 "Perch",
                 "Zero Cycle"
@@ -1223,7 +1223,7 @@
                     "src": "JaVyuTyDxxs",
                     "start": 0,
                     "title": "One-cycle Ender Dragon tutorial",
-                    "caption": "Marcus Fireworks breaks down bed placement, timing, and damage during the dragon's perch at the exit portal.",
+                    "caption": "Bed placement, timing, and damage are demonstrated during the dragon's perch at the exit portal.",
                     "credit": {
                         "name": "Marcus Fireworks",
                         "url": "https://www.youtube.com/@MarcusFireworks"
@@ -1284,7 +1284,7 @@
                 "end",
                 "rng"
             ],
-            "definition": "A Perch is the Ender Dragon's landing sequence at the central exit portal. Runners prepare beds around the portal and wait for a favorable perch because it creates the main window for a One Cycle. Perch behavior is partly random and can be standardized by formats such as MCSR Ranked.",
+            "definition": "A Perch is the Ender Dragon's landing sequence at the central exit portal. Runners prepare beds around the portal and wait for a favorable perch because it creates the main window for a One Cycle.\n\n{{media:0}}\n\nPerch behavior is partly random and can be standardized by formats such as MCSR Ranked.",
             "relatedTerms": [
                 "One Cycle",
                 "Zero Cycle"
@@ -1298,7 +1298,7 @@
                     "src": "6V2sQthCzOc",
                     "start": 0,
                     "title": "How the Ender Dragon perches",
-                    "caption": "T_Wagz explains the dragon's perch sequence and the cues runners watch while preparing a bed-based finish.",
+                    "caption": "Dragon-flight and perch cues are explained in the context of preparing a bed-based finish.",
                     "credit": {
                         "name": "T_Wagz",
                         "url": "https://www.youtube.com/@TWagz"
@@ -1747,7 +1747,7 @@
                 "nether",
                 "structure"
             ],
-            "definition": "Stables Bastion is one of the four Bastion Remnant layouts. Its hoglin-stable sections, multiple ramparts, and distributed loot create routing and safety problems distinct from the other layouts. Speedrun routes account for its variable structure pieces, hoglins, gold access, and piglin collection.",
+            "definition": "Stables Bastion is one of the four Bastion Remnant layouts. Its hoglin-stable sections, multiple ramparts, and distributed loot create routing and safety problems distinct from the other layouts.\n\n{{media:0}}\n\nSpeedrun routes account for its variable structure pieces, hoglins, gold access, and piglin collection.",
             "relatedTerms": [
                 "Bastion",
                 "Bastion Route",
@@ -1762,7 +1762,7 @@
                     "src": "TioQsF5ygOg",
                     "start": 149,
                     "title": "Stables bastion route tutorial",
-                    "caption": "A layout-specific stables route showing how runners manage hoglins, distributed gold, piglins, and exits.",
+                    "caption": "A concise Stables route showing hoglin management, distributed gold, piglin collection, and exits.",
                     "credit": {
                         "name": "T_Wagz",
                         "url": "https://www.youtube.com/@TWagz"
@@ -1826,7 +1826,7 @@
                 "overworld",
                 "structure"
             ],
-            "definition": "A Stronghold is an underground Overworld structure containing the Portal Room required to reach the End. Eyes of Ender lead toward the nearest Stronghold's starting area rather than directly to the portal, and the frame activates only when all twelve slots contain eyes. Finding the correct area, locating the Starter Staircase, and navigating the generated branches are separate speedrun skills.",
+            "definition": "A Stronghold is an underground Overworld structure containing the Portal Room required to reach the End. Eyes of Ender lead toward the nearest Stronghold's starting area rather than directly to the portal, and the frame activates only when all twelve slots contain eyes.\n\n{{media:0}}\n\nFinding the correct area, locating the Starter Staircase, and navigating the generated branches are separate speedrun skills.",
             "relatedTerms": [
                 "Blind",
                 "Calculated Travel",
@@ -1843,7 +1843,7 @@
                     "src": "kQCt6JgWr6E",
                     "start": 0,
                     "title": "Stronghold navigation tutorial",
-                    "caption": "k4yfour explains how structure generation and starter-staircase cues help runners find the portal room quickly.",
+                    "caption": "Structure-generation and Starter Staircase cues help narrow the search for the Portal Room.",
                     "credit": {
                         "name": "k4yfour",
                         "url": "https://www.youtube.com/@k4yfour"
@@ -1886,7 +1886,7 @@
                 "nether",
                 "structure"
             ],
-            "definition": "Treasure Bastion is one of the four Bastion Remnant layouts. It has a large central treasure room with lava, gold blocks, and a magma cube spawner. That vertical, hazardous layout requires its own route for collecting gold and bartering without losing time or dying.",
+            "definition": "Treasure Bastion is one of the four Bastion Remnant layouts. It has a large central treasure room with lava, gold blocks, and a magma cube spawner.\n\n{{media:0}}\n\nThat vertical, hazardous layout requires its own route for collecting gold and bartering without losing time or dying.",
             "relatedTerms": [
                 "Bastion",
                 "Bastion Route",
@@ -1901,7 +1901,7 @@
                     "src": "A9GGUWwNcrY",
                     "start": 132,
                     "title": "Treasure bastion route tutorial",
-                    "caption": "A practical route through the treasure room's vertical layout, lava hazards, gold blocks, and piglin setup.",
+                    "caption": "A concise Treasure Room route through its vertical layout, lava hazards, gold blocks, and piglin setup.",
                     "credit": {
                         "name": "T_Wagz",
                         "url": "https://www.youtube.com/@TWagz"
@@ -1922,7 +1922,7 @@
                 "stronghold",
                 "tool-assisted"
             ],
-            "definition": "Triangulation estimates a stronghold location by comparing Eye of Ender directions from two or more measured positions. The intersection of those direction lines gives a target estimate. Tools such as stronghold calculators can account for measurement error, but accurate throws and inputs still matter.",
+            "definition": "Triangulation estimates a stronghold location by comparing Eye of Ender directions from two or more measured positions. The intersection of those direction lines gives a target estimate.\n\n{{media:0}}\n\nThe diagram shows the geometry; in practice, stronghold calculators can account for measurement error, but accurate throws and inputs still matter.\n\n{{media:1}}\n\nThe tutorial demonstrates how those measured throws become a usable target during a run.",
             "relatedTerms": [
                 "Eye of Ender",
                 "F3",
@@ -1933,18 +1933,6 @@
             "updatedDate": "",
             "media": [
                 {
-                    "type": "youtube",
-                    "src": "8c29j0We2VQ",
-                    "start": 0,
-                    "title": "Stronghold triangulation tutorial",
-                    "caption": "BoomerPlayz demonstrates how two measured Eye of Ender throws can estimate the point where their direction lines meet.",
-                    "credit": {
-                        "name": "BoomerPlayz",
-                        "url": "https://www.youtube.com/@boomerplayz1"
-                    },
-                    "sourceUrl": "https://www.youtube.com/watch?v=8c29j0We2VQ"
-                },
-                {
                     "type": "image",
                     "src": "images/media/stronghold-triangulation.svg",
                     "title": "Two-throw triangulation diagram",
@@ -1953,10 +1941,22 @@
                         "name": "MCSR Glossary",
                         "url": "https://github.com/SirInfinite/mcsr-glossary"
                     },
-                    "sourceUrl": "https://github.com/SirInfinite/mcsr-glossary",
+                    "sourceUrl": "https://github.com/SirInfinite/mcsr-glossary/blob/main/images/media/stronghold-triangulation.svg",
                     "alt": "Two green eye-direction lines from separate throws intersecting at a highlighted stronghold estimate",
                     "width": 1200,
                     "height": 675
+                },
+                {
+                    "type": "youtube",
+                    "src": "8c29j0We2VQ",
+                    "start": 0,
+                    "title": "Stronghold triangulation tutorial",
+                    "caption": "Two measured Eye of Ender throws demonstrate how runners estimate where their direction lines meet.",
+                    "credit": {
+                        "name": "BoomerPlayz",
+                        "url": "https://www.youtube.com/@boomerplayz1"
+                    },
+                    "sourceUrl": "https://www.youtube.com/watch?v=8c29j0We2VQ"
                 }
             ]
         },
@@ -2037,7 +2037,7 @@
                 "end",
                 "java"
             ],
-            "definition": "A zero cycle is an advanced End-fight technique that intercepts and kills the Ender Dragon during its initial flight, before a normal perch cycle. Established setups use a specific End spike, orientation, height, and timed bed or respawn-anchor explosions. Exact setups depend on the Minecraft version and on whether the run is vanilla RSG or MCSR Ranked.",
+            "definition": "A zero cycle is an advanced End-fight technique that intercepts and kills the Ender Dragon during its initial flight, before a normal perch cycle. Established setups use a specific End spike, orientation, height, and timed bed or respawn-anchor explosions.\n\n{{media:0}}\n\nExact setups depend on the Minecraft version and on whether the run is vanilla RSG or MCSR Ranked.",
             "relatedTerms": [
                 "One Cycle",
                 "Perch"

@@ -69,7 +69,7 @@ These entries are publishable with their current caveats but should be rechecked
 ## Media review
 
 - All 19 YouTube items (17 distinct video IDs) used by the dataset resolved during the 2026-09-02 review.
-- YouTube is privacy-enhanced and click-to-load; no provider request is made merely by opening a term.
+- YouTube uses the privacy-enhanced host, initializes lazily at the authored inline position, and never autoplays.
 - Each item has a caption, credit, and direct source link.
 - The two local SVG diagrams are original MCSR Glossary assets with descriptive alternative text and intrinsic dimensions.
 - No third-party video or image was downloaded or rehosted.

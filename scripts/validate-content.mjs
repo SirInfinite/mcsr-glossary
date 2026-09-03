@@ -9,6 +9,7 @@ import {
     slugifyTermName,
     validateMediaItem
 } from "../js/content-contract.js";
+import { analyzeMediaSlots } from "../js/glossary-core.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const termsPath = path.join(root, "data", "terms.json");
@@ -229,6 +230,13 @@ export function validateGlossary(payload, { voteRowIDs = null } = {}) {
                         errors.push(`${label}: media[${mediaIndex}] ${mediaError}.`);
                     }
                 }
+            }
+        }
+
+        if (typeof term.definition === "string") {
+            const mediaCount = Array.isArray(term.media) ? term.media.length : 0;
+            for (const slotError of analyzeMediaSlots(term.definition, mediaCount).errors) {
+                errors.push(`${label}: ${slotError}.`);
             }
         }
 

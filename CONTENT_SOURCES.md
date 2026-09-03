@@ -397,7 +397,7 @@ The v0.2 expansion prioritizes primary project documentation, current rules, off
 
 ## Structured Media Provenance
 
-The v0.2 media layer embeds or links the original public source; no third-party video or imagery is copied into this repository. YouTube examples use privacy-enhanced, click-to-load embeds and retain a direct source link. The two local SVG diagrams are original project assets.
+The v0.2 media layer embeds or links the original public source; no third-party video or imagery is copied into this repository. YouTube examples use privacy-enhanced, lazy embeds without autoplay and retain a direct source link. The two local SVG diagrams are original project assets.
 
 All external media URLs below were rechecked on 2026-09-02.
 
@@ -414,7 +414,7 @@ All external media URLs below were rechecked on 2026-09-02.
 | Mapless | Mapless buried treasure tutorial — MoleyG | https://www.youtube.com/watch?v=ho1rwmooHRg |
 | Microlensing | Original bastion microlensing guide — k4yfour | https://www.youtube.com/watch?v=jvTfMLPnMSw |
 | Nether Fortress | Nether fortress navigation — Lucas Chan | https://www.youtube.com/watch?v=swSbv4AImzI&t=87s |
-| Nether Travel | Original 1:8 coordinate-scaling diagram — MCSR Glossary (`images/media/nether-coordinate-scaling.svg`) | https://github.com/SirInfinite/mcsr-glossary |
+| Nether Travel | Original 1:8 coordinate-scaling diagram — MCSR Glossary (`images/media/nether-coordinate-scaling.svg`) | https://github.com/SirInfinite/mcsr-glossary/blob/main/images/media/nether-coordinate-scaling.svg |
 | One Cycle | One-cycle Ender Dragon tutorial — Marcus Fireworks | https://www.youtube.com/watch?v=JaVyuTyDxxs |
 | Perch | How the Ender Dragon perches — T_Wagz | https://www.youtube.com/watch?v=6V2sQthCzOc |
 | Stables Bastion | Stables bastion route tutorial — T_Wagz | https://www.youtube.com/watch?v=TioQsF5ygOg&t=149s |
@@ -422,7 +422,7 @@ All external media URLs below were rechecked on 2026-09-02.
 | Fortress Navigation | Reading Nether fortress structure pieces — Lucas Chan | https://www.youtube.com/watch?v=swSbv4AImzI&t=87s |
 | Treasure Bastion | Treasure bastion route tutorial — T_Wagz | https://www.youtube.com/watch?v=A9GGUWwNcrY&t=132s |
 | Triangulation | Stronghold triangulation tutorial — BoomerPlayz | https://www.youtube.com/watch?v=8c29j0We2VQ |
-| Triangulation | Original two-throw diagram — MCSR Glossary (`images/media/stronghold-triangulation.svg`) | https://github.com/SirInfinite/mcsr-glossary |
+| Triangulation | Original two-throw diagram — MCSR Glossary (`images/media/stronghold-triangulation.svg`) | https://github.com/SirInfinite/mcsr-glossary/blob/main/images/media/stronghold-triangulation.svg |
 | Zero Cycle | Zero-cycle Ender Dragon tutorial — T_Wagz | https://www.youtube.com/watch?v=iClDGWL0e5s |
 
 ## Human Review Notes

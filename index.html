@@ -64,6 +64,37 @@
             </form>
         </div>
     </div>
+    <div id="report-modal" role="dialog" aria-modal="true" aria-labelledby="report-modal-title" aria-describedby="report-modal-description" hidden>
+        <div id="report-modal-backdrop"></div>
+        <div id="report-modal-box" tabindex="-1">
+            <div id="report-modal-header">
+                <h2 id="report-modal-title">Report a Term</h2>
+                <button id="report-modal-close" type="button" aria-label="Close report dialog">&times;</button>
+            </div>
+            <p id="report-modal-description" class="muted-note">Reports enter a private review queue and never change the published glossary automatically.</p>
+            <p class="report-term-context">Term: <strong id="report-term-name"></strong></p>
+            <form id="report-form" class="submit-form">
+                <label class="submit-label" for="report-reason">Reason <span aria-hidden="true">*</span></label>
+                <select id="report-reason" name="reason" required>
+                    <option value="">Choose a reason</option>
+                    <option value="inaccurate">Inaccurate information</option>
+                    <option value="inappropriate">Inappropriate content</option>
+                    <option value="broken_media">Broken media</option>
+                    <option value="spam">Spam</option>
+                    <option value="other">Other serious problem</option>
+                </select>
+                <label class="submit-label" for="report-details">Details</label>
+                <span class="field-hint" id="report-details-hint">Add context that will help a maintainer verify the problem. Required for “Other.”</span>
+                <textarea id="report-details" name="details" rows="5" minlength="10" maxlength="2000" aria-describedby="report-details-hint report-details-count" placeholder="What should the maintainer check?"></textarea>
+                <span class="field-count" id="report-details-count">0 / 2000</span>
+                <label class="honeypot-field" aria-hidden="true">Website
+                    <input id="report-website" name="website" type="text" autocomplete="off" tabindex="-1" maxlength="200">
+                </label>
+                <button id="report-submit" class="submit-btn" type="submit">Send Report</button>
+                <p id="report-status" role="status" aria-live="polite" hidden></p>
+            </form>
+        </div>
+    </div>
         <!-- Header -->
         <header id="header">
             <a id="logo-link" href="./" aria-label="MCSR Glossary home">

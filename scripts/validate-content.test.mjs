@@ -39,6 +39,16 @@ function validYouTubeMedia(overrides = {}) {
     };
 }
 
+function clearStructuredMedia(data) {
+    data.terms.forEach(term => {
+        delete term.media;
+        term.definition = term.definition
+            .replace(/^\{\{media:(?:0|[1-9]\d*)\}\}$/gm, "")
+            .replace(/\n{3,}/g, "\n\n")
+            .trim();
+    });
+}
+
 test("the checked-in glossary satisfies the contract", () => {
     const result = validateGlossaryText(source, { voteRowIDs });
     assert.deepEqual(result.errors, []);
@@ -154,12 +164,52 @@ test("warns about unusually short and long definitions without failing them", ()
 
 test("accepts a valid structured media item and a term without media", () => {
     const result = corrupt(data => {
-        data.terms.forEach(term => { delete term.media; });
+        clearStructuredMedia(data);
         data.terms[0].media = [validYouTubeMedia()];
+        data.terms[0].definition += "\n\n{{media:0}}\n\nNotice the demonstrated setup.";
         delete data.terms[1].media;
     });
     assert.deepEqual(result.errors, []);
     assert.equal(result.mediaItemCount, 1);
+});
+
+test("requires each structured media item to appear once in the definition", () => {
+    const result = corrupt(data => {
+        clearStructuredMedia(data);
+        data.terms[0].media = [validYouTubeMedia()];
+    });
+    assert.ok(result.errors.some(error => error.includes("media[0] is not placed")));
+});
+
+test("rejects duplicated, out-of-range, and unseparated inline media tokens", () => {
+    const duplicate = corrupt(data => {
+        clearStructuredMedia(data);
+        data.terms[0].media = [validYouTubeMedia()];
+        data.terms[0].definition += "\n\n{{media:0}}\n\nFirst.\n\n{{media:0}}\n\nSecond.";
+    });
+    assert.ok(duplicate.errors.some(error => error.includes("is duplicated")));
+
+    const outOfRange = corrupt(data => {
+        clearStructuredMedia(data);
+        data.terms[0].media = [validYouTubeMedia()];
+        data.terms[0].definition += "\n\n{{media:1}}\n\nAfter.";
+    });
+    assert.ok(outOfRange.errors.some(error => error.includes("does not reference an existing media item")));
+
+    const inline = corrupt(data => {
+        clearStructuredMedia(data);
+        data.terms[0].media = [validYouTubeMedia()];
+        data.terms[0].definition += " See {{media:0}} here.";
+    });
+    assert.ok(inline.errors.some(error => error.includes("must be exactly {{media:N}} on its own line")));
+});
+
+test("rejects an inline media token on a term without media", () => {
+    const result = corrupt(data => {
+        clearStructuredMedia(data);
+        data.terms[0].definition += "\n\n{{media:0}}\n\nAfter.";
+    });
+    assert.ok(result.errors.some(error => error.includes("does not reference an existing media item")));
 });
 
 test("accepts every supported structured media type", () => {

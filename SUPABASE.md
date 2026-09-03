@@ -5,8 +5,8 @@ MCSR Glossary uses the Supabase development/beta project with project ref
 <code>https://olmazjfubvpgtpoxlxzy.supabase.co</code>.
 
 <code>data/terms.json</code> remains the only published glossary dataset.
-Supabase stores community submissions, vote records, and aggregate vote totals;
-it does not publish or replace glossary content.
+Supabase stores community submissions, private term reports, vote records, and
+aggregate vote totals; it does not publish or replace glossary content.
 
 ## Architecture
 
@@ -15,16 +15,19 @@ it does not publish or replace glossary content.
 | <code>public.glossary_vote_totals</code> | Aggregate counts for canonical term UUIDs | None |
 | <code>public.glossary_vote_receipts</code> | One hashed vote receipt per term/browser | None |
 | <code>public.glossary_submissions</code> | Private moderation queue | None |
+| <code>public.glossary_term_reports</code> | Private queue for problems on published terms | None |
 | <code>public.cast_glossary_vote(uuid, uuid, text)</code> | Public invoker RPC wrapper | <code>EXECUTE</code> |
 | <code>public.get_glossary_vote_totals()</code> | Public read-only invoker RPC wrapper | <code>EXECUTE</code> |
 | <code>public.set_glossary_vote(uuid, uuid, smallint)</code> | Reversible public vote RPC wrapper | <code>EXECUTE</code> |
 | <code>public.get_glossary_vote_state(uuid)</code> | Aggregate totals plus this browser's current state | <code>EXECUTE</code> |
 | <code>public.submit_glossary_term(uuid, text, text, text[], text[], text, text)</code> | Public invoker RPC wrapper | <code>EXECUTE</code> |
+| <code>public.submit_glossary_term_report(uuid, uuid, text, text, text, text)</code> | Validated private-report RPC wrapper | <code>EXECUTE</code> |
 | <code>private.cast_glossary_vote(...)</code> | Privileged atomic vote implementation | Only through the wrapper |
 | <code>private.get_glossary_vote_totals()</code> | Privileged aggregate reader | Only through the wrapper |
 | <code>private.set_glossary_vote(...)</code> | Privileged reversible vote implementation | Only through the wrapper |
 | <code>private.get_glossary_vote_state(...)</code> | Privileged current-state reader | Only through the wrapper |
 | <code>private.submit_glossary_term(...)</code> | Privileged validated submission implementation | Only through the wrapper |
+| <code>private.submit_glossary_term_report(...)</code> | Privileged validated report implementation | Only through the wrapper |
 
 The <code>private</code> schema is not exposed through the Data API. The public
 RPCs are <code>SECURITY INVOKER</code> wrappers. Their narrowly scoped
@@ -124,12 +127,38 @@ There is no anonymous <code>SELECT</code>, <code>UPDATE</code>, or
 <code>DELETE</code> path for submissions. There is no database path that writes
 to <code>data/terms.json</code>.
 
+## Published-term reports
+
+The term-page flag action sends the persistent browser UUID, canonical term
+UUID and name, one controlled reason, optional details, and an empty honeypot
+to <code>submit_glossary_term_report</code>. Supported reasons are
+<code>inaccurate</code>, <code>inappropriate</code>,
+<code>broken_media</code>, <code>spam</code>, and <code>other</code>. An
+<code>other</code> report requires details.
+
+The private row contains the report UUID, SHA-256 reporter hash, canonical term
+UUID, an untrusted display-name snapshot, reason, optional details, status,
+timestamps, and optional moderation notes. Status is limited to
+<code>pending</code>, <code>resolved</code>, or <code>dismissed</code>, with
+database checks keeping review timestamps consistent. Report details are
+trimmed and limited to 10–2000 characters when supplied.
+
+Requests from one browser hash are serialized with a transaction-scoped
+advisory lock. A second pending report for the same browser and term is
+idempotent and returns the existing report. Other reports have a 30-second
+cooldown and a five-pending-report limit per browser hash. This is lightweight
+spam friction, not strong identity or determined-abuse prevention.
+
+Anonymous visitors can execute the validated RPC but cannot enumerate, insert,
+update, or delete report rows directly. Reports never appear in Stats and never
+modify <code>data/terms.json</code>.
+
 ## RLS and privileges
 
 RLS is enabled on every public table, including the retained prototype tables.
 
 - <code>anon</code> has no direct table grants.
-- <code>anon</code> can execute only the five public RPC wrappers and the
+- <code>anon</code> can execute only the six public RPC wrappers and the
   corresponding non-exposed implementations required by those wrappers.
 - <code>anon</code> cannot directly insert, update, or delete any backend table.
 - <code>authenticated</code> has no beta-site table or RPC privileges because
@@ -139,8 +168,8 @@ RLS is enabled on every public table, including the retained prototype tables.
 - The existing <code>rls_auto_enable()</code> event-trigger function remains
   installed, but all Data API roles have had direct execution revoked.
 
-Every public table has an explicit restrictive
-<code>deny_anon_direct_access</code> policy. These policies use
+Every public table has an explicit restrictive direct-access deny policy for
+Data API roles. These policies use
 <code>USING (false)</code> and <code>WITH CHECK (false)</code>; grants are also
 revoked.
 
@@ -170,6 +199,8 @@ Apply files from <code>supabase/migrations/</code> in filename order:
 4. <code>20260902033232_clarify_vote_totals_access.sql</code>
 5. <code>20260902203148_add_reversible_term_voting.sql</code>
 6. <code>20260902205450_seed_v02_vote_totals.sql</code>
+7. <code>20260903002325_add_private_term_reporting.sql</code>
+8. <code>20260903002833_index_term_reports_by_term.sql</code>
 
 These filenames match the beta project's remote migration versions and names.
 Do not edit an applied migration. Add a new timestamped migration for every
@@ -199,8 +230,9 @@ future schema, policy, function, or canonical vote-target change.
 5. Run <code>npm run check-content</code>.
 6. Serve the repository over HTTP and test vote loading, all six reversible
    vote transitions, repeat/idempotent requests, concurrent clients, a valid
-   submission, rejected malformed requests, and graceful behavior when
-   Supabase is unavailable.
+   submission, a valid and duplicate term report, rejected malformed requests,
+   direct report-enumeration denial, and graceful behavior when Supabase is
+   unavailable.
 7. Run the Supabase Security Advisor and review the live grants and policies.
 
 ## Moderation and publication
@@ -211,6 +243,15 @@ server-side tool. Treat every submitted field as untrusted text.
 ~~~sql
 select id, name, category, aliases, tags, definition, created_at
 from public.glossary_submissions
+where status = 'pending'
+order by created_at;
+~~~
+
+Review published-term reports through the same trusted channels:
+
+~~~sql
+select id, term_id, term_name, reason, details, created_at
+from public.glossary_term_reports
 where status = 'pending'
 order by created_at;
 ~~~
@@ -261,7 +302,8 @@ where routine_name in (
   'get_glossary_vote_totals',
   'set_glossary_vote',
   'get_glossary_vote_state',
-  'submit_glossary_term'
+  'submit_glossary_term',
+  'submit_glossary_term_report'
 )
 order by routine_schema, routine_name, grantee;
 ~~~

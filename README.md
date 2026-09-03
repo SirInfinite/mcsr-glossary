@@ -19,20 +19,20 @@ Content and behavior may still change, and tester feedback is welcome.
 - 80 source-reviewed published terms across formats, strategies, techniques, terminology, and tools
 - Ranked search across canonical names, aliases, tags, categories, and definition text
 - Alphabetical browsing, combined category/tag filters, result counts, and keyboard search
-- Shareable term pages with metadata, 3–6 contextual related-term cards, and correction links
-- 21 structured media examples across 20 visual definitions, including privacy-oriented click-to-load videos and original diagrams
+- Shareable reference-style term pages with compact metadata, contextual related terms, and icon-first copy, correction, and private-report actions
+- 21 structured media examples placed inside 20 visual definitions, including lazy privacy-enhanced video embeds and original diagrams
 - Random-term navigation
 - Light and dark themes saved in the browser
 - Truthful glossary coverage, recency, media, and aggregate-rating statistics
 - Reversible anonymous voting with atomic neutral/up/down transitions
-- New-term and edit proposals sent to a private moderation queue, with a clipboard fallback when the backend is unavailable
+- New-term and edit proposals plus published-term reports sent to private moderation queues, with a clipboard fallback when the backend is unavailable
 - Sanitized Markdown, a provider allowlist, a restrictive Content Security Policy, and automated content-contract tests
 
 ## Tech
 
 The site is plain HTML, CSS, and JavaScript with no framework or build step. Glossary content lives in [`data/terms.json`](data/terms.json), browser code uses native JavaScript modules, and small vendored libraries handle Markdown rendering, sanitization, and CSS normalization. The configured Supabase beta integration supports private moderated submissions and atomic reversible voting through a public project URL and publishable key; see [`SUPABASE.md`](SUPABASE.md) for the security and deployment model.
 
-The structured content contract, source register, SQL migrations, browser-facing security controls, and QA reports are tracked in the same public repository. At the current v0.2 showcase checkpoint, 46 automated checks cover 80 stable term routes, 254 related-term links, and 21 media records.
+The structured content contract, source register, SQL migrations, browser-facing security controls, and QA reports are tracked in the same public repository. At the current v0.2 showcase checkpoint, 53 automated checks cover 80 stable term routes, 254 related-term links, 21 media records, all reversible vote transitions, and term-report validation.
 
 ## Running Locally
 

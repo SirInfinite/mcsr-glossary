@@ -3,14 +3,19 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
+    analyzeMediaSlots,
     classifyMediaItem,
     getMediaPresentations,
+    getMediaSlotMarker,
     getVoteTarget,
+    markMediaSlots,
     normalizeVoteValue,
     projectVoteTotals,
     resolveRelatedTerms,
     resolveTermRoute,
-    searchTerms
+    searchTerms,
+    stripMediaSlots,
+    validateTermReportInput
 } from "../js/glossary-core.js";
 
 const glossary = JSON.parse(await readFile(new URL("../data/terms.json", import.meta.url), "utf8"));
@@ -80,6 +85,24 @@ test("term media presentation handles media-backed and text-only definitions", (
     assert.deepEqual(getMediaPresentations(undefined), []);
 });
 
+test("inline media slots are marked for safe DOM replacement and stripped from previews", () => {
+    const source = "Setup paragraph.\n\n{{media:0}}\n\nWhat to notice afterward.";
+    assert.equal(markMediaSlots(source), `Setup paragraph.\n\n${getMediaSlotMarker(0)}\n\nWhat to notice afterward.`);
+    assert.equal(stripMediaSlots(source), "Setup paragraph.\n\nWhat to notice afterward.");
+});
+
+test("inline media slot analysis requires one contextual placement per media item", () => {
+    const valid = analyzeMediaSlots("Before.\n\n{{media:0}}\n\nBetween.\n\n{{media:1}}\n\nAfter.", 2);
+    assert.deepEqual(valid.indexes, [0, 1]);
+    assert.deepEqual(valid.errors, []);
+
+    const invalid = analyzeMediaSlots("Before {{media:0}} after.\n\n{{media:2}}\n\nDone.", 2);
+    assert.ok(invalid.errors.some(error => error.includes("must be exactly")));
+    assert.ok(invalid.errors.some(error => error.includes("does not reference")));
+    assert.ok(invalid.errors.some(error => error.includes("media[0]")));
+    assert.ok(invalid.errors.some(error => error.includes("media[1]")));
+});
+
 test("invalid UI media is ignored while a safe-source fallback remains available", () => {
     const presentations = getMediaPresentations([
         { type: "unsupported", src: "javascript:alert(1)" },
@@ -87,6 +110,34 @@ test("invalid UI media is ignored while a safe-source fallback remains available
     ]);
     assert.equal(presentations.length, 1);
     assert.equal(presentations[0].presentation.kind, "fallback");
+});
+
+test("term report input accepts a canonical term and supported reason", () => {
+    const mapless = glossary.terms.find(term => term.name === "Mapless");
+    const result = validateTermReportInput({
+        termId: mapless.id,
+        termName: mapless.name,
+        reason: "broken_media",
+        details: "The tutorial no longer loads.",
+        website: ""
+    }, glossary.terms);
+    assert.deepEqual(result.errors, []);
+});
+
+test("term report input rejects spoofed terms, unsupported reasons, honeypots, and missing other details", () => {
+    const result = validateTermReportInput({
+        termId: "00000000-0000-0000-0000-000000000000",
+        termName: "Not published",
+        reason: "other",
+        details: "",
+        website: "bot.example"
+    }, glossary.terms);
+    assert.ok(result.errors.some(error => error.includes("rejected")));
+    assert.ok(result.errors.some(error => error.includes("published")));
+    assert.ok(result.errors.some(error => error.includes("details")));
+
+    const unsupported = validateTermReportInput({ reason: "anything" });
+    assert.ok(unsupported.errors.some(error => error.includes("supported")));
 });
 
 test("search ranks an exact canonical name before broader matches", () => {

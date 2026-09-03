@@ -1,13 +1,16 @@
 import { TERM_CONTRACT, isValidEditorialDate, slugifyTermName as slugify } from "./content-contract.js";
 import {
     classifyMediaItem,
-    getMediaPresentations,
+    getMediaSlotMarker,
     getVoteTarget,
+    markMediaSlots,
     normalizeVoteValue,
     projectVoteTotals,
     resolveRelatedTerms,
     resolveTermRoute,
-    searchTerms
+    searchTerms,
+    stripMediaSlots,
+    validateTermReportInput
 } from "./glossary-core.js";
 
 const REQUEST_TIMEOUT_MS = 8000;
@@ -249,63 +252,29 @@ function openMediaLightbox(item, trigger) {
     dialog.showModal();
 }
 
-function createProviderPlaceholder(item, providerName, loadEmbed) {
-    const placeholder = document.createElement("div");
-    placeholder.className = "media-provider-placeholder";
-
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "media-load-button";
-    button.setAttribute("aria-label", `Load ${item.title} from ${providerName}`);
-
-    const play = document.createElement("span");
-    play.className = "media-play-mark";
-    play.setAttribute("aria-hidden", "true");
-    play.textContent = "▶";
-
-    const copy = document.createElement("span");
-    const title = document.createElement("strong");
-    title.textContent = item.title;
-    const note = document.createElement("small");
-    note.textContent = `Load from ${providerName}`;
-    copy.append(title, note);
-    button.append(play, copy);
-
-    button.addEventListener("click", () => {
-        const embed = loadEmbed();
-        if (embed) placeholder.replaceChildren(embed);
-    }, { once: true });
-    placeholder.appendChild(button);
-    return placeholder;
-}
-
 function createMediaBody(item) {
     if (item.type === "youtube") {
-        return createProviderPlaceholder(item, "YouTube (privacy-enhanced)", () => {
-            const frame = document.createElement("iframe");
-            const params = new URLSearchParams({ rel: "0" });
-            if (item.start) params.set("start", String(item.start));
-            frame.src = `https://www.youtube-nocookie.com/embed/${item.src}?${params}`;
-            frame.title = item.title;
-            frame.loading = "lazy";
-            frame.referrerPolicy = "strict-origin-when-cross-origin";
-            frame.allow = "accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share";
-            frame.allowFullscreen = true;
-            return frame;
-        });
+        const frame = document.createElement("iframe");
+        const params = new URLSearchParams({ rel: "0" });
+        if (item.start) params.set("start", String(item.start));
+        frame.src = `https://www.youtube-nocookie.com/embed/${item.src}?${params}`;
+        frame.title = item.title;
+        frame.loading = "lazy";
+        frame.referrerPolicy = "strict-origin-when-cross-origin";
+        frame.allow = "accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share";
+        frame.allowFullscreen = true;
+        return frame;
     }
 
     if (item.type === "twitch") {
-        return createProviderPlaceholder(item, "Twitch", () => {
-            const frame = document.createElement("iframe");
-            const parent = window.location.hostname || "localhost";
-            frame.src = `https://clips.twitch.tv/embed?clip=${encodeURIComponent(item.src)}&parent=${encodeURIComponent(parent)}`;
-            frame.title = item.title;
-            frame.loading = "lazy";
-            frame.referrerPolicy = "strict-origin-when-cross-origin";
-            frame.allowFullscreen = true;
-            return frame;
-        });
+        const frame = document.createElement("iframe");
+        const parent = window.location.hostname || "localhost";
+        frame.src = `https://clips.twitch.tv/embed?clip=${encodeURIComponent(item.src)}&parent=${encodeURIComponent(parent)}&autoplay=false`;
+        frame.title = item.title;
+        frame.loading = "lazy";
+        frame.referrerPolicy = "strict-origin-when-cross-origin";
+        frame.allowFullscreen = true;
+        return frame;
     }
 
     if (item.type === "image") {
@@ -313,6 +282,7 @@ function createMediaBody(item) {
         button.type = "button";
         button.className = "media-image-button";
         button.setAttribute("aria-label", `Expand image: ${item.title}`);
+        button.style.aspectRatio = `${item.width} / ${item.height}`;
         const image = document.createElement("img");
         image.src = item.src;
         image.alt = item.alt;
@@ -329,26 +299,20 @@ function createMediaBody(item) {
         const button = document.createElement("button");
         button.type = "button";
         button.className = "media-image-button media-gif-button";
-        button.setAttribute("aria-pressed", "false");
-        button.setAttribute("aria-label", `Play animation: ${item.title}`);
+        button.setAttribute("aria-label", `Expand animation: ${item.title}`);
+        button.style.aspectRatio = `${item.width} / ${item.height}`;
         const image = document.createElement("img");
-        image.src = item.poster;
-        image.alt = `${item.alt} (animation paused)`;
+        image.src = item.src;
+        image.alt = item.alt;
         image.width = item.width;
         image.height = item.height;
         image.loading = "lazy";
-        const stateLabel = document.createElement("span");
-        stateLabel.className = "media-gif-state";
-        stateLabel.textContent = "Play GIF";
-        button.append(image, stateLabel);
-        button.addEventListener("click", () => {
-            const playing = button.getAttribute("aria-pressed") === "true";
-            button.setAttribute("aria-pressed", String(!playing));
-            button.setAttribute("aria-label", `${playing ? "Play" : "Pause"} animation: ${item.title}`);
-            image.src = playing ? item.poster : item.src;
-            image.alt = playing ? `${item.alt} (animation paused)` : item.alt;
-            stateLabel.textContent = playing ? "Play GIF" : "Pause GIF";
-        });
+        image.decoding = "async";
+        image.addEventListener("error", () => {
+            if (item.poster && image.getAttribute("src") !== item.poster) image.src = item.poster;
+        }, { once: true });
+        button.appendChild(image);
+        button.addEventListener("click", () => openMediaLightbox(item, button));
         return button;
     }
 
@@ -359,6 +323,7 @@ function createMediaBody(item) {
         video.playsInline = true;
         video.width = item.width;
         video.height = item.height;
+        video.style.aspectRatio = `${item.width} / ${item.height}`;
         if (item.poster) video.poster = item.poster;
         const source = document.createElement("source");
         source.src = item.src;
@@ -392,14 +357,7 @@ function createMediaFallback(item, index, fallbackURL = "") {
     const title = typeof item?.title === "string" && item.title.trim()
         ? item.title.trim()
         : `Media example ${index + 1}`;
-    const link = createExternalLink(sourceURL, `${title} — open source ↗`, "media-fallback-link");
-    if (!link) return null;
-    const note = document.createElement("p");
-    note.textContent = "This media type is not available here, so the original source is linked instead.";
-    const fallback = document.createElement("div");
-    fallback.className = "media-fallback";
-    fallback.append(link, note);
-    return fallback;
+    return createExternalLink(sourceURL, `${title} — open source ↗`, "media-fallback-link");
 }
 
 function createMediaFigure(item, index, presentation = classifyMediaItem(item)) {
@@ -416,32 +374,42 @@ function createMediaFigure(item, index, presentation = classifyMediaItem(item)) 
 
     if (presentation.kind === "media") {
         const caption = document.createElement("figcaption");
-        const heading = document.createElement("h3");
-        heading.textContent = item.title;
-        const description = document.createElement("p");
-        description.textContent = item.caption;
-        const attribution = document.createElement("p");
-        attribution.className = "media-attribution";
-        attribution.append("Credit: ");
+        caption.append(item.caption);
         const credit = createExternalLink(item.credit.url, item.credit.name);
-        if (credit) attribution.appendChild(credit);
-        const source = createExternalLink(item.sourceUrl, "Original source");
-        if (source) attribution.append(" · ", source);
-        caption.append(heading, description, attribution);
+        if (credit) caption.append(" by ", credit);
+        const providerLabel = item.type === "youtube"
+            ? "YouTube"
+            : item.type === "twitch"
+                ? "Twitch"
+                : "Source";
+        const source = createExternalLink(item.sourceUrl, providerLabel);
+        if (source) caption.append(" · ", source);
         figure.appendChild(caption);
     }
     return figure;
 }
 
-function renderMediaGallery(items, container) {
-    if (!container || !Array.isArray(items)) return 0;
-    container.replaceChildren();
+function renderDefinitionWithMedia(term, container) {
+    if (!container) return 0;
+    container.innerHTML = parseDefinition(markMediaSlots(term.definition));
     let renderedCount = 0;
-    getMediaPresentations(items).forEach(({ item, index, presentation }) => {
+    (term.media || []).forEach((item, index) => {
+        const marker = getMediaSlotMarker(index);
+        const markerElement = [...container.querySelectorAll("p")]
+            .find(element => element.textContent.trim() === marker && !element.children.length);
+        if (!markerElement) return;
+        const presentation = classifyMediaItem(item);
         const figure = createMediaFigure(item, index, presentation);
-        if (!figure) return;
-        container.appendChild(figure);
+        if (!figure) {
+            markerElement.remove();
+            return;
+        }
+        markerElement.replaceWith(figure);
         renderedCount += 1;
+    });
+
+    container.querySelectorAll("p").forEach(element => {
+        if (/^MCSRINLINEMEDIA\d+MARKER$/.test(element.textContent.trim())) element.remove();
     });
     return renderedCount;
 }
@@ -594,7 +562,7 @@ function navigateToTerm(term) {
 }
 
 function getDefinitionPreview(term, maxLength = 220) {
-    const text = plainText(parseDefinition(term?.definition || ""))
+    const text = plainText(parseDefinition(stripMediaSlots(term?.definition || "")))
         .replace(/\s+/g, " ")
         .trim();
     if (text.length <= maxLength) return text;
@@ -814,87 +782,77 @@ function renderTermDetail(id) {
             <button class="back-btn" id="detail-back" type="button">← Browse glossary</button>
             <article class="term-detail-article">
                 <header class="term-detail-header">
-                    <p class="eyebrow">${escapeHTML(term.category || "Glossary term")}</p>
-                    <h1 class="term-detail-name">${escapeHTML(term.name)}</h1>
+                    <div class="term-title-row">
+                        <div class="term-title-copy">
+                            <p class="eyebrow">${escapeHTML(term.category || "Glossary term")}</p>
+                            <h1 class="term-detail-name">${escapeHTML(term.name)}</h1>
+                        </div>
+                        <div class="term-detail-actions" aria-label="Term actions">
+                            <button class="term-utility-action copy-action" id="share-btn" type="button" aria-label="Copy link" title="Copy link">
+                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10.6 13.4a2 2 0 0 0 2.8 0l4-4a2 2 0 1 0-2.8-2.8l-1.3 1.3M13.4 10.6a2 2 0 0 0-2.8 0l-4 4a2 2 0 1 0 2.8 2.8l1.3-1.3"/></svg>
+                                <span>Copy Link</span>
+                            </button>
+                            <button class="term-utility-action edit-action" id="suggest-edit-btn" type="button" aria-label="Suggest an edit" aria-haspopup="dialog" aria-controls="submit-modal" title="Suggest an edit">
+                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v6M12 16.8v.1"/></svg>
+                                <span>Suggest an Edit</span>
+                            </button>
+                            <button class="term-utility-action report-action" id="report-term-btn" type="button" aria-label="Report a term" aria-haspopup="dialog" aria-controls="report-modal" title="Report a term">
+                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 21V4m0 1h10l-1.5 3L15 11H5"/></svg>
+                                <span>Report a Term</span>
+                            </button>
+                        </div>
+                    </div>
                     ${term.aliases?.length ? `<p class="term-aliases"><strong>Also known as:</strong> ${term.aliases.map(escapeHTML).join(", ")}</p>` : ""}
                     <div class="term-detail-meta">
-                        ${dateStr ? `<span>Reviewed ${dateStr}</span>` : ""}
+                        ${dateStr ? `<span>Updated ${dateStr}</span>` : ""}
                         <span>${relatedTerms.length} related ${relatedTerms.length === 1 ? "term" : "terms"}</span>
-                        ${term.media?.length ? `<span>${term.media.length} visual ${term.media.length === 1 ? "example" : "examples"}</span>` : ""}
                     </div>
                     ${term.tags?.length || term.needsUpdating ? `
                     <div class="term-tags term-detail-tags">
                         ${(term.tags || []).map(t => `<span class="term-tag">${escapeHTML(t)}</span>`).join("")}
                         ${term.needsUpdating ? `<span class="term-tag update-tag">Needs review</span>` : ""}
                     </div>` : ""}
-                    <div class="term-detail-actions">
-                        <button class="term-action-btn" id="share-btn" type="button">Copy link</button>
-                        <button class="term-action-btn" id="suggest-edit-btn" type="button">Suggest an edit</button>
-                        <a class="term-action-btn" href="https://github.com/SirInfinite/mcsr-glossary/blob/main/CONTENT_SOURCES.md" target="_blank" rel="noopener noreferrer">Review sources ↗</a>
-                    </div>
                 </header>
                 <div class="term-reading-layout">
-                    <div class="term-reading-main">
-                        <section class="term-definition" aria-labelledby="term-definition-title">
-                            <h2 class="sr-only" id="term-definition-title">Definition</h2>
-                            <div class="term-detail-body term-content">${parseDefinition(term.definition)}</div>
-                        </section>
-                        <section class="term-media" id="term-media" aria-labelledby="term-media-title">
-                            <div class="section-heading-row">
-                                <div>
-                                    <p class="section-kicker">See it in context</p>
-                                    <h2 id="term-media-title">Examples &amp; media</h2>
-                                </div>
+                    <section class="term-definition" aria-labelledby="term-definition-title">
+                        <h2 class="sr-only" id="term-definition-title">Definition</h2>
+                        <div class="term-detail-body term-content" id="term-definition-content"></div>
+                    </section>
+                    ${relatedTerms.length ? `
+                    <section class="related-terms" aria-labelledby="related-terms-title">
+                        <h2 id="related-terms-title">Related Terms</h2>
+                        <div class="related-term-grid">
+                            ${relatedTerms.map(related => `
+                                <button class="related-card" type="button" data-id="${related.id}">
+                                    <span class="related-card-top"><strong>${escapeHTML(related.name)}</strong><span>${escapeHTML(related.category)}</span></span>
+                                    <span class="related-card-preview">${escapeHTML(getDefinitionPreview(related, 96))}</span>
+                                </button>
+                            `).join("")}
+                        </div>
+                    </section>` : ""}
+                    <section class="vote-section" aria-labelledby="term-vote-title">
+                        <div class="vote-heading">
+                            <div>
+                                <p class="section-kicker">Community rating</p>
+                                <h2 id="term-vote-title">Was this useful?</h2>
                             </div>
-                            <div class="media-gallery" id="term-media-gallery"></div>
-                        </section>
-                        ${relatedTerms.length ? `
-                        <section class="related-terms" aria-labelledby="related-terms-title">
-                            <div class="section-heading-row">
-                                <div>
-                                    <p class="section-kicker">Keep learning</p>
-                                    <h2 id="related-terms-title">Related terms</h2>
-                                </div>
-                            </div>
-                            <div class="related-term-grid">
-                                ${relatedTerms.map(related => `
-                                    <button class="related-card" type="button" data-id="${related.id}">
-                                        <span class="related-card-top"><strong>${escapeHTML(related.name)}</strong><span>${escapeHTML(related.category)}</span></span>
-                                        <span class="related-card-preview">${escapeHTML(getDefinitionPreview(related, 105))}</span>
-                                        <span class="related-card-link">Open definition →</span>
-                                    </button>
-                                `).join("")}
-                            </div>
-                        </section>` : ""}
-                    </div>
-                    <aside class="term-reading-side" aria-label="Definition feedback and review information">
-                        <section class="vote-section">
-                            <p class="section-kicker">Community feedback</p>
-                            <h2>Was this useful?</h2>
                             <div class="vote-row" id="vote-row">
-                                <button class="vote-btn upvote ${currentVote === 1 ? 'voted' : ''}" id="vote-up" type="button" aria-label="Upvote ${escapeHTML(term.name)}" aria-pressed="${currentVote === 1}" ${votingEnabled ? '' : 'disabled'}>
-                                    <span aria-hidden="true">▲</span> Helpful <span id="vote-up-count">${votes.up}</span>
+                                <button class="vote-btn upvote ${currentVote === 1 ? 'voted' : ''}" id="vote-up" type="button" title="Mark ${escapeHTML(term.name)} as helpful" aria-pressed="${currentVote === 1}" ${votingEnabled ? '' : 'disabled'}>
+                                    <svg class="vote-symbol" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4 3.5 16h17L12 4Z"/></svg><span>Helpful</span><span id="vote-up-count">${votes.up}</span>
                                 </button>
-                                <button class="vote-btn downvote ${currentVote === -1 ? 'voted' : ''}" id="vote-down" type="button" aria-label="Downvote ${escapeHTML(term.name)}" aria-pressed="${currentVote === -1}" ${votingEnabled ? '' : 'disabled'}>
-                                    <span aria-hidden="true">▼</span> Needs work <span id="vote-down-count">${votes.down}</span>
+                                <button class="vote-btn downvote ${currentVote === -1 ? 'voted' : ''}" id="vote-down" type="button" title="Mark ${escapeHTML(term.name)} as needing work" aria-pressed="${currentVote === -1}" ${votingEnabled ? '' : 'disabled'}>
+                                    <svg class="vote-symbol" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m12 20 8.5-12h-17L12 20Z"/></svg><span>Needs work</span><span id="vote-down-count">${votes.down}</span>
                                 </button>
                             </div>
-                            <p class="vote-note" id="vote-status" role="status" aria-live="polite">${escapeHTML(voteNote)}</p>
-                        </section>
-                        <section class="review-note">
-                            <p class="section-kicker">Editorial model</p>
-                            <h2>Reviewed before publishing</h2>
-                            <p>Definitions are maintained in the public dataset. Community corrections enter a private review queue and never edit this page automatically.</p>
-                        </section>
-                    </aside>
+                        </div>
+                        <p class="vote-note" id="vote-status" role="status" aria-live="polite">${escapeHTML(voteNote)}</p>
+                    </section>
                 </div>
             </article>
         </div>
     `;
     document.title = `${term.name} | MCSR Glossary`;
-
-    const renderedMedia = renderMediaGallery(term.media, document.getElementById("term-media-gallery"));
-    if (!renderedMedia) document.getElementById("term-media")?.remove();
+    renderDefinitionWithMedia(term, document.getElementById("term-definition-content"));
 
     document.getElementById("detail-back")?.addEventListener("click", () => {
         if (history.state?.from) {
@@ -912,6 +870,10 @@ function renderTermDetail(id) {
 
     document.getElementById("suggest-edit-btn")?.addEventListener("click", () => {
         document.dispatchEvent(new CustomEvent("mcsr:open-submission", { detail: { term } }));
+    });
+
+    document.getElementById("report-term-btn")?.addEventListener("click", () => {
+        document.dispatchEvent(new CustomEvent("mcsr:open-report", { detail: { term } }));
     });
 
     function updateVoteControls(vote, totals, enabled = true) {
@@ -1313,6 +1275,17 @@ function buildSubmissionCopy(row) {
     ].join("\n");
 }
 
+function buildReportCopy(row) {
+    return [
+        "MCSR Glossary term report",
+        "",
+        `Term: ${row.termName} (${row.termId})`,
+        `Reason: ${row.reason}`,
+        "",
+        row.details || "No additional details provided."
+    ].join("\n");
+}
+
 function formatServiceFailure(error, action) {
     if ([400, 409, 422].includes(error?.status)) return `${action} was rejected by the server.`;
     if ([401, 403].includes(error?.status)) return `${action} is not enabled for public access.`;
@@ -1397,6 +1370,35 @@ async function submitTerm(formData) {
 
     const copied = await copyText(buildSubmissionCopy(row));
     return { ok: copied, sent: false, reason: sb.configurationError || "Online submission is not configured." };
+}
+
+async function submitTermReport(formData) {
+    const { value: row, errors } = validateTermReportInput(formData, data.terms);
+    if (errors.length) return { ok: false, sent: false, reason: errors[0] };
+
+    if (sb.enabled) {
+        try {
+            const result = await sb.rpc("submit_glossary_term_report", {
+                p_browser_id: getBrowserID(),
+                p_term_id: row.termId,
+                p_term_name: row.termName,
+                p_reason: row.reason,
+                p_details: row.details,
+                p_website: row.website
+            });
+            const response = Array.isArray(result) ? result[0] : result;
+            if (!response?.report_id || response.report_status !== "pending") {
+                throw new Error("Unexpected report response.");
+            }
+            return { ok: true, sent: true, reportID: response.report_id, created: response.created !== false };
+        } catch (error) {
+            const copied = await copyText(buildReportCopy(row));
+            return { ok: copied, sent: false, reason: formatServiceFailure(error, "Online report") };
+        }
+    }
+
+    const copied = await copyText(buildReportCopy(row));
+    return { ok: copied, sent: false, reason: sb.configurationError || "Online reporting is not configured." };
 }
 
 let votesCache = readStoredJSON("mcsr_vote_totals", {});
@@ -1569,7 +1571,7 @@ function renderStats() {
                 const button = document.createElement("button");
                 button.type = "button";
                 button.className = "community-rating-row";
-                button.innerHTML = `<span><strong>${escapeHTML(term.name)}</strong><small>${escapeHTML(term.category)}</small></span><span class="rating-totals"><span>▲ ${totals.up}</span><span>▼ ${totals.down}</span></span>`;
+                button.innerHTML = `<span><strong>${escapeHTML(term.name)}</strong><small>${escapeHTML(term.category)}</small></span><span class="rating-totals"><span><span class="vote-mark-up" aria-hidden="true">▲</span> ${totals.up}</span><span><span class="vote-mark-down" aria-hidden="true">▼</span> ${totals.down}</span></span>`;
                 button.addEventListener("click", () => navigateToTerm(term));
                 list.appendChild(button);
             });
@@ -1621,7 +1623,7 @@ function renderFeatured() {
         card.className = "featured-card";
         card.innerHTML = `
             <span class="featured-card-copy"><strong class="featured-card-name">${escapeHTML(term.name)}</strong><span class="featured-card-category">${escapeHTML(term.category)}</span></span>
-            <span class="featured-card-votes">${useRatings ? `▲ ${v.up} · ▼ ${v.down}` : term.media?.length ? `${term.media.length} visual ${term.media.length === 1 ? "example" : "examples"}` : "Read definition"}</span>
+            <span class="featured-card-votes">${useRatings ? `<span><span class="vote-mark-up" aria-hidden="true">▲</span> ${v.up}</span> · <span><span class="vote-mark-down" aria-hidden="true">▼</span> ${v.down}</span>` : term.media?.length ? `${term.media.length} visual ${term.media.length === 1 ? "example" : "examples"}` : "Read definition"}</span>
         `;
         card.addEventListener("click", () => navigateToTerm(term));
         list.appendChild(card);
@@ -1759,7 +1761,7 @@ async function init() {
         if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey) return;
         const target = event.target;
         if (target instanceof HTMLElement && (target.matches("input, textarea, select") || target.isContentEditable)) return;
-        if (!document.getElementById("submit-modal")?.hidden) return;
+        if (!document.getElementById("submit-modal")?.hidden || !document.getElementById("report-modal")?.hidden) return;
         event.preventDefault();
         if (currentPage !== "home") {
             setURLParams({ page: null, t: null });
@@ -1885,6 +1887,108 @@ async function init() {
         submitButton.textContent = sb.enabled
             ? (submissionMode === "correction" ? "Submit Edit for Review" : "Submit for Review")
             : "Copy Submission";
+    });
+
+    const reportModal = document.getElementById("report-modal");
+    const reportModalClose = document.getElementById("report-modal-close");
+    const reportBackdrop = document.getElementById("report-modal-backdrop");
+    const reportForm = document.getElementById("report-form");
+    const reportButton = document.getElementById("report-submit");
+    const reportStatus = document.getElementById("report-status");
+    const reportReason = document.getElementById("report-reason");
+    const reportDetails = document.getElementById("report-details");
+    const reportDetailsCount = document.getElementById("report-details-count");
+    const reportTermName = document.getElementById("report-term-name");
+    let reportReturnFocus = null;
+    let reportedTerm = null;
+
+    if (!sb.enabled && reportButton) reportButton.textContent = "Copy Report";
+
+    function updateReportDetails() {
+        if (reportDetailsCount && reportDetails) reportDetailsCount.textContent = `${reportDetails.value.length} / 2000`;
+        if (reportDetails && reportReason) reportDetails.required = reportReason.value === "other";
+    }
+
+    function openReportModal(term) {
+        if (!reportModal || !term) return;
+        reportReturnFocus = document.activeElement;
+        reportedTerm = term;
+        reportForm?.reset();
+        reportTermName.textContent = term.name;
+        reportStatus.hidden = true;
+        reportButton.textContent = sb.enabled ? "Send Report" : "Copy Report";
+        updateReportDetails();
+        reportModal.hidden = false;
+        document.body.style.overflow = "hidden";
+        reportReason?.focus();
+    }
+
+    function closeReportModal() {
+        if (!reportModal) return;
+        reportModal.hidden = true;
+        document.body.style.overflow = "";
+        reportStatus.hidden = true;
+        reportedTerm = null;
+        reportReturnFocus?.focus?.();
+    }
+
+    document.addEventListener("mcsr:open-report", event => openReportModal(event.detail?.term || null));
+    reportModalClose?.addEventListener("click", closeReportModal);
+    reportBackdrop?.addEventListener("click", closeReportModal);
+    reportReason?.addEventListener("change", updateReportDetails);
+    reportDetails?.addEventListener("input", updateReportDetails);
+
+    document.addEventListener("keydown", event => {
+        if (!reportModal || reportModal.hidden) return;
+        if (event.key === "Escape") {
+            event.preventDefault();
+            closeReportModal();
+            return;
+        }
+        if (event.key !== "Tab") return;
+
+        const focusable = [...reportModal.querySelectorAll("button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])")];
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    });
+
+    reportForm?.addEventListener("submit", async event => {
+        event.preventDefault();
+        updateReportDetails();
+        if (!reportForm.reportValidity() || !reportedTerm) return;
+
+        reportButton.disabled = true;
+        reportButton.textContent = sb.enabled ? "Sending…" : "Copying…";
+        const result = await submitTermReport({
+            termId: reportedTerm.id,
+            termName: reportedTerm.name,
+            reason: reportReason.value,
+            details: reportDetails.value,
+            website: document.getElementById("report-website").value
+        });
+
+        reportStatus.hidden = false;
+        if (result.ok && result.sent) {
+            reportStatus.textContent = result.created
+                ? "Report sent. A maintainer will review it privately."
+                : "This report is already in the review queue.";
+            reportStatus.style.color = "var(--accent)";
+            reportForm.reset();
+            updateReportDetails();
+            setTimeout(closeReportModal, 1800);
+        } else if (result.ok) {
+            reportStatus.textContent = `${result.reason} A copy was placed on your clipboard; it has not been sent.`;
+            reportStatus.style.color = "var(--accent)";
+        } else {
+            reportStatus.textContent = `${result.reason || "Report could not be processed."} Your form has been kept so you can try again.`;
+            reportStatus.style.color = "var(--update-tag-text)";
+        }
+
+        reportButton.disabled = false;
+        reportButton.textContent = sb.enabled ? "Send Report" : "Copy Report";
     });
 
     try {

@@ -247,7 +247,8 @@ function openMediaLightbox(item, trigger) {
     image.alt = item.alt;
     image.width = item.width;
     image.height = item.height;
-    caption.textContent = `${item.title} — ${item.caption}`;
+    const captionText = item.caption.trim().replace(/[.!?]+$/, "");
+    caption.textContent = `${captionText} by ${item.credit.name}`;
     lightboxReturnFocus = trigger;
     dialog.showModal();
 }
@@ -374,7 +375,8 @@ function createMediaFigure(item, index, presentation = classifyMediaItem(item)) 
 
     if (presentation.kind === "media") {
         const caption = document.createElement("figcaption");
-        caption.append(item.caption);
+        const captionText = item.caption.trim().replace(/[.!?]+$/, "");
+        caption.append(captionText);
         const credit = createExternalLink(item.credit.url, item.credit.name);
         if (credit) caption.append(" by ", credit);
         const providerLabel = item.type === "youtube"
@@ -605,7 +607,7 @@ function buildTermCard(term, delay = 0) {
 
     card.appendChild(cardHead);
 
-    if (term.tags?.length || term.needsUpdating || term.media?.length) {
+    if (term.tags?.length || term.media?.length) {
         const tagsDiv = document.createElement("div");
         tagsDiv.className = "term-tags";
 
@@ -628,13 +630,6 @@ function buildTermCard(term, delay = 0) {
             mediaBadge.className = "term-tag media-tag";
             mediaBadge.textContent = `${term.media.length} ${term.media.length === 1 ? "example" : "examples"}`;
             tagsDiv.appendChild(mediaBadge);
-        }
-
-        if (term.needsUpdating) {
-            const warn = document.createElement("span");
-            warn.className = "term-tag update-tag";
-            warn.textContent = "⚠️ Needs updating";
-            tagsDiv.appendChild(warn);
         }
 
         card.appendChild(tagsDiv);
@@ -765,12 +760,12 @@ function renderTermDetail(id) {
     const voteNote = !sb.enabled
         ? (sb.configurationError || "Voting is not configured.")
         : !voteServiceAvailable
-            ? `${voteServiceMessage} Displayed totals may be cached.`
+            ? `${voteServiceMessage} Totals may be out of date.`
             : currentVote === 1
-                ? "Your upvote is saved. Select Upvote again to remove it, or choose Downvote to switch."
+                ? "Upvote saved. Select it again to remove it, or choose Downvote to switch."
                 : currentVote === -1
-                    ? "Your downvote is saved. Select Downvote again to remove it, or choose Upvote to switch."
-                    : "Choose a reaction. One current vote is stored per persistent browser ID.";
+                    ? "Downvote saved. Select it again to remove it, or choose Upvote to switch."
+                    : "Select a reaction; select it again to remove it.";
     const updatedDate = term.updatedDate ? new Date(`${term.updatedDate}T00:00:00`) : null;
     const dateStr = updatedDate && !Number.isNaN(updatedDate.getTime())
         ? updatedDate.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
@@ -807,10 +802,9 @@ function renderTermDetail(id) {
                         ${dateStr ? `<span>Updated ${dateStr}</span>` : ""}
                         <span>${relatedTerms.length} related ${relatedTerms.length === 1 ? "term" : "terms"}</span>
                     </div>
-                    ${term.tags?.length || term.needsUpdating ? `
+                    ${term.tags?.length ? `
                     <div class="term-tags term-detail-tags">
                         ${(term.tags || []).map(t => `<span class="term-tag">${escapeHTML(t)}</span>`).join("")}
-                        ${term.needsUpdating ? `<span class="term-tag update-tag">Needs review</span>` : ""}
                     </div>` : ""}
                 </header>
                 <div class="term-reading-layout">
@@ -929,10 +923,10 @@ function renderTermDetail(id) {
         const authoritativeTotals = { up: result.upvotes, down: result.downvotes };
         updateVoteControls(result.currentVote, authoritativeTotals, true);
         status.textContent = result.currentVote === 1
-            ? "Your upvote is saved. Select Upvote again to remove it, or choose Downvote to switch."
+            ? "Upvote saved. Select it again to remove it, or choose Downvote to switch."
             : result.currentVote === -1
-                ? "Your downvote is saved. Select Downvote again to remove it, or choose Upvote to switch."
-                : "Your vote was removed. You can vote again at any time.";
+                ? "Downvote saved. Select it again to remove it, or choose Upvote to switch."
+                : "Vote removed. Choose Upvote or Downvote to vote again.";
         renderFeatured();
         showToast(result.currentVote === 0 ? "Vote removed." : result.currentVote === 1 ? "Upvote saved." : "Downvote saved.");
     }
@@ -1516,8 +1510,7 @@ function renderStats() {
         { label: "Published terms", value: data.terms.length },
         { label: "Categories", value: categories.length },
         { label: "Topic tags", value: allTags.size },
-        { label: "Media-backed", value: data.terms.filter(term => term.media?.length).length },
-        { label: "Needs review", value: data.terms.filter(term => term.needsUpdating).length }
+        { label: "Media-backed", value: data.terms.filter(term => term.media?.length).length }
     ];
 
     cards.forEach(({ label, value }) => {
@@ -1779,7 +1772,11 @@ async function init() {
     const submitStatus = document.getElementById("sub-status");
     const submitTitle = document.getElementById("submit-modal-title");
     const submitDescription = document.getElementById("submit-modal-description");
+    const submitTermContext = document.getElementById("submit-term-context");
+    const submitTermName = document.getElementById("submit-term-name");
     const definitionInput = document.getElementById("sub-definition");
+    const definitionLabel = document.getElementById("sub-definition-label");
+    const definitionHint = document.getElementById("sub-definition-hint");
     const definitionCount = document.getElementById("sub-definition-count");
     let returnFocus = null;
     let submissionMode = "new";
@@ -1798,9 +1795,17 @@ async function init() {
         returnFocus = document.activeElement;
         submitForm?.reset();
         submissionMode = term ? "correction" : "new";
+        submitModal.classList.toggle("is-correction", Boolean(term));
+        submitForm?.querySelectorAll("[data-new-submission-field]").forEach(element => {
+            element.hidden = Boolean(term);
+        });
+        if (submitTermContext) submitTermContext.hidden = !term;
+        if (submitTermName) submitTermName.textContent = term?.name || "";
         if (term) {
-            submitTitle.textContent = `Suggest an edit to ${term.name}`;
-            submitDescription.textContent = "Describe a correction or clearer replacement. It enters the same private review queue and cannot change the published definition automatically.";
+            submitTitle.textContent = "Suggest an Edit";
+            submitDescription.textContent = "Describe what should change or provide clearer wording. Suggestions never alter a published term automatically.";
+            definitionLabel.innerHTML = 'Suggested change <span aria-hidden="true">*</span>';
+            definitionHint.textContent = "Point to the issue and suggest replacement wording when possible.";
             document.getElementById("sub-name").value = term.name;
             document.getElementById("sub-category").value = term.category;
             document.getElementById("sub-aliases").value = (term.aliases || []).join(", ");
@@ -1811,8 +1816,10 @@ async function init() {
             submitDescription.textContent = sb.enabled
                 ? "Submissions are reviewed before publication. They never change the published glossary automatically."
                 : "Online review is temporarily unavailable. Complete the form to copy a formatted submission you can share with the project maintainer.";
+            definitionLabel.innerHTML = 'Definition <span aria-hidden="true">*</span>';
+            definitionHint.textContent = "Start with a plain-language meaning, then explain why it matters. Markdown is supported.";
         }
-        submitButton.textContent = sb.enabled ? (term ? "Submit Edit for Review" : "Submit for Review") : "Copy Submission";
+        submitButton.textContent = sb.enabled ? (term ? "Send Suggestion" : "Submit for Review") : (term ? "Copy Suggestion" : "Copy Submission");
         updateDefinitionCount();
         submitModal.hidden = false;
         document.body.style.overflow = "hidden";
@@ -1885,8 +1892,8 @@ async function init() {
 
         submitButton.disabled = false;
         submitButton.textContent = sb.enabled
-            ? (submissionMode === "correction" ? "Submit Edit for Review" : "Submit for Review")
-            : "Copy Submission";
+            ? (submissionMode === "correction" ? "Send Suggestion" : "Submit for Review")
+            : (submissionMode === "correction" ? "Copy Suggestion" : "Copy Submission");
     });
 
     const reportModal = document.getElementById("report-modal");

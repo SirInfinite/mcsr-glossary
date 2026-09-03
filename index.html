@@ -37,22 +37,23 @@
                 <button id="submit-modal-close" type="button" aria-label="Close submission dialog">&times;</button>
             </div>
             <p id="submit-modal-description" class="muted-note submit-description">Submissions are reviewed before publication. They never change the published glossary automatically.</p>
+            <p class="report-term-context" id="submit-term-context" hidden>Term: <strong id="submit-term-name"></strong></p>
             <p class="required-note"><span aria-hidden="true">*</span> Required fields</p>
             <form id="submit-form" class="submit-form">
-                <label class="submit-label" for="sub-name">Term name <span aria-hidden="true">*</span></label>
-                    <span class="field-hint" id="sub-name-hint">Use the clearest established community name.</span>
-                    <input id="sub-name" name="name" type="text" placeholder="e.g. One Cycle" autocomplete="off" minlength="2" maxlength="100" aria-describedby="sub-name-hint" required>
-                <label class="submit-label" for="sub-category">Category <span aria-hidden="true">*</span></label>
-                    <select id="sub-category" name="category" required>
+                <label class="submit-label" for="sub-name" data-new-submission-field>Term name <span aria-hidden="true">*</span></label>
+                    <span class="field-hint" id="sub-name-hint" data-new-submission-field>Use the clearest established community name.</span>
+                    <input id="sub-name" name="name" type="text" placeholder="e.g. One Cycle" autocomplete="off" minlength="2" maxlength="100" aria-describedby="sub-name-hint" data-new-submission-field required>
+                <label class="submit-label" for="sub-category" data-new-submission-field>Category <span aria-hidden="true">*</span></label>
+                    <select id="sub-category" name="category" data-new-submission-field required>
                         <option value="">Choose a category</option>
                     </select>
-                <label class="submit-label" for="sub-aliases">Aliases</label>
-                    <span class="field-hint" id="sub-aliases-hint">Comma-separated genuine alternate names; leave blank if none.</span>
-                    <input id="sub-aliases" name="aliases" type="text" placeholder="e.g. 1 Cycle, One-Cycle" maxlength="300" aria-describedby="sub-aliases-hint">
-                <label class="submit-label" for="sub-tags">Tags</label>
-                    <span class="field-hint" id="sub-tags-hint">Comma-separated lowercase topics such as end, navigation, or ranked.</span>
-                    <input id="sub-tags" name="tags" type="text" placeholder="e.g. end, dragon, java" maxlength="300" aria-describedby="sub-tags-hint">
-                <label class="submit-label" for="sub-definition">Definition <span aria-hidden="true">*</span></label>
+                <label class="submit-label" for="sub-aliases" data-new-submission-field>Aliases</label>
+                    <span class="field-hint" id="sub-aliases-hint" data-new-submission-field>Comma-separated genuine alternate names; leave blank if none.</span>
+                    <input id="sub-aliases" name="aliases" type="text" placeholder="e.g. 1 Cycle, One-Cycle" maxlength="300" aria-describedby="sub-aliases-hint" data-new-submission-field>
+                <label class="submit-label" for="sub-tags" data-new-submission-field>Tags</label>
+                    <span class="field-hint" id="sub-tags-hint" data-new-submission-field>Comma-separated lowercase topics such as end, navigation, or ranked.</span>
+                    <input id="sub-tags" name="tags" type="text" placeholder="e.g. end, dragon, java" maxlength="300" aria-describedby="sub-tags-hint" data-new-submission-field>
+                <label class="submit-label" id="sub-definition-label" for="sub-definition">Definition <span aria-hidden="true">*</span></label>
                     <span class="field-hint" id="sub-definition-hint">Start with a plain-language meaning, then explain why it matters. Markdown is supported.</span>
                     <textarea id="sub-definition" name="definition" rows="7" placeholder="Explain the term for a newcomer…" minlength="20" maxlength="5000" aria-describedby="sub-definition-hint sub-definition-count" required></textarea>
                     <span class="field-count" id="sub-definition-count">0 / 5000</span>
@@ -134,7 +135,7 @@
                     <div class="home-hero-copy">
                         <p class="eyebrow">Open-source Minecraft speedrunning reference</p>
                         <h1 id="home-title">Learn the language behind the run.</h1>
-                        <p class="hero-summary">Clear, source-reviewed definitions for MCSR techniques, routes, formats, tools, and competitive terminology—built for newer runners and viewers.</p>
+                        <p class="hero-summary">Clear, practical definitions for MCSR techniques, routes, formats, tools, and competitive terminology—built for newer runners and viewers.</p>
                         <div class="hero-actions">
                             <a class="hero-primary" href="#browse-title">Browse <span id="hero-term-count">80</span> terms</a>
                             <a class="hero-secondary" href="https://github.com/SirInfinite/mcsr-glossary" target="_blank" rel="noopener noreferrer">View the open-source project ↗</a>
@@ -142,7 +143,7 @@
                     </div>
                     <div class="hero-proof" aria-label="Project highlights">
                         <span><strong id="hero-media-count">20</strong> media-backed definitions</span>
-                        <span><strong>Source-reviewed</strong> educational content</span>
+                        <span><strong>Inline guides</strong> videos and diagrams</span>
                         <span><strong>Community</strong> submissions and voting</span>
                     </div>
                 </section>
@@ -256,12 +257,12 @@
                     <section class="about-card">
                         <p class="section-kicker">Why it exists</p>
                         <h2>A clearer entrance to a technical community</h2>
-                        <p>Minecraft speedrunning has specialized language for routes, structures, tools, timing, and competitive play. MCSR Glossary turns that vocabulary into a searchable, source-reviewed reference for runners and viewers who are still learning the scene.</p>
+                        <p>Minecraft speedrunning has specialized language for routes, structures, tools, timing, and competitive play. MCSR Glossary turns that vocabulary into a searchable reference for runners and viewers who are still learning the scene.</p>
                     </section>
                     <section class="about-card">
-                        <p class="section-kicker">How it is maintained</p>
-                        <h2>Static publishing, reviewed contributions</h2>
-                        <p><code>data/terms.json</code> remains the canonical published dataset. Community submissions enter a private moderation queue and never publish automatically. Definitions are checked against current rules, official documentation, primary projects, and established guides.</p>
+                        <p class="section-kicker">Built for the run</p>
+                        <h2>Fast to scan, easy to share</h2>
+                        <p>Stable term links, compact metadata, related concepts, and inline demonstrations keep each entry useful during practice, commentary, or a quick rules check.</p>
                     </section>
                     <section class="about-card">
                         <p class="section-kicker">Open source</p>

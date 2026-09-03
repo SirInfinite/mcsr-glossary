@@ -137,7 +137,7 @@
                     "src": "3TD4jkuT8QA",
                     "start": 0,
                     "title": "Blaze bedding tutorial",
-                    "caption": "Open and enclosed bed setups demonstrate how runners clear blocks around a Blaze spawner efficiently.",
+                    "caption": "Open and enclosed Blaze Bed setups",
                     "credit": {
                         "name": "k4yfour",
                         "url": "https://www.youtube.com/@k4yfour"
@@ -197,7 +197,7 @@
                     "src": "0N8Wj8hOVKM",
                     "start": 0,
                     "title": "Blind and educated travel tutorial",
-                    "caption": "Practical blind-travel coordinates are followed by an explanation of how an eye throw can refine the route.",
+                    "caption": "Blind and educated travel walkthrough",
                     "credit": {
                         "name": "BoomerPlayz",
                         "url": "https://www.youtube.com/@boomerplayz1"
@@ -233,7 +233,7 @@
                     "src": "2pzMpX1RJGI",
                     "start": 128,
                     "title": "Bridge bastion route tutorial",
-                    "caption": "A concise Bridge overview showing its layout, exposed gold, piglin setup, and route exits.",
+                    "caption": "Bridge Bastion route overview",
                     "credit": {
                         "name": "T_Wagz",
                         "url": "https://www.youtube.com/@TWagz"
@@ -268,7 +268,7 @@
                     "src": "La-yHiEr7QM",
                     "start": 0,
                     "title": "Lava-pool portal construction",
-                    "caption": "A repeatable water-and-lava sequence builds a fast Nether portal without mining obsidian.",
+                    "caption": "Fast lava-pool portal construction",
                     "credit": {
                         "name": "unfried EXTRA",
                         "url": "https://www.youtube.com/@unfriedextra"
@@ -326,7 +326,7 @@
                     "src": "Rx8i7e5lu7g",
                     "start": 0,
                     "title": "Calculated travel explained",
-                    "caption": "Measured eye information and a calculator produce a stronghold target for a more precise second portal.",
+                    "caption": "Calculated travel walkthrough",
                     "credit": {
                         "name": "Four",
                         "url": "https://www.youtube.com/@FourSR"
@@ -404,7 +404,7 @@
                     "src": "SXem01c44-I",
                     "start": 0,
                     "title": "Divine travel tutorial",
-                    "caption": "The version-specific fossil and chunk relationship is used to choose a Divine Travel exit portal.",
+                    "caption": "Divine Travel fossil setup",
                     "credit": {
                         "name": "k4yfour",
                         "url": "https://www.youtube.com/@k4yfour"
@@ -441,7 +441,7 @@
                     "src": "0N8Wj8hOVKM",
                     "start": 516,
                     "title": "Educated travel demonstration",
-                    "caption": "Starting at 8:36, a post-blind eye direction guides the return through the Nether toward a closer exit.",
+                    "caption": "Educated travel demonstration, starting at 8:36",
                     "credit": {
                         "name": "BoomerPlayz",
                         "url": "https://www.youtube.com/@boomerplayz1"
@@ -652,7 +652,7 @@
                     "src": "swSbv4AImzI",
                     "start": 87,
                     "title": "Reading Nether fortress structure pieces",
-                    "caption": "Recurring rooms and connections help identify the spawner-bearing exterior section of a fortress.",
+                    "caption": "Reading Nether Fortress structure pieces",
                     "credit": {
                         "name": "Lucas Chan",
                         "url": "https://www.youtube.com/@PupleeL"
@@ -756,7 +756,7 @@
                     "src": "BoNr-pbEITM",
                     "start": 132,
                     "title": "Housing bastion route tutorial",
-                    "caption": "A concise Housing Units route covering recognition, gold collection, piglin positioning, and the exit.",
+                    "caption": "Housing Bastion route overview",
                     "credit": {
                         "name": "T_Wagz",
                         "url": "https://www.youtube.com/@TWagz"
@@ -923,7 +923,7 @@
                     "src": "ho1rwmooHRg",
                     "start": 0,
                     "title": "Mapless buried treasure tutorial",
-                    "caption": "The Pie Chart and chunk-position process identifies and locates Buried Treasure without a map.",
+                    "caption": "Mapless Buried Treasure walkthrough",
                     "credit": {
                         "name": "MoleyG",
                         "url": "https://www.youtube.com/@moleyg"
@@ -1006,7 +1006,7 @@
                     "src": "jvTfMLPnMSw",
                     "start": 0,
                     "title": "2020 bastion microlensing guide",
-                    "caption": "k4yfour demonstrates the F3 entity-count and camera technique used to infer a Bastion's direction through Nether terrain.",
+                    "caption": "Bastion microlensing with F3 entity counts",
                     "credit": {
                         "name": "k4yfour",
                         "url": "https://www.youtube.com/@k4yfour"
@@ -1108,7 +1108,7 @@
                     "src": "swSbv4AImzI",
                     "start": 87,
                     "title": "Nether fortress navigation",
-                    "caption": "Structure pieces and navigation cues help runners locate a Blaze spawner efficiently.",
+                    "caption": "Fortress navigation and Blaze spawner search",
                     "credit": {
                         "name": "Lucas Chan",
                         "url": "https://www.youtube.com/@PupleeL"
@@ -1141,7 +1141,7 @@
                     "type": "image",
                     "src": "images/media/nether-coordinate-scaling.svg",
                     "title": "Nether coordinate scaling",
-                    "caption": "An original diagram showing why 100 blocks of horizontal Nether travel correspond to 800 Overworld blocks.",
+                    "caption": "1:8 Nether coordinate scaling diagram",
                     "credit": {
                         "name": "MCSR Glossary",
                         "url": "https://github.com/SirInfinite/mcsr-glossary"
@@ -1223,7 +1223,7 @@
                     "src": "JaVyuTyDxxs",
                     "start": 0,
                     "title": "One-cycle Ender Dragon tutorial",
-                    "caption": "Bed placement, timing, and damage are demonstrated during the dragon's perch at the exit portal.",
+                    "caption": "Bed timing for a one-cycle finish",
                     "credit": {
                         "name": "Marcus Fireworks",
                         "url": "https://www.youtube.com/@MarcusFireworks"
@@ -1298,7 +1298,7 @@
                     "src": "6V2sQthCzOc",
                     "start": 0,
                     "title": "How the Ender Dragon perches",
-                    "caption": "Dragon-flight and perch cues are explained in the context of preparing a bed-based finish.",
+                    "caption": "Dragon perch cues and bed setup",
                     "credit": {
                         "name": "T_Wagz",
                         "url": "https://www.youtube.com/@TWagz"
@@ -1762,7 +1762,7 @@
                     "src": "TioQsF5ygOg",
                     "start": 149,
                     "title": "Stables bastion route tutorial",
-                    "caption": "A concise Stables route showing hoglin management, distributed gold, piglin collection, and exits.",
+                    "caption": "Stables Bastion route overview",
                     "credit": {
                         "name": "T_Wagz",
                         "url": "https://www.youtube.com/@TWagz"
@@ -1843,7 +1843,7 @@
                     "src": "kQCt6JgWr6E",
                     "start": 0,
                     "title": "Stronghold navigation tutorial",
-                    "caption": "Structure-generation and Starter Staircase cues help narrow the search for the Portal Room.",
+                    "caption": "Stronghold navigation from the Starter Staircase",
                     "credit": {
                         "name": "k4yfour",
                         "url": "https://www.youtube.com/@k4yfour"
@@ -1901,7 +1901,7 @@
                     "src": "A9GGUWwNcrY",
                     "start": 132,
                     "title": "Treasure bastion route tutorial",
-                    "caption": "A concise Treasure Room route through its vertical layout, lava hazards, gold blocks, and piglin setup.",
+                    "caption": "Treasure Bastion route overview",
                     "credit": {
                         "name": "T_Wagz",
                         "url": "https://www.youtube.com/@TWagz"
@@ -1936,7 +1936,7 @@
                     "type": "image",
                     "src": "images/media/stronghold-triangulation.svg",
                     "title": "Two-throw triangulation diagram",
-                    "caption": "An original conceptual diagram showing two observed eye directions intersecting near an estimated stronghold position.",
+                    "caption": "Two-throw stronghold triangulation diagram",
                     "credit": {
                         "name": "MCSR Glossary",
                         "url": "https://github.com/SirInfinite/mcsr-glossary"
@@ -1951,7 +1951,7 @@
                     "src": "8c29j0We2VQ",
                     "start": 0,
                     "title": "Stronghold triangulation tutorial",
-                    "caption": "Two measured Eye of Ender throws demonstrate how runners estimate where their direction lines meet.",
+                    "caption": "Two-throw stronghold triangulation walkthrough",
                     "credit": {
                         "name": "BoomerPlayz",
                         "url": "https://www.youtube.com/@boomerplayz1"
@@ -2051,7 +2051,7 @@
                     "src": "iClDGWL0e5s",
                     "start": 0,
                     "title": "Zero-cycle Ender Dragon tutorial",
-                    "caption": "T_Wagz demonstrates a precise zero-cycle setup and explains the positioning and explosion timing behind the technique.",
+                    "caption": "Zero-cycle positioning and explosion timing",
                     "credit": {
                         "name": "T_Wagz",
                         "url": "https://www.youtube.com/@TWagz"

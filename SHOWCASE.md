@@ -11,6 +11,7 @@ MCSR Glossary organizes that vocabulary into one searchable, source-backed refer
 - A responsive glossary with 100 published terms and stable shareable URLs.
 - Ranked search across names, aliases, tags, categories, and definition text.
 - Alphabetical browsing, combined filters, result counts, clear empty states, and random discovery.
+- Search-first homepage discovery with a compact, vote-driven seven-day Trending strip.
 - Compact reference-style term pages with aliases, updated dates, tags, inline media, related terms, reversible voting, correction suggestions, and private problem reports.
 - 20 attributed visual examples placed within 19 definitions, including lazy privacy-enhanced tutorials and original diagrams.
 - Evidence-backed current, historical, and legacy classifications with a public indicator and concise context where appropriate.
@@ -49,8 +50,8 @@ GitHub issue templates guide reports for incorrect definitions, missing terminol
 - 19 media-backed definitions containing 20 attributed media items.
 - 508 unique public source URLs recorded in the per-term provenance ledger.
 - 475 validated related-term links.
-- 57 automated content-contract and UI-core tests, plus live Supabase integration checks.
-- Nine tracked Supabase migrations reproduced in the repository.
+- 59 automated content-contract and UI-core tests, plus live Supabase integration checks.
+- Ten tracked Supabase migrations reproduced in the repository.
 
 ## What I Learned
 
@@ -66,11 +67,11 @@ GitHub issue templates guide reports for incorrect definitions, missing terminol
 
 This sequence takes about four minutes.
 
-1. **Homepage — 30 seconds.** Open <https://sirinfinite.github.io/mcsr-glossary/>. Explain the problem in the hero, point out the published-term and media counts, and show that this is an open-source early beta rather than a finished encyclopedia.
+1. **Homepage — 30 seconds.** Open <https://sirinfinite.github.io/mcsr-glossary/>. Search immediately, then show that “Trending this week” reflects only positive vote activity from the trailing seven days rather than a curated list or lifetime totals.
 2. **Search and discovery — 35 seconds.** Press `/`, search `SSG`, and show that the verified canonical format ranks first. Clear it, search `legacy`, then briefly open Filter to show categories and tags. Mention that status text, aliases, and related terms are all validated and searchable.
-3. **Rich definition and media — 45 seconds.** Open **Mapless** from the visual-technique row. Walk through its compact metadata and newcomer-focused definition. Show how the tutorial sits at the explanatory point in the article, then point out its caption, creator credit, source link, and privacy-enhanced YouTube host.
+3. **Rich definition and media — 45 seconds.** Search for **Mapless** (or open it from Trending when present). Walk through its compact metadata and newcomer-focused definition. Show how the tutorial sits at the explanatory point in the article, then point out its caption, creator credit, source link, and privacy-enhanced YouTube host.
 4. **Related learning — 25 seconds.** Open **Pie Chart** from Related terms, then use Back and Forward. Explain that all 475 relationships are validated against canonical term names.
 5. **Reversible voting — 35 seconds.** On a term, choose Helpful, choose it again to return to neutral, then switch between Helpful and Needs work. Explain that one atomic Supabase RPC updates the hashed receipt and aggregate totals without client-side read-modify-write races.
 6. **Community contribution — 30 seconds.** Hover the compact action icons, then select **Suggest an Edit** to show prefilled term context. Open **Report a Term** and show the reason-specific private flow. Close both without sending demo content.
 7. **Stats and project transparency — 30 seconds.** Open Stats to show term, category, tag, media, recency, and public aggregate-rating data. Point out that pending submissions and voter identifiers are deliberately excluded.
-8. **Repository and engineering evidence — 40 seconds.** Open the repository. Show `data/terms.json`, `CONTENT_SOURCES.md`, `TERM_RESEARCH_REPORT.md`, `supabase/migrations/`, and the GitHub Actions workflow. Summarize the 57 automated checks, randomized source audit, RLS model, private report queue, and responsive QA.
+8. **Repository and engineering evidence — 40 seconds.** Open the repository. Show `data/terms.json`, `CONTENT_SOURCES.md`, `TERM_RESEARCH_REPORT.md`, `supabase/migrations/`, and the GitHub Actions workflow. Summarize the 59 automated checks, randomized source audit, RLS model, private report queue, and responsive QA.

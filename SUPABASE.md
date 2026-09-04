@@ -20,12 +20,14 @@ aggregate vote totals; it does not publish or replace glossary content.
 | <code>public.get_glossary_vote_totals()</code> | Public read-only invoker RPC wrapper | <code>EXECUTE</code> |
 | <code>public.set_glossary_vote(uuid, uuid, smallint)</code> | Reversible public vote RPC wrapper | <code>EXECUTE</code> |
 | <code>public.get_glossary_vote_state(uuid)</code> | Aggregate totals plus this browser's current state | <code>EXECUTE</code> |
+| <code>public.get_glossary_trending_terms()</code> | Read-only trailing-seven-day popularity aggregate | <code>EXECUTE</code> |
 | <code>public.submit_glossary_term(uuid, text, text, text[], text[], text, text)</code> | Public invoker RPC wrapper | <code>EXECUTE</code> |
 | <code>public.submit_glossary_term_report(uuid, uuid, text, text, text, text)</code> | Validated private-report RPC wrapper | <code>EXECUTE</code> |
 | <code>private.cast_glossary_vote(...)</code> | Privileged atomic vote implementation | Only through the wrapper |
 | <code>private.get_glossary_vote_totals()</code> | Privileged aggregate reader | Only through the wrapper |
 | <code>private.set_glossary_vote(...)</code> | Privileged reversible vote implementation | Only through the wrapper |
 | <code>private.get_glossary_vote_state(...)</code> | Privileged current-state reader | Only through the wrapper |
+| <code>private.get_glossary_trending_terms()</code> | Privileged recent-activity aggregate | Only through the wrapper |
 | <code>private.submit_glossary_term(...)</code> | Privileged validated submission implementation | Only through the wrapper |
 | <code>private.submit_glossary_term_report(...)</code> | Privileged validated report implementation | Only through the wrapper |
 
@@ -69,6 +71,14 @@ idempotent: <code>changed = false</code> and the totals remain unchanged. The
 frontend temporarily disables both controls while a request is pending, uses an
 optimistic projection, and rolls back to its prior truthful state if the RPC
 fails.
+
+Each active receipt also records when its direction last changed. The homepage
+calls <code>get_glossary_trending_terms()</code>, which returns at most five
+published term UUIDs with a positive net balance among active votes created or
+changed in the trailing seven days. Ties favor the higher recent-upvote count
+and then later activity. Removing a vote removes it from this window; repeating
+an unchanged vote does not refresh it. The response contains only term UUIDs and
+recent aggregate counts—never voter hashes or individual timestamps.
 
 This is lightweight early-beta integrity, not strong abuse prevention. A
 visitor can clear browser storage or supply another random UUID.
@@ -158,7 +168,7 @@ modify <code>data/terms.json</code>.
 RLS is enabled on every public table, including the retained prototype tables.
 
 - <code>anon</code> has no direct table grants.
-- <code>anon</code> can execute only the six public RPC wrappers and the
+- <code>anon</code> can execute only the seven public RPC wrappers and the
   corresponding non-exposed implementations required by those wrappers.
 - <code>anon</code> cannot directly insert, update, or delete any backend table.
 - <code>authenticated</code> has no beta-site table or RPC privileges because
@@ -201,10 +211,13 @@ Apply files from <code>supabase/migrations/</code> in filename order:
 6. <code>20260902205450_seed_v02_vote_totals.sql</code>
 7. <code>20260903002325_add_private_term_reporting.sql</code>
 8. <code>20260903002833_index_term_reports_by_term.sql</code>
+9. <code>20260904013041_seed_researched_term_vote_totals.sql</code>
+10. <code>20260904023801_add_recent_vote_trending.sql</code>
 
-These filenames match the beta project's remote migration versions and names.
-Do not edit an applied migration. Add a new timestamped migration for every
-future schema, policy, function, or canonical vote-target change.
+These files are the tracked deployment order. Confirm the remote migration list
+before deployment, do not edit an applied migration, and add a new timestamped
+migration for every future schema, policy, function, or canonical vote-target
+change.
 
 ## Fresh-project setup
 
@@ -228,8 +241,9 @@ future schema, policy, function, or canonical vote-target change.
 4. Retrieve the project URL and an enabled publishable key. Put only those two
    public values in <code>js/supabase-config.js</code>.
 5. Run <code>npm run check-content</code>.
-6. Serve the repository over HTTP and test vote loading, all six reversible
-   vote transitions, repeat/idempotent requests, concurrent clients, a valid
+6. Serve the repository over HTTP and test vote loading, trailing-seven-day
+   trending results, all six reversible vote transitions, repeat/idempotent
+   requests, concurrent clients, a valid
    submission, a valid and duplicate term report, rejected malformed requests,
    direct report-enumeration denial, and graceful behavior when Supabase is
    unavailable.
@@ -302,6 +316,7 @@ where routine_name in (
   'get_glossary_vote_totals',
   'set_glossary_vote',
   'get_glossary_vote_state',
+  'get_glossary_trending_terms',
   'submit_glossary_term',
   'submit_glossary_term_report'
 )

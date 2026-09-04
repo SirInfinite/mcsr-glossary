@@ -9,6 +9,7 @@ import {
     getMediaSlotMarker,
     getVoteTarget,
     markMediaSlots,
+    normalizeTrendingTerms,
     normalizeVoteValue,
     projectVoteTotals,
     resolveRelatedTerms,
@@ -83,6 +84,37 @@ test("term media presentation handles media-backed and text-only definitions", (
     assert.equal(getMediaPresentations(mapless.media).length, 1);
     assert.deepEqual(getMediaPresentations(anyPercent.media), []);
     assert.deepEqual(getMediaPresentations(undefined), []);
+});
+
+test("recent vote activity ranks only published terms with a positive balance", () => {
+    const [first, second, third] = glossary.terms.slice(0, 3);
+    const ranked = normalizeTrendingTerms([
+        { term_id: second.id, recent_upvotes: "4", recent_downvotes: "1" },
+        { term_id: first.id, recent_upvotes: 7, recent_downvotes: 1 },
+        { term_id: third.id, recent_upvotes: 2, recent_downvotes: 2 },
+        { term_id: "00000000-0000-0000-0000-000000000000", recent_upvotes: 99, recent_downvotes: 0 }
+    ], glossary.terms);
+
+    assert.deepEqual(ranked.map(entry => entry.term.id), [first.id, second.id]);
+    assert.deepEqual(ranked.map(entry => entry.score), [6, 3]);
+});
+
+test("recent vote activity rejects malformed counts, deduplicates terms, and respects its limit", () => {
+    const [first, second] = glossary.terms.slice(0, 2);
+    const ranked = normalizeTrendingTerms([
+        { term_id: first.id, recent_upvotes: 2, recent_downvotes: 0 },
+        { term_id: first.id, recent_upvotes: 5, recent_downvotes: 1 },
+        { term_id: second.id, recent_upvotes: -1, recent_downvotes: 0 },
+        { term_id: second.id, recent_upvotes: "not-a-count", recent_downvotes: 0 }
+    ], glossary.terms, 1);
+
+    assert.equal(ranked.length, 1);
+    assert.deepEqual(ranked[0], {
+        term: first,
+        recentUpvotes: 5,
+        recentDownvotes: 1,
+        score: 4
+    });
 });
 
 test("inline media slots are marked for safe DOM replacement and stripped from previews", () => {

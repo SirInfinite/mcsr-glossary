@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Homepage discovery refinement
+
+- Removed the oversized homepage hero so search and glossary controls are immediately available.
+- Replaced the curated featured-term fallback with a compact “Trending this week” strip driven only by positive vote activity from the trailing seven days.
+- Added a least-privilege read-only trending RPC without exposing individual vote receipts or browser hashes.
+
 ### Full terminology research rebuild
 
 - Re-researched every starting term from community, rules, tool, runner-guide, and technical-mechanics evidence; rewrote all published definitions from that evidence.

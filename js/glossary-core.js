@@ -194,3 +194,38 @@ export function projectVoteTotals(totals, currentVote, targetVote) {
         down: Math.max(0, downvotes)
     };
 }
+
+export function normalizeTrendingTerms(rows, terms, limit = 5) {
+    const publishedTerms = new Map(
+        (Array.isArray(terms) ? terms : []).map(term => [String(term?.id || ""), term])
+    );
+    const candidates = new Map();
+    const safeLimit = Number.isInteger(limit) ? Math.min(Math.max(limit, 0), 10) : 5;
+
+    (Array.isArray(rows) ? rows : []).forEach((row, position) => {
+        const term = publishedTerms.get(String(row?.term_id || ""));
+        const recentUpvotes = Number(row?.recent_upvotes);
+        const recentDownvotes = Number(row?.recent_downvotes);
+        if (!term
+            || !Number.isSafeInteger(recentUpvotes)
+            || !Number.isSafeInteger(recentDownvotes)
+            || recentUpvotes < 0
+            || recentDownvotes < 0) return;
+
+        const score = recentUpvotes - recentDownvotes;
+        if (score <= 0) return;
+
+        const candidate = { term, recentUpvotes, recentDownvotes, score, position };
+        const existing = candidates.get(term.id);
+        if (!existing
+            || candidate.score > existing.score
+            || (candidate.score === existing.score && candidate.recentUpvotes > existing.recentUpvotes)) {
+            candidates.set(term.id, candidate);
+        }
+    });
+
+    return [...candidates.values()]
+        .sort((a, b) => b.score - a.score || b.recentUpvotes - a.recentUpvotes || a.position - b.position)
+        .slice(0, safeLimit)
+        .map(({ position, ...candidate }) => candidate);
+}

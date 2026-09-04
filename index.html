@@ -130,40 +130,11 @@
         <!-- Main -->
         <main class="container" id="main-content" tabindex="-1">
             <section id="page-home" class="page" style="display:block;">
-
-                <section class="home-hero" aria-labelledby="home-title">
-                    <div class="home-hero-copy">
-                        <p class="eyebrow">Open-source Minecraft speedrunning reference</p>
-                        <h1 id="home-title">Learn the language behind the run.</h1>
-                        <p class="hero-summary">Clear, practical definitions for MCSR techniques, routes, formats, tools, and competitive terminology—built for newer runners and viewers.</p>
-                        <div class="hero-actions">
-                            <a class="hero-primary" href="#browse-title">Browse <span id="hero-term-count">100</span> terms</a>
-                            <a class="hero-secondary" href="https://github.com/SirInfinite/mcsr-glossary" target="_blank" rel="noopener noreferrer">View the open-source project ↗</a>
-                        </div>
-                    </div>
-                    <div class="hero-proof" aria-label="Project highlights">
-                        <span><strong id="hero-media-count">19</strong> media-backed definitions</span>
-                        <span><strong>Inline guides</strong> videos and diagrams</span>
-                        <span><strong>Community</strong> submissions and voting</span>
-                    </div>
-                </section>
-
-                <section id="featured-section" aria-labelledby="featured-title">
-                    <div class="section-heading-row">
-                        <div>
-                            <p class="section-kicker">Start here</p>
-                            <h2 class="featured-title" id="featured-title">Explore visual techniques</h2>
-                        </div>
-                        <p id="featured-note">A curated starting point while community ratings grow.</p>
-                    </div>
-                    <div id="featured-list"></div>
-                </section>
-
                 <div id="search-bar-wrapper" aria-labelledby="browse-title">
                     <div class="section-heading-row browse-heading">
                         <div>
-                            <p class="section-kicker">Full glossary</p>
-                            <h2 id="browse-title">Find a term</h2>
+                            <p class="section-kicker">MCSR Glossary</p>
+                            <h1 id="browse-title">Find a term</h1>
                         </div>
                         <p id="search-help">Press <kbd>/</kbd> to search from anywhere.</p>
                     </div>
@@ -223,9 +194,27 @@
                     </fieldset>
                 </div>
 
+                <section id="trending-section" aria-labelledby="trending-title" aria-live="polite" hidden>
+                    <div class="trending-heading">
+                        <div class="trending-heading-copy">
+                            <svg class="trending-flame" aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none">
+                                <path d="M13.6 2.8c.4 3.2-1.2 4.7-2.6 6.1-1.2 1.2-2.3 2.3-2.1 4.3.8-1.2 1.9-2 3.3-2.6-.1 2.1 1.2 3 2.1 4 .8.8 1.4 1.6 1.3 3.1 1.4-1.1 2.3-2.8 2.3-4.8 0-3.7-2.1-7.1-4.3-10.1Z" fill="currentColor"/>
+                                <path d="M12 21.1a5.9 5.9 0 0 1-5.9-5.9c0-2.4 1.1-4.5 3.1-6.4-.1 2.1.8 3.1 1.7 4 .7.8 1.4 1.5 1.1 2.9.8-.7 1.3-1.7 1.2-2.8 1.8 1.3 2.7 2.7 2.7 4.2 0 2.2-1.7 4-3.9 4Z" fill="currentColor" opacity=".55"/>
+                            </svg>
+                            <div>
+                                <p class="section-kicker">On fire</p>
+                                <h2 id="trending-title">Trending this week</h2>
+                            </div>
+                        </div>
+                        <p id="trending-note">Positive vote balance from the past 7 days.</p>
+                    </div>
+                    <ol id="trending-list"></ol>
+                </section>
+
                 <nav id="index" aria-label="Browse by letter"></nav>
 
-                <div id="terms"></div>
+                <h2 class="sr-only" id="all-terms-title">All glossary terms</h2>
+                <div id="terms" aria-labelledby="all-terms-title"></div>
 
             </section>
             <section id="page-term" class="page" style="display: none;">

@@ -4,6 +4,7 @@ import {
     getMediaSlotMarker,
     getVoteTarget,
     markMediaSlots,
+    normalizeTrendingTerms,
     normalizeVoteValue,
     projectVoteTotals,
     resolveRelatedTerms,
@@ -737,6 +738,7 @@ function renderTermsList(terms) {
 
     container.innerHTML = "";
     updateResultsToolbar(terms.length);
+    updateTrendingVisibility();
 
     if (!terms.length) {
         const msg = document.createElement("div");
@@ -940,7 +942,7 @@ function renderTermDetail(id) {
             : result.currentVote === -1
                 ? "Downvote saved. Select it again to remove it, or choose Upvote to switch."
                 : "Vote removed. Choose Upvote or Downvote to vote again.";
-        renderFeatured();
+        void loadTrendingTerms().then(renderTrending);
         showToast(result.currentVote === 0 ? "Vote removed." : result.currentVote === 1 ? "Upvote saved." : "Downvote saved.");
     }
 
@@ -1416,6 +1418,8 @@ const voteStates = storedVoteStates && typeof storedVoteStates === "object" && !
     : {};
 let voteServiceAvailable = false;
 let voteServiceMessage = sb.configurationError || "Voting is not configured.";
+let trendingTerms = [];
+let trendingServiceAvailable = false;
 
 async function loadVotes() {
     if (!sb.enabled) return false;
@@ -1441,6 +1445,26 @@ async function loadVotes() {
     } catch (error) {
         voteServiceAvailable = false;
         voteServiceMessage = formatServiceFailure(error, "Voting");
+        return false;
+    }
+}
+
+async function loadTrendingTerms() {
+    if (!sb.enabled) {
+        trendingTerms = [];
+        trendingServiceAvailable = false;
+        return false;
+    }
+
+    try {
+        const rows = await sb.rpc("get_glossary_trending_terms", {});
+        if (!Array.isArray(rows)) throw new Error("Unexpected trending response.");
+        trendingTerms = normalizeTrendingTerms(rows, data.terms, 5);
+        trendingServiceAvailable = true;
+        return true;
+    } catch {
+        trendingTerms = [];
+        trendingServiceAvailable = false;
         return false;
     }
 }
@@ -1491,8 +1515,8 @@ function getVoteState(termId) {
     return normalizeVoteValue(voteStates[termId]);
 }
 
-// top N terms by upvotes
-function getFeaturedTerms(n = 5) {
+// Top N terms by all-time aggregate vote balance, used on the Stats page.
+function getTopRatedTerms(n = 5) {
     return [...data.terms]
         .filter(t => {
             const v = getVotes(t.id);
@@ -1562,7 +1586,7 @@ function renderStats() {
 
     const community = document.getElementById("community-stats");
     if (community) {
-        const rated = getFeaturedTerms(5);
+        const rated = getTopRatedTerms(5);
         if (!rated.length) {
             community.innerHTML = `<div class="stats-empty"><strong>Ratings are just getting started.</strong><p>Open a definition and mark whether it was useful. Only aggregate totals appear here; browser voter IDs remain private.</p></div>`;
         } else {
@@ -1604,36 +1628,53 @@ async function renderChangelog() {
     }
 }
 
-function renderFeatured() {
-    const section = document.getElementById("featured-section");
-    if (!section) return;
+function renderTrending() {
+    const section = document.getElementById("trending-section");
+    const list = document.getElementById("trending-list");
+    if (!section || !list) return;
 
-    const rated = getFeaturedTerms(5);
-    const curatedNames = ["Mapless", "Nether Travel", "One Cycle", "Triangulation", "Zero Cycle"];
-    const curated = curatedNames.map(name => data.terms.find(term => term.name === name)).filter(Boolean);
-    const useRatings = rated.length >= 3;
-    const featured = (useRatings ? rated : curated).slice(0, 5);
-    if (!featured.length) return;
+    if (!trendingServiceAvailable || dataLoadFailed || !data.terms.length) {
+        section.hidden = true;
+        list.replaceChildren();
+        return;
+    }
 
-    document.getElementById("featured-title").textContent = useRatings ? "Community-rated definitions" : "Explore visual techniques";
-    document.getElementById("featured-note").textContent = useRatings
-        ? "Definitions with the strongest current aggregate feedback."
-        : "A curated starting point while community ratings grow.";
-    const list = document.getElementById("featured-list");
-    list.innerHTML = "";
+    section.hidden = false;
+    list.replaceChildren();
 
-    featured.forEach(term => {
-        const v = getVotes(term.id);
-        const card = document.createElement("button");
-        card.type = "button";
-        card.className = "featured-card";
-        card.innerHTML = `
-            <span class="featured-card-copy"><strong class="featured-card-name">${escapeHTML(term.name)}</strong><span class="featured-card-category">${escapeHTML(term.category)}</span></span>
-            <span class="featured-card-votes">${useRatings ? `<span><span class="vote-mark-up" aria-hidden="true">▲</span> ${v.up}</span> · <span><span class="vote-mark-down" aria-hidden="true">▼</span> ${v.down}</span>` : term.media?.length ? `${term.media.length} visual ${term.media.length === 1 ? "example" : "examples"}` : "Read definition"}</span>
+    if (!trendingTerms.length) {
+        const empty = document.createElement("li");
+        empty.className = "trending-empty";
+        empty.textContent = "No term has a positive recent vote balance yet.";
+        list.appendChild(empty);
+        updateTrendingVisibility();
+        return;
+    }
+
+    trendingTerms.forEach((entry, index) => {
+        const item = document.createElement("li");
+        const button = document.createElement("button");
+        const voteLabel = `${entry.recentUpvotes} recent upvote${entry.recentUpvotes === 1 ? "" : "s"} and ${entry.recentDownvotes} recent downvote${entry.recentDownvotes === 1 ? "" : "s"}`;
+        button.type = "button";
+        button.className = "trending-term";
+        button.setAttribute("aria-label", `Open ${entry.term.name}, trending score plus ${entry.score}; ${voteLabel}`);
+        button.title = voteLabel;
+        button.innerHTML = `
+            <span class="trending-rank" aria-hidden="true">${String(index + 1).padStart(2, "0")}</span>
+            <span class="trending-term-copy"><strong>${escapeHTML(entry.term.name)}</strong><small>${escapeHTML(entry.term.category)}</small></span>
+            <span class="trending-score"><strong>+${entry.score}</strong><small>7d</small></span>
         `;
-        card.addEventListener("click", () => navigateToTerm(term));
-        list.appendChild(card);
+        button.addEventListener("click", () => navigateToTerm(entry.term));
+        item.appendChild(button);
+        list.appendChild(item);
     });
+    updateTrendingVisibility();
+}
+
+function updateTrendingVisibility() {
+    const section = document.getElementById("trending-section");
+    if (!section) return;
+    section.hidden = !trendingServiceAvailable || dataLoadFailed || !data.terms.length || hasActiveBrowseState();
 }
 
 function initBTT() {
@@ -2039,12 +2080,9 @@ async function init() {
         renderTermsList(data.terms);
     }
 
-    document.getElementById("hero-term-count").textContent = String(data.terms.length);
-    document.getElementById("hero-media-count").textContent = String(data.terms.filter(term => term.media?.length).length);
     document.getElementById("footer-term-count").textContent = String(data.terms.length);
-    renderFeatured();
-    await loadVotes();
-    renderFeatured();
+    await Promise.all([loadVotes(), loadTrendingTerms()]);
+    renderTrending();
     handleURLRouting();
 }
 

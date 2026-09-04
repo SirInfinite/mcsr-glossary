@@ -16,11 +16,12 @@ Content and behavior may still change, and tester feedback is welcome.
 
 ## Features
 
-- 80 source-reviewed published terms across formats, strategies, techniques, terminology, and tools
+- 100 evidence-backed published terms across formats, strategies, techniques, terminology, and tools
 - Ranked search across canonical names, aliases, tags, categories, and definition text
 - Alphabetical browsing, combined category/tag filters, result counts, and keyboard search
 - Shareable reference-style term pages with compact metadata, contextual related terms, and icon-first copy, correction, and private-report actions
-- 21 structured media examples placed inside 20 visual definitions, including lazy privacy-enhanced video embeds and original diagrams
+- 20 structured media examples placed inside 19 visual definitions, including lazy privacy-enhanced video embeds and original diagrams
+- Understated current, historical, and legacy classifications backed by per-term research provenance
 - Random-term navigation
 - Light and dark themes saved in the browser
 - Truthful glossary coverage, recency, media, and aggregate-rating statistics
@@ -32,7 +33,7 @@ Content and behavior may still change, and tester feedback is welcome.
 
 The site is plain HTML, CSS, and JavaScript with no framework or build step. Glossary content lives in [`data/terms.json`](data/terms.json), browser code uses native JavaScript modules, and small vendored libraries handle Markdown rendering, sanitization, and CSS normalization. The configured Supabase beta integration supports private moderated submissions and atomic reversible voting through a public project URL and publishable key; see [`SUPABASE.md`](SUPABASE.md) for the security and deployment model.
 
-The structured content contract, source register, SQL migrations, browser-facing security controls, and QA reports are tracked in the same public repository. At the current v0.2 showcase checkpoint, 53 automated checks cover 80 stable term routes, 254 related-term links, 21 media records, all reversible vote transitions, and term-report validation.
+The structured content contract, source register, SQL migrations, browser-facing security controls, and QA reports are tracked in the same public repository. At the current research-rebuild checkpoint, 57 automated checks cover 100 stable term routes, 475 related-term links, 20 media records, terminology status metadata, all reversible vote transitions, and term-report validation.
 
 ## Running Locally
 
@@ -56,7 +57,7 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the content contract, sourcing expe
 
 ## Content Accuracy
 
-Corrections, missing terminology, and better supporting evidence are welcome through [GitHub Issues](https://github.com/SirInfinite/mcsr-glossary/issues/new/choose) or the site's term-proposal form. Research provenance is recorded in [`CONTENT_SOURCES.md`](CONTENT_SOURCES.md), with deeper review notes in [`CONTENT_AUDIT.md`](CONTENT_AUDIT.md).
+Corrections, missing terminology, and better supporting evidence are welcome through [GitHub Issues](https://github.com/SirInfinite/mcsr-glossary/issues/new/choose) or the site's term-proposal form. Per-term research provenance is recorded in [`CONTENT_SOURCES.md`](CONTENT_SOURCES.md), with the admission, rejection, and source-audit record in [`TERM_RESEARCH_REPORT.md`](TERM_RESEARCH_REPORT.md) and a concise review summary in [`CONTENT_AUDIT.md`](CONTENT_AUDIT.md).
 
 ## License
 

@@ -1,84 +1,83 @@
-# MCSR Glossary v0.2 Content Audit
+# MCSR Glossary Full Content Audit
 
-Audit date: 2026-09-02
+Audit date: 2026-09-03
 
-Scope: every published entry in `data/terms.json`, the structured media attached to those entries, and the source record in `CONTENT_SOURCES.md`.
+Scope: every published entry in `data/terms.json`, all structured media, aliases, status classifications, related-term links, and the term-by-term source ledger in `CONTENT_SOURCES.md`.
 
 ## Outcome
 
-- 80 published terms, up from the v0.1 baseline of 52.
-- 28 source-backed additions covering routing, structures, competitive terminology, navigation, and approved-tool context.
-- 21 existing definitions received substantive clarity, scope, or rules-context revisions.
-- 20 terms have structured media; 21 media items are recorded and attributed.
-- All canonical names, aliases, UUIDs, routes, categories, tags, and related-term references pass automated validation.
-- No raw iframe HTML, inline embed directives, invented quotations, unsupported term-origin dates, or unresolved related terms remain.
+- 100 published terms, rebuilt from a starting set of 80 unverified entries.
+- All 80 starting concepts met the admission standard; 78 retain their prior canonical name, while Blind became Blind Travel and Bucket Portal became Lava Pool Portal.
+- 20 evidence-supported terms were added after independent candidate review.
+- All 100 definitions were rewritten from the research, not lightly revised from the previous copy.
+- 21 unsupported aliases were removed and 37 verified aliases were added.
+- 91 terms are current, one is historical, and eight are legacy.
+- 19 terms contain structured inline media; 20 media items are recorded and attributed.
+- Every canonical name, alias, UUID, route, category, status, date, media reference, tag, and related-term reference passes automated validation.
 
-The audit does not claim that community language is permanently settled. Definitions and rules remain open to sourced corrections through the project issue and submission workflows.
+The full decision record, including rejected candidates and sources unavailable to this environment, is in `TERM_RESEARCH_REPORT.md`. The per-term evidence is in `CONTENT_SOURCES.md`.
 
-## Research standard
+## Admission and research standard
 
-Evidence was prioritized in this order:
+A term was admitted only when at least one of these standards was met:
 
-1. Current Minecraft Java speedrunning rules and leaderboard pages.
-2. Official MCSR Ranked documentation.
-3. Primary tool repositories and their documentation.
-4. Minecraft Wiki mechanics pages.
-5. The official Minecraft Speedrunning resource index and maintained Metacor guide.
-6. Established creator tutorials for visual execution examples.
+1. A strong primary or authoritative MCSR source explicitly established the terminology or technique.
+2. At least two independent community sources demonstrated substantially the same usage.
+3. Enough dated evidence established a genuine obscure or historical term.
 
-Every factual or media source used in this pass is listed in `CONTENT_SOURCES.md`. Third-party media remains at its original source; the repository contains only two original project diagrams.
+Community usage and the underlying Minecraft mechanic were checked as separate questions. Primary rules, MCSR Ranked documentation, tool repositories, runner-authored guides, public community discussions, and technical Minecraft references were used according to the claim being verified. Direct Discord research was unavailable; no private Discord access is claimed.
 
-## New-term coverage
-
-Atum, Blaze Bed, Bucket Portal, Buried Treasure, Desert Temple, End Entry, Flintless Portal, Forced Perch, Fortress Navigation, FSG, Glitchless, Half Bow, Lava Pool, Magma Ravine, Matchmaking, Microlensing, Nether Entry, Placement Match, Portal Room, RNG, Ruined Portal, Shipwreck, SpeedRunIGT, StandardSettings, Starter Staircase, Stronghold Navigation, Village, and WorldPreview.
-
-## Existing definitions revised
-
-Any%, Bastion, Classic, F3, Filtered Seed, Hypermodern, IGT, Leaderboard, Mapless, MCSR Ranked, Minecraft Speedrunning, Multi-Instance, Ninjabrain Bot, Pie Chart, Reset, RNG Standardization, RSG, SeedQueue, Set Seed, Speedrun.com, and Stronghold.
-
-The revisions focused on:
-
-- separating broad MCSR language from Java 1.16.1 RSG or Ranked-specific meaning;
-- stating the exit-portal/credits finish condition accurately;
-- distinguishing RSG, FSG, Set Seed, filtered seeds, and Ranked seeds;
-- clarifying debug-screen and stronghold-navigation techniques;
-- removing time-sensitive legality assumptions from tool definitions;
-- explaining practical relevance without promotional claims.
-
-## Taxonomy after review
+## Taxonomy after rebuild
 
 | Category | Terms |
 | --- | ---: |
-| format | 8 |
-| strategy | 6 |
-| technique | 15 |
-| terminology | 41 |
-| tool | 10 |
+| format | 13 |
+| strategy | 10 |
+| technique | 22 |
+| terminology | 43 |
+| tool | 12 |
 
-The small five-category vocabulary remains intentional. Mode and version limitations stay in prose and tags until the full dataset can support honest mode/version filters.
+The compact five-category vocabulary remains intentional. Mode and version scope stays in the researched prose and tags rather than adding speculative filter dimensions.
 
-## Rule-sensitive review queue
+## Status review
 
-These entries are publishable with their current caveats but should be rechecked when upstream rules or software releases change:
+`current` identifies terminology that remains relevant in present community use. `historical` identifies a real term whose described system no longer exists. `legacy` identifies terminology that remains understood but whose original route or tool role is less common today.
 
-- Atum, Multi-Instance, Ninjabrain Bot, SeedQueue, SpeedRunIGT, StandardSettings, and WorldPreview: approved versions/configuration can change.
-- MCSR Ranked, Matchmaking, Placement Match, Forced Perch, Filtered Seed, and RNG Standardization: official format behavior can change between seasons.
-- F3, Mapless, Microlensing, and Pie Chart: debug fields and profiler paths are version-specific.
-- FSG and Glitchless: filters and permitted techniques are defined by the current category rules.
+- Historical: Forced Perch.
+- Legacy: Axis Calculated, Calculated Travel, Divine Travel, Educated Travel, Hypermodern, LiveSplit, Multi-Instance, and Perfect Travel.
+
+Each non-current entry has a required public status indicator and a sourced historical note. Classic remains current because the label is still used even though the route style it describes is older.
 
 ## Media review
 
-- All 19 YouTube items (17 distinct video IDs) used by the dataset resolved during the 2026-09-02 review.
-- YouTube uses the privacy-enhanced host, initializes lazily at the authored inline position, and never autoplays.
-- Each item has a caption, credit, and direct source link.
-- The two local SVG diagrams are original MCSR Glossary assets with descriptive alternative text and intrinsic dimensions.
-- No third-party video or image was downloaded or rehosted.
+- All media remains in the safe structured inline model; no arbitrary iframe HTML was introduced.
+- The final dataset contains 18 YouTube embeds and two original local SVG diagrams.
+- One duplicate starting embed was removed, four items were moved to the most relevant surviving term, and three older videos were replaced with stronger explanations.
+- Every item has alternative text or an accessible title, a concise caption, a credit, and a direct source URL.
+- Third-party media remains hosted by its source; no third-party image or video was copied into the repository.
 
-## Remaining editorial limitations
+## High-risk claim review
 
-- Reliable invention dates are unavailable for most community terms, so historical date fields remain empty instead of being guessed.
-- Informal terms such as Classic and Half Bow can be used more loosely in conversation than in a scoped glossary definition.
-- The glossary is an educational reference, not a substitute for the live rules, leaderboard, or official Ranked documentation.
-- Community review is still valuable for regional phrasing, newly developed techniques, and changing competitive formats.
+The final pass separately rechecked every historical and legacy classification, all explicit dates, origin or first-use claims, strategy-replacement claims, mutable legality statements, and version boundaries. Unsupported origins and first-use claims were not published. Mutable rules and service behavior are either tied to the current authoritative source or worded with a maintenance caveat.
 
-Recommendation: content is suitable for v0.2 showcase QA, provided automated validation, link checks, and the final browser review remain green.
+A randomized 15-term source audit initially identified seven narrow wording or alias issues. Each was corrected, and three independent read-only rechecks passed all 15 entries with zero unsupported published claims remaining in the sample.
+
+## Maintenance-sensitive entries
+
+These entries meet the publication standard but should be rechecked when their upstream rules, software, or service changes:
+
+- Atum, Multi-Instance, Ninjabrain Bot, SeedQueue, SpeedRunIGT, StandardSettings, and WorldPreview: approved versions and configuration rules can change.
+- Elo, Matchmaking, MCSR Ranked, Placement Match, Filtered Seed, Forced Perch, and RNG Standardization: service rules can change between Ranked seasons.
+- F3, Mapless, Microlensing, Pie Chart, Pie-Ray, and Preemptive Navigation: debug behavior is version-specific.
+- FSG, Seedbank, ZSG, and Glitchless: filters and legal techniques are governed by live category rules.
+
+This rebuild establishes evidence for the published content as researched on 2026-09-03; it does not claim that community vocabulary or live rules are permanently fixed.
+
+## Final verification
+
+- 33 content-validator tests and 24 UI-core tests passed.
+- The live voting integration test passed and restored its target to the baseline totals.
+- The source-ledger audit found exactly 100 matching term sections and 508 unique public URLs.
+- Browser checks passed for 29 representative term-page loads, including ten current terms, six historical/legacy terms, and six inline-media terms.
+- Responsive captures at 1440×900, 1024×768, 768×1024, 390×844, and 360×800 showed no horizontal overflow.
+- The browser recorded zero page exceptions, console errors, local request failures, or HTTP error responses.

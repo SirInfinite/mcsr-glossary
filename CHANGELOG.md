@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Full terminology research rebuild
+
+- Re-researched every starting term from community, rules, tool, runner-guide, and technical-mechanics evidence; rewrote all published definitions from that evidence.
+- Expanded the glossary from 80 to 100 admitted terms, removed unsupported aliases, and documented rejected candidates rather than publishing plausible guesses.
+- Added validated `current`, `historical`, and `legacy` status metadata with concise public context for non-current terminology.
+- Rebuilt related-term links and audited every structured media placement against the rewritten definitions.
+- Added per-term existence, definition, mode/version, and historical provenance plus a randomized 15-term source audit.
+
 ### v0.2 showcase work
 
 - Expanded the reviewed glossary from 52 to 80 published terms and strengthened 21 existing definitions with clearer context and relationships.

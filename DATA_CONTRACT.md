@@ -10,13 +10,14 @@ The root JSON object contains:
 
 ## Term schema
 
-Every term contains the required fields below and may contain the documented optional `media` field. Unknown fields fail validation.
+Every term contains the required fields below and may contain the documented optional `historicalNote` and `media` fields. Unknown fields fail validation.
 
 | Field | Type | Contract |
 | --- | --- | --- |
 | `id` | string | Unique UUID in `8-4-4-4-12` hexadecimal form. IDs are stable database keys and must not change after publication. |
 | `name` | string | Unique canonical display name, 2–100 characters, trimmed. Names are compared case-insensitively and must produce a unique URL slug. |
 | `category` | string | One value from the controlled category list below. |
+| `status` | string | One of `current`, `historical`, or `legacy`. This describes present community relevance, not content quality. |
 | `aliases` | string[] | Genuine alternate names, at most 10 values of at most 80 characters each. Values are trimmed, unique case-insensitively, and may not collide with any canonical name or another term's alias. |
 | `tags` | string[] | Descriptive filter labels, at most 12 values of at most 40 characters each. Values are unique lowercase kebab-case strings such as `nether-travel` or `version-1-16-1`. |
 | `definition` | string | Trimmed Markdown, 20–5000 characters. Definitions under 80 or over 1200 characters produce review warnings. Raw iframe HTML and legacy media directives are prohibited. A media-backed definition places validated items with the inline token described below. |
@@ -24,6 +25,7 @@ Every term contains the required fields below and may contain the documented opt
 | `creationDate` | string | Editorial record creation date in `YYYY-MM-DD`, or an empty string when unknown. It is not the date the community term was invented. |
 | `needsUpdating` | boolean | Editorial review flag. Use `true` when known content work remains; record the reason in the content audit or source notes. |
 | `updatedDate` | string | Most recent substantive content revision in `YYYY-MM-DD`, or an empty string when unknown. The term page displays this value when present. |
+| `historicalNote` | string (optional) | Required for `historical` and `legacy` terms and forbidden for `current` terms. A trimmed 20–500 character explanation of when the term mattered and, only when sourced, what changed. |
 | `media` | object[] (optional) | Zero to six validated media items. Omit the field when a definition has no useful visual example. |
 
 ### Media schema
@@ -67,6 +69,14 @@ The finite category set is:
 
 Use the most specific category that describes why a newcomer needs the entry. Do not introduce synonyms such as `tech`, `term`, `run type`, or grammatical labels such as `noun, verb`.
 
+## Terminology status
+
+- `current`: actively relevant to current community discussion, categories, routes, techniques, or tooling.
+- `historical`: tied to an earlier rule, route, or period and no longer current in that original form.
+- `legacy`: less common in modern play but still understood and useful for reading older runs, guides, or community discussion.
+
+Only non-current terms receive a public status marker. Their required `historicalNote` is concise context, not a warning that the entry is invalid. Status and history claims require the same source provenance as definitions.
+
 ## Modes and versions
 
 The current model does not define `modes` or `versions` fields and the site does not present mode/version filters. The dataset does not classify every term completely enough for those filters to be truthful. Put important limitations in the definition, and use a descriptive tag such as `ranked`, `rsg`, or `version-1-16-1` only when it is accurate. An invented `modes` or `versions` field is rejected as an unsupported schema change.
@@ -75,7 +85,7 @@ The current model does not define `modes` or `versions` fields and the site does
 
 1. Add an object following `data/termTemplate.txt`, keeping `data/terms.json` alphabetized by canonical `name`.
 2. Generate a UUID. `npm run assign-ids` fills any blank `id`, or a UUID can be generated before editing.
-3. Use one controlled category and verify aliases, tags, dates, and related terms against this contract.
+3. Use one controlled category and status, then verify aliases, tags, dates, historical context, and related terms against this contract.
 4. If the ID is new, add it to a Supabase migration that seeds `glossary_vote_totals`; validation prevents published terms from silently lacking a vote row.
 5. Record factual and media sources in `CONTENT_SOURCES.md`. Do not copy third-party files into the repository without clear permission.
 6. Run the complete local check:

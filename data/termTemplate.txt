@@ -2,6 +2,7 @@
     "id": "",
     "name": "",
     "category": "",
+    "status": "current",
     "aliases": [],
     "tags": [],
     "definition": "",

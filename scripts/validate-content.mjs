@@ -50,6 +50,7 @@ export function validateGlossary(payload, { voteRowIDs = null } = {}) {
     const errors = [];
     const warnings = [];
     const categories = new Set(TERM_CONTRACT.categories);
+    const statuses = new Set(TERM_CONTRACT.statuses);
     const allowedFields = new Set([...TERM_CONTRACT.requiredFields, ...TERM_CONTRACT.optionalFields]);
     let mediaItemCount = 0;
 
@@ -230,6 +231,25 @@ export function validateGlossary(payload, { voteRowIDs = null } = {}) {
                         errors.push(`${label}: media[${mediaIndex}] ${mediaError}.`);
                     }
                 }
+            }
+        }
+
+        if (typeof term.status !== "string") {
+            errors.push(`${label}: status must be a string.`);
+        } else if (!statuses.has(term.status)) {
+            errors.push(`${label}: status '${term.status}' is not allowed. Use one of: ${TERM_CONTRACT.statuses.join(", ")}.`);
+        }
+
+        if (term.status === "current" && Object.hasOwn(term, "historicalNote")) {
+            errors.push(`${label}: historicalNote is only allowed when status is 'historical' or 'legacy'.`);
+        } else if (["historical", "legacy"].includes(term.status)) {
+            if (!Object.hasOwn(term, "historicalNote")) {
+                errors.push(`${label}: historicalNote is required when status is '${term.status}'.`);
+            } else if (typeof term.historicalNote !== "string"
+                || term.historicalNote !== term.historicalNote.trim()
+                || term.historicalNote.length < TERM_CONTRACT.limits.historicalNoteMin
+                || term.historicalNote.length > TERM_CONTRACT.limits.historicalNoteMax) {
+                errors.push(`${label}: historicalNote must be a trimmed string of ${TERM_CONTRACT.limits.historicalNoteMin}-${TERM_CONTRACT.limits.historicalNoteMax} characters.`);
             }
         }
 

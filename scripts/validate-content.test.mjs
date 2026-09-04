@@ -91,6 +91,16 @@ const failureCases = [
         expected: "category 'noun, verb' is not allowed"
     },
     {
+        name: "missing terminology status",
+        result: () => corrupt(data => { delete data.terms[0].status; }),
+        expected: "missing required field 'status'"
+    },
+    {
+        name: "invalid terminology status",
+        result: () => corrupt(data => { data.terms[0].status = "outdated"; }),
+        expected: "status 'outdated' is not allowed"
+    },
+    {
         name: "wrong field type",
         result: () => corrupt(data => { data.terms[0].aliases = "Any Percent"; }),
         expected: "aliases must be an array"
@@ -151,6 +161,26 @@ for (const failureCase of failureCases) {
         );
     });
 }
+
+test("requires concise historical context only for non-current terms", () => {
+    const missing = corrupt(data => {
+        data.terms[0].status = "historical";
+        delete data.terms[0].historicalNote;
+    });
+    assert.ok(missing.errors.some(error => error.includes("historicalNote is required")));
+
+    const currentWithNote = corrupt(data => {
+        data.terms[0].status = "current";
+        data.terms[0].historicalNote = "This should not be attached to a current entry.";
+    });
+    assert.ok(currentWithNote.errors.some(error => error.includes("only allowed")));
+
+    const validLegacy = corrupt(data => {
+        data.terms[0].status = "legacy";
+        data.terms[0].historicalNote = "Still understood, but no longer common in modern routes.";
+    });
+    assert.deepEqual(validLegacy.errors, []);
+});
 
 test("warns about unusually short and long definitions without failing them", () => {
     const result = corrupt(data => {

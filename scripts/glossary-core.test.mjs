@@ -146,10 +146,16 @@ test("search ranks an exact canonical name before broader matches", () => {
 });
 
 test("search finds exact aliases, partial names, tags, definitions, and ignores case", () => {
-    assert.equal(searchTerms(glossary.terms, "SSG")[0].name, "Set Seed");
+    assert.equal(searchTerms(glossary.terms, "SSG")[0].name, "SSG");
+    assert.equal(searchTerms(glossary.terms, "Set Seed Glitchless")[0].name, "SSG");
     assert.ok(searchTerms(glossary.terms, "micro").some(term => term.name === "Microlensing"));
     assert.ok(searchTerms(glossary.terms, "NAVIGATION").some(term => term.tags.includes("navigation")));
-    assert.ok(searchTerms(glossary.terms, "uncertainty").some(term => term.name === "Ninjabrain Bot"));
+    assert.ok(searchTerms(glossary.terms, "probabilistic").some(term => term.name === "Ninjabrain Bot"));
+});
+
+test("search finds historical and legacy classifications", () => {
+    assert.ok(searchTerms(glossary.terms, "historical").some(term => term.name === "Forced Perch"));
+    assert.ok(searchTerms(glossary.terms, "legacy").some(term => term.name === "Calculated Travel"));
 });
 
 test("search returns no result for a nonsense query", () => {

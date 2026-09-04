@@ -1,11 +1,12 @@
 const freezeList = values => Object.freeze([...values]);
 
 export const TERM_CONTRACT = Object.freeze({
-    schemaVersion: 2,
+    schemaVersion: 3,
     requiredFields: freezeList([
         "id",
         "name",
         "category",
+        "status",
         "aliases",
         "tags",
         "definition",
@@ -14,7 +15,7 @@ export const TERM_CONTRACT = Object.freeze({
         "needsUpdating",
         "updatedDate"
     ]),
-    optionalFields: freezeList(["media"]),
+    optionalFields: freezeList(["historicalNote", "media"]),
     categories: freezeList([
         "format",
         "strategy",
@@ -22,6 +23,7 @@ export const TERM_CONTRACT = Object.freeze({
         "terminology",
         "tool"
     ]),
+    statuses: freezeList(["current", "historical", "legacy"]),
     arrayFields: freezeList(["aliases", "tags", "relatedTerms"]),
     dateFields: freezeList(["creationDate", "updatedDate"]),
     limits: Object.freeze({
@@ -32,6 +34,8 @@ export const TERM_CONTRACT = Object.freeze({
         tagsMax: 12,
         tagMax: 40,
         relatedTermsMax: 20,
+        historicalNoteMin: 20,
+        historicalNoteMax: 500,
         definitionMin: 20,
         definitionMax: 5000,
         definitionWarningMin: 80,

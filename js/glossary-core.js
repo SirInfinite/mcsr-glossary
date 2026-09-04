@@ -90,6 +90,8 @@ export function rankTermForQuery(term, rawQuery) {
     const aliases = (term.aliases || []).map(normalizeSearchText);
     const tags = (term.tags || []).map(normalizeSearchText);
     const category = normalizeSearchText(term.category);
+    const status = normalizeSearchText(term.status);
+    const historicalNote = normalizeSearchText(term.historicalNote);
     const definition = normalizeSearchText(stripMediaSlots(term.definition));
 
     if (name === query) return 1000;
@@ -105,6 +107,9 @@ export function rankTermForQuery(term, rawQuery) {
     if (category.startsWith(query)) return 520;
     if (tags.some(tag => tag.includes(query))) return 480;
     if (category.includes(query)) return 460;
+    if (status === query) return 440;
+    if (status.includes(query)) return 420;
+    if (historicalNote.includes(query)) return 320;
     if (definition.includes(query)) return 300;
     return 0;
 }

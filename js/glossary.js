@@ -595,7 +595,16 @@ function buildTermCard(term, delay = 0) {
     category.className = "term-category";
     category.textContent = term.category || "";
     heading.appendChild(nameButton);
-    headerLeft.append(heading, category);
+    const classification = document.createElement("div");
+    classification.className = "term-classification";
+    classification.appendChild(category);
+    if (term.status && term.status !== "current") {
+        const status = document.createElement("span");
+        status.className = `term-status term-status-${term.status}`;
+        status.textContent = term.status;
+        classification.appendChild(status);
+    }
+    headerLeft.append(heading, classification);
     cardHead.appendChild(headerLeft);
 
     if (term.aliases?.length) {
@@ -779,7 +788,10 @@ function renderTermDetail(id) {
                 <header class="term-detail-header">
                     <div class="term-title-row">
                         <div class="term-title-copy">
-                            <p class="eyebrow">${escapeHTML(term.category || "Glossary term")}</p>
+                            <div class="term-detail-classification">
+                                <p class="eyebrow">${escapeHTML(term.category || "Glossary term")}</p>
+                                ${term.status && term.status !== "current" ? `<span class="term-status term-status-${escapeHTML(term.status)}">${escapeHTML(term.status)}</span>` : ""}
+                            </div>
                             <h1 class="term-detail-name">${escapeHTML(term.name)}</h1>
                         </div>
                         <div class="term-detail-actions" aria-label="Term actions">
@@ -798,6 +810,7 @@ function renderTermDetail(id) {
                         </div>
                     </div>
                     ${term.aliases?.length ? `<p class="term-aliases"><strong>Also known as:</strong> ${term.aliases.map(escapeHTML).join(", ")}</p>` : ""}
+                    ${term.historicalNote ? `<p class="term-historical-note">${escapeHTML(term.historicalNote)}</p>` : ""}
                     <div class="term-detail-meta">
                         ${dateStr ? `<span>Updated ${dateStr}</span>` : ""}
                         <span>${relatedTerms.length} related ${relatedTerms.length === 1 ? "term" : "terms"}</span>
@@ -1646,13 +1659,17 @@ function normalizeTermData(payload) {
         const missing = TERM_CONTRACT.requiredFields.filter(field => !Object.hasOwn(term, field));
         if (missing.length) throw new Error(`Invalid glossary data: ${label} is missing ${missing.join(", ")}.`);
 
-        for (const field of ["id", "name", "category", "definition", ...TERM_CONTRACT.dateFields]) {
+        for (const field of ["id", "name", "category", "status", "definition", ...TERM_CONTRACT.dateFields]) {
             if (typeof term[field] !== "string") throw new Error(`Invalid glossary data: ${label}.${field} must be a string.`);
         }
         for (const field of TERM_CONTRACT.arrayFields) {
             if (!Array.isArray(term[field])) throw new Error(`Invalid glossary data: ${label}.${field} must be an array.`);
         }
         if (!categories.has(term.category)) throw new Error(`Invalid glossary data: ${label} has an unsupported category.`);
+        if (!TERM_CONTRACT.statuses.includes(term.status)) throw new Error(`Invalid glossary data: ${label} has an unsupported status.`);
+        if (["historical", "legacy"].includes(term.status) && typeof term.historicalNote !== "string") {
+            throw new Error(`Invalid glossary data: ${label}.historicalNote must describe its historical context.`);
+        }
         if (typeof term.needsUpdating !== "boolean") throw new Error(`Invalid glossary data: ${label}.needsUpdating must be boolean.`);
         for (const field of TERM_CONTRACT.dateFields) {
             if (!isValidEditorialDate(term[field])) throw new Error(`Invalid glossary data: ${label}.${field} is not YYYY-MM-DD.`);
@@ -2002,7 +2019,8 @@ async function init() {
         const response = await fetchWithTimeout("data/terms.json");
         if (!response.ok) throw new Error(`Glossary data request failed: ${response.status}`);
         data = normalizeTermData(await response.json());
-    } catch {
+    } catch (error) {
+        console.error("Failed to load glossary data.", error);
         dataLoadFailed = true;
         data = { ...data, terms: [] };
     }

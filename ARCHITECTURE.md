@@ -128,7 +128,7 @@ Node 22 runs the validators and pinned development tools. The browser has no npm
 - `npm run test-live-backend`: public access-denial and capability/target coverage probes; never creates a valid moderation row.
 - `node scripts/scan-secrets.mjs --history`: scans the working tree and historical text blobs without printing credentials.
 
-CI uses the same local commands, one Chromium installation and one PostgreSQL 17 service. It uploads QA evidence and never deploys. GitHub Pages currently uses the repository's existing legacy `main` configuration; the structural branch does not change or publish it.
+CI uses the same local commands, one Chromium installation and one PostgreSQL 17 service. It uploads QA evidence and never deploys. `supabase/config.toml` records the local CLI settings: public-only API exposure, explicit grants and migration-owned seed data. GitHub Pages currently uses the repository's existing legacy `main` configuration; the structural branch does not change or publish it.
 
 ## Second architecture review
 

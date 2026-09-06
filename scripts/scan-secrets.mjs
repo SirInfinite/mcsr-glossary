@@ -31,10 +31,12 @@ if (process.argv.includes("--history")) {
     const objects = execFileSync("git", ["rev-list", "--objects", "--all"], { maxBuffer: 32 * 1024 * 1024 }).toString().trim().split("\n");
     for (const entry of objects) {
         const [id, ...name] = entry.split(" ");
-        if (!name.length || !/\.(?:js|mjs|cjs|json|md|sql|ya?ml|toml|env|txt|html|py)$/i.test(name.join(" "))) continue;
+        const filename = name.join(" ");
+        if (!filename || !(/\.(?:js|mjs|cjs|json|md|sql|ya?ml|toml|env|txt|html|py)$/i.test(filename) || /(?:^|\/)\.env(?:$|\.)/.test(filename))) continue;
         const data = execFileSync("git", ["cat-file", "-p", id], { maxBuffer: 16 * 1024 * 1024 });
         historicalBlobs++;
-        if (!data.includes(0)) inspect(data.toString("utf8"), `blob ${id}: ${name.join(" ")}`);
+        if (/(?:^|\/)\.env(?:$|\.)/.test(filename) && !filename.endsWith(".example")) findings.push({ type: "Historical environment file", location: `blob ${id}: ${filename}` });
+        if (!data.includes(0)) inspect(data.toString("utf8"), `blob ${id}: ${filename}`);
     }
 }
 // Findings contain only classification and location, never the matched secret.

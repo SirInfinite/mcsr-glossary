@@ -76,14 +76,14 @@ Local/CI reproduction uses PostgreSQL 17, pgcrypto, synthetic Supabase platform 
 For a fresh hosted Supabase project:
 
 1. Create a project, enable the Data API and expose public only for this application. Keep private unexposed. The glossary does not require Auth.
-2. Authenticate/link the CLI outside public configuration, inspect pending migrations and apply the reviewed files:
+2. Use the checked-in `supabase/config.toml` (CLI 2.116.0). It exposes only public, disables implicit grants and separate seeds, and selects PostgreSQL 17 for local reproduction. The remote project version/settings still require verification; this local file does not certify or update them. Authenticate/link outside public configuration, inspect pending migrations and apply the reviewed files:
 
    ```sh
-   npx supabase login
-   npx supabase link --project-ref YOUR_PROJECT_REF
-   npx supabase migration list --linked
-   npx supabase db push --linked --dry-run
-   npx supabase db push --linked
+   npx --yes supabase@2.116.0 login
+   npx --yes supabase@2.116.0 link --project-ref YOUR_PROJECT_REF
+   npx --yes supabase@2.116.0 migration list --linked
+   npx --yes supabase@2.116.0 db push --linked --dry-run
+   npx --yes supabase@2.116.0 db push --linked
    ```
 
 3. Verify ordered versions and actual definitions through authenticated Supabase MCP. Run `supabase/audit.sql` read-only, then Security and Performance Advisors; local results do not replace these gates.

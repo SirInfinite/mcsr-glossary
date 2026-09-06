@@ -46,6 +46,11 @@ const migrations = fs.readdirSync(path.join(root, "supabase/migrations")).sort()
 assert.ok(migrations.every(file => /^\d{14}_[a-z0-9_]+\.sql$/.test(file)), "Invalid migration filename");
 assert.equal(new Set(migrations.map(file => file.slice(0, 14))).size, migrations.length, "Migration versions must be unique");
 assert.ok(migrations.every(file => fs.readFileSync(path.join(root, "supabase/migrations", file), "utf8").trim()), "Empty migration");
+const databaseConfig = fs.readFileSync(path.join(root, "supabase/config.toml"), "utf8")
+    .split(/\r?\n/).map(line => line.replace(/#.*$/, "").trim()).filter(Boolean).join("\n");
+for (const setting of ['schemas = ["public"]', "auto_expose_new_tables = false", "major_version = 17", "[db.migrations]\nenabled = true", "[db.seed]\nenabled = false"]) {
+    assert.ok(databaseConfig.includes(setting), `Missing explicit Supabase setup: ${setting.split("\n")[0]}`);
+}
 const { dependencies = {}, devDependencies = {} } = JSON.parse(fs.readFileSync(path.join(root, "package.json")));
 assert.equal(Object.keys(dependencies).length, 0, "The browser has no npm runtime dependency tree");
 assert.ok(Object.values(devDependencies).every(value => /^\d+\.\d+\.\d+$/.test(value)), "Development tooling must be exactly pinned");

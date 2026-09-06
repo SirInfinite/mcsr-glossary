@@ -261,7 +261,7 @@ function createMediaBody(item) {
         if (item.start) params.set("start", String(item.start));
         frame.src = `https://www.youtube-nocookie.com/embed/${item.src}?${params}`;
         frame.title = item.title;
-        frame.loading = "lazy";
+        frame.loading = "eager";
         frame.referrerPolicy = "strict-origin-when-cross-origin";
         frame.allow = "accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share";
         frame.allowFullscreen = true;
@@ -273,7 +273,7 @@ function createMediaBody(item) {
         const parent = window.location.hostname || "localhost";
         frame.src = `https://clips.twitch.tv/embed?clip=${encodeURIComponent(item.src)}&parent=${encodeURIComponent(parent)}&autoplay=false`;
         frame.title = item.title;
-        frame.loading = "lazy";
+        frame.loading = "eager";
         frame.referrerPolicy = "strict-origin-when-cross-origin";
         frame.allowFullscreen = true;
         return frame;
@@ -456,6 +456,8 @@ function showToast(msg) {
     if (!toast) {
         toast = document.createElement("div");
         toast.className = "copy-toast";
+        toast.setAttribute("role", "status");
+        toast.setAttribute("aria-live", "polite");
         document.body.appendChild(toast);
     }
     toast.textContent = msg;
@@ -500,7 +502,6 @@ function applyTheme(theme) {
 
     const toggle = document.getElementById("theme-toggle");
     if (toggle) {
-        toggle.style.background = isDark ? "#11151f" : "#75b5ff";
         toggle.setAttribute("aria-label", isDark ? "Switch to light theme" : "Switch to dark theme");
     }
 }
@@ -542,7 +543,7 @@ function showPage(page, termId) {
 
     document.querySelectorAll(".nav-btn").forEach(btn => {
         btn.removeAttribute("aria-current");
-        if (btn.dataset.page === page) btn.setAttribute("aria-current", "page");
+        if ((btn.dataset.page === page || (page === "term" && btn.dataset.page === "home"))) btn.setAttribute("aria-current", "page");
     });
 
     if (page === "term" && termId) renderTermDetail(termId);
@@ -573,99 +574,34 @@ function getDefinitionPreview(term, maxLength = 220) {
     return `${shortened || text.slice(0, maxLength).trim()}…`;
 }
 
-function buildTermCard(term, delay = 0) {
-    const card = document.createElement("article");
-    card.className = "term";
-    card.setAttribute("id", `term-${term.id}`);
-    card.style.animationDelay = `${delay}ms`;
-
-    const cardHead = document.createElement("div");
-    cardHead.className = "card-head";
-
-    const headerLeft = document.createElement("div");
-    headerLeft.className = "term-header-left";
-    const heading = document.createElement("h3");
-    heading.className = "term-name-heading";
-    const nameButton = document.createElement("button");
-    nameButton.type = "button";
-    nameButton.className = "term-name term-name-link";
-    nameButton.textContent = term.name || "";
-    nameButton.setAttribute("aria-label", `View ${term.name}`);
-    nameButton.addEventListener("click", () => navigateToTerm(term));
-    const category = document.createElement("span");
-    category.className = "term-category";
-    category.textContent = term.category || "";
-    heading.appendChild(nameButton);
-    const classification = document.createElement("div");
-    classification.className = "term-classification";
-    classification.appendChild(category);
-    if (term.status && term.status !== "current") {
-        const status = document.createElement("span");
-        status.className = `term-status term-status-${term.status}`;
-        status.textContent = term.status;
-        classification.appendChild(status);
-    }
-    headerLeft.append(heading, classification);
-    cardHead.appendChild(headerLeft);
-
-    if (term.aliases?.length) {
-        const aka = document.createElement("span");
-        aka.className = "term-aka";
-        aka.textContent = `(a.k.a. ${term.aliases.join(", ")})`;
-        cardHead.appendChild(aka);
-    }
-
-    card.appendChild(cardHead);
-
-    if (term.tags?.length || term.media?.length) {
-        const tagsDiv = document.createElement("div");
-        tagsDiv.className = "term-tags";
-
-        (term.tags || []).slice(0, 3).forEach(tag => {
-            const badge = document.createElement("span");
-            badge.className = "term-tag";
-            badge.textContent = tag;
-            tagsDiv.appendChild(badge);
-        });
-        if ((term.tags || []).length > 3) {
-            const more = document.createElement("span");
-            more.className = "term-tag";
-            more.textContent = `+${term.tags.length - 3}`;
-            more.setAttribute("aria-label", `${term.tags.length - 3} more tags`);
-            tagsDiv.appendChild(more);
-        }
-
-        if (term.media?.length) {
-            const mediaBadge = document.createElement("span");
-            mediaBadge.className = "term-tag media-tag";
-            mediaBadge.textContent = `${term.media.length} ${term.media.length === 1 ? "example" : "examples"}`;
-            tagsDiv.appendChild(mediaBadge);
-        }
-
-        card.appendChild(tagsDiv);
-    }
-
-    const preview = document.createElement("p");
-    preview.className = "term-card-preview";
-    preview.textContent = getDefinitionPreview(term);
-    card.appendChild(preview);
-
-    const footer = document.createElement("div");
-    footer.className = "term-card-footer";
-    const relatedCount = document.createElement("span");
-    relatedCount.textContent = `${term.relatedTerms?.length || 0} related`;
-    const openButton = document.createElement("button");
-    openButton.type = "button";
-    openButton.className = "term-open-btn";
-    openButton.textContent = "Read definition →";
-    openButton.addEventListener("click", () => navigateToTerm(term));
-    footer.append(relatedCount, openButton);
-    card.appendChild(footer);
-
-    card.addEventListener("click", event => {
-        if (event.target.closest("a, button, input, iframe, video")) return;
+// Real anchors support opening definitions in another tab as well as local routing.
+function bindTermLink(link, term) {
+    link.href = `${window.location.pathname}?t=${encodeURIComponent(slugify(term.name))}`;
+    link.addEventListener("click", event => {
+        if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        hideSearchTooltip();
         navigateToTerm(term);
     });
+}
+
+function buildTermCard(term) {
+    const card = document.createElement("article");
+    card.className = "term";
+    card.id = `term-${term.id}`;
+    card.innerHTML = `
+        <div class="term-row-title">
+            <h3 class="term-name-heading"><a class="term-name term-name-link" aria-label="View ${escapeHTML(term.name)}">${highlightMatch(term.name, searchQuery)}</a></h3>
+            ${term.aliases?.length ? `<span class="term-aka">${highlightMatch(term.aliases.join(", "), searchQuery)}</span>` : ""}
+        </div>
+        <p class="term-card-preview">${highlightMatch(getDefinitionPreview(term), searchQuery)}</p>
+        <div class="term-row-meta">
+            <span class="term-category">${escapeHTML(term.category)}</span>
+            ${term.status !== "current" ? `<span class="term-status term-status-${escapeHTML(term.status)}">${escapeHTML(term.status)}</span>` : ""}
+            ${term.needsUpdating ? '<span class="term-status term-status-updating">Needs updating</span>' : ""}
+            ${term.media?.length ? `<span class="term-media-count"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16"/><path d="m10 8 6 4-6 4Z"/></svg>${term.media.length} ${term.media.length === 1 ? "example" : "examples"}</span>` : ""}
+        </div>`;
+    bindTermLink(card.querySelector("a"), term);
     return card;
 }
 
@@ -757,7 +693,9 @@ function renderTermsList(terms) {
         return;
     }
 
-    terms.forEach((term, i) => container.appendChild(buildTermCard(term, Math.min(i, 12) * 18)));
+    const fragment = document.createDocumentFragment();
+    terms.forEach(term => fragment.appendChild(buildTermCard(term)));
+    container.appendChild(fragment);
 }
 
 function renderTermDetail(id) {
@@ -784,17 +722,18 @@ function renderTermDetail(id) {
     const relatedTerms = resolveRelatedTerms(term, data.terms, 6);
 
     page.innerHTML = `
-        <div class="container term-detail-shell">
+        <div class="term-detail-shell">
             <button class="back-btn" id="detail-back" type="button">← Browse glossary</button>
             <article class="term-detail-article">
                 <header class="term-detail-header">
                     <div class="term-title-row">
                         <div class="term-title-copy">
+                            <h1 class="term-detail-name">${escapeHTML(term.name)}</h1>
                             <div class="term-detail-classification">
                                 <p class="eyebrow">${escapeHTML(term.category || "Glossary term")}</p>
                                 ${term.status && term.status !== "current" ? `<span class="term-status term-status-${escapeHTML(term.status)}">${escapeHTML(term.status)}</span>` : ""}
+                                ${term.needsUpdating ? '<span class="term-status term-status-updating">Needs updating</span>' : ""}
                             </div>
-                            <h1 class="term-detail-name">${escapeHTML(term.name)}</h1>
                         </div>
                         <div class="term-detail-actions" aria-label="Term actions">
                             <button class="term-utility-action copy-action" id="share-btn" type="button" aria-label="Copy link" title="Copy link">
@@ -812,6 +751,7 @@ function renderTermDetail(id) {
                         </div>
                     </div>
                     ${term.aliases?.length ? `<p class="term-aliases"><strong>Also known as:</strong> ${term.aliases.map(escapeHTML).join(", ")}</p>` : ""}
+                    ${term.needsUpdating ? '<p class="term-review-note">This term is established; its definition or context needs community review.</p>' : ""}
                     ${term.historicalNote ? `<p class="term-historical-note">${escapeHTML(term.historicalNote)}</p>` : ""}
                     <div class="term-detail-meta">
                         ${dateStr ? `<span>Updated ${dateStr}</span>` : ""}
@@ -832,10 +772,9 @@ function renderTermDetail(id) {
                         <h2 id="related-terms-title">Related Terms</h2>
                         <div class="related-term-grid">
                             ${relatedTerms.map(related => `
-                                <button class="related-card" type="button" data-id="${related.id}">
+                                <a class="related-card" data-id="${related.id}" href="?t=${encodeURIComponent(slugify(related.name))}">
                                     <span class="related-card-top"><strong>${escapeHTML(related.name)}</strong><span>${escapeHTML(related.category)}</span></span>
-                                    <span class="related-card-preview">${escapeHTML(getDefinitionPreview(related, 96))}</span>
-                                </button>
+                                </a>
                             `).join("")}
                         </div>
                     </section>` : ""}
@@ -950,10 +889,8 @@ function renderTermDetail(id) {
     document.getElementById("vote-down")?.addEventListener("click", () => handleVote(-1));
 
     page.querySelectorAll(".related-card[data-id]").forEach(el => {
-        el.addEventListener("click", () => {
-            const related = data.terms.find(t => t.id === el.dataset.id);
-            navigateToTerm(related);
-        });
+        const related = data.terms.find(t => t.id === el.dataset.id);
+        if (related) bindTermLink(el, related);
     });
 }
 
@@ -974,6 +911,7 @@ function positionTooltip() {
     tooltip.style.top = `${rect.bottom + 6}px`;
     tooltip.style.left = `${rect.left}px`;
     tooltip.style.width = `${rect.width}px`;
+    tooltip.style.maxHeight = `${Math.max(120, Math.min(400, window.innerHeight - rect.bottom - 16))}px`;
 }
 
 function showSearchTooltip(query) {
@@ -986,6 +924,7 @@ function showSearchTooltip(query) {
     const results = filterAndSearch().slice(0, 7);
     tooltipItems = results;
     tooltipFocusIdx = -1;
+    document.getElementById("search-input")?.removeAttribute("aria-activedescendant");
 
     if (!results.length) { hideSearchTooltip(); return; }
 
@@ -1042,7 +981,7 @@ function moveFocus(dir) {
         i.classList.remove("tooltip-focused");
         i.setAttribute("aria-selected", "false");
     });
-    tooltipFocusIdx = (tooltipFocusIdx + dir + items.length) % items.length;
+    tooltipFocusIdx = tooltipFocusIdx < 0 ? (dir > 0 ? 0 : items.length - 1) : (tooltipFocusIdx + dir + items.length) % items.length;
     items[tooltipFocusIdx].classList.add("tooltip-focused");
     items[tooltipFocusIdx].setAttribute("aria-selected", "true");
     document.getElementById("search-input")?.setAttribute("aria-activedescendant", items[tooltipFocusIdx].id);
@@ -1571,6 +1510,16 @@ function renderStats() {
         }).join("");
     }
 
+    const statusStats = document.getElementById("status-stats");
+    if (statusStats) {
+        const statuses = ["current", "historical", "legacy"].map(status => ({ status, count: data.terms.filter(term => term.status === status).length }));
+        const mediaCount = data.terms.reduce((total, term) => total + (term.media?.length || 0), 0);
+        const mediaTerms = data.terms.filter(term => term.media?.length).length;
+        statusStats.innerHTML = `<div class="status-distribution" role="img" aria-label="${statuses.map(item => `${item.count} ${item.status}`).join(', ')} terms">${statuses.map(item => `<span class="${item.status}" style="flex:${item.count}"></span>`).join("")}</div>
+            <dl class="status-ledger">${statuses.map(item => `<div><dt>${item.status[0].toUpperCase() + item.status.slice(1)}</dt><dd>${item.count}</dd></div>`).join("")}</dl>
+            <p class="coverage-note">${mediaCount} visual examples across ${mediaTerms} definitions · ${Math.round(mediaTerms / Math.max(1, data.terms.length) * 100)}% media coverage.</p>`;
+    }
+
     const recent = document.getElementById("recent-terms");
     if (recent) {
         recent.replaceChildren();
@@ -1622,6 +1571,18 @@ async function renderChangelog() {
         const markdown = (await response.text()).replace(/^#\s+changelog\s*$/im, "").trim();
         content.className = "term-content changelog-markdown";
         content.innerHTML = parseDefinition(markdown);
+        const entries = [...content.children];
+        let body = null;
+        entries.forEach(element => {
+            if (element.tagName === "H2") {
+                const section = document.createElement("section");
+                section.className = "changelog-release";
+                body = document.createElement("div");
+                body.className = "term-content";
+                section.append(element, body);
+                content.appendChild(section);
+            } else if (body) body.appendChild(element);
+        });
     } catch {
         content.className = "";
         content.innerHTML = `<div class="changelog-error" role="status"><p>The local release notes could not be loaded.</p><a href="https://github.com/SirInfinite/mcsr-glossary/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">Read the changelog on GitHub ↗</a></div>`;
@@ -1683,7 +1644,7 @@ function initBTT() {
     window.addEventListener("scroll", () => {
         btn.classList.toggle("visible", window.scrollY > 400);
     }, { passive: true });
-    btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+    btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }));
 }
 
 function normalizeTermData(payload) {
@@ -1803,6 +1764,7 @@ async function init() {
         searchInput.addEventListener("blur", () => setTimeout(hideSearchTooltip, 180));
     }
 
+    window.addEventListener("scroll", hideSearchTooltip, { passive: true });
     window.addEventListener("resize", () => {
         const tooltip = document.getElementById("search-tooltip");
         if (tooltip?.style.display !== "none") positionTooltip();
@@ -1908,7 +1870,7 @@ async function init() {
         }
         if (event.key !== "Tab") return;
 
-        const focusable = [...submitModal.querySelectorAll("button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])")];
+        const focusable = [...submitModal.querySelectorAll("button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary")].filter(element => element.tabIndex >= 0 && element.checkVisibility());
         if (!focusable.length) return;
         const first = focusable[0];
         const last = focusable[focusable.length - 1];
@@ -2012,7 +1974,7 @@ async function init() {
         }
         if (event.key !== "Tab") return;
 
-        const focusable = [...reportModal.querySelectorAll("button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])")];
+        const focusable = [...reportModal.querySelectorAll("button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary")].filter(element => element.tabIndex >= 0 && element.checkVisibility());
         if (!focusable.length) return;
         const first = focusable[0];
         const last = focusable[focusable.length - 1];
@@ -2081,6 +2043,7 @@ async function init() {
     }
 
     document.getElementById("footer-term-count").textContent = String(data.terms.length);
+    document.getElementById("browse-summary").textContent = `${data.terms.length} terms · ${new Set(data.terms.map(term => term.category)).size} categories`;
     await Promise.all([loadVotes(), loadTrendingTerms()]);
     renderTrending();
     handleURLRouting();

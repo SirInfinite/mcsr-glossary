@@ -18,6 +18,9 @@
         <meta name="twitter:description" content="A searchable community reference for Minecraft speedrunning terminology, strategies, formats, and tools.">
         <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https://minecraft.wiki https://upload.wikimedia.org; connect-src 'self' https://*.supabase.co; frame-src https://www.youtube-nocookie.com https://clips.twitch.tv; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 
+        <script src="js/theme.js"></script>
+        <link rel="preload" href="fonts/1_MinecraftRegular1.woff" as="font" type="font/woff" crossorigin>
+        <link rel="preload" href="data/terms.json" as="fetch" crossorigin>
         <script src="js/supabase-config.js" defer></script>
         <script src="js/vendor/marked.umd.js" defer></script>
         <script src="js/vendor/purify.min.js" defer></script>
@@ -34,28 +37,40 @@
         <div id="submit-modal-box" tabindex="-1">
             <div id="submit-modal-header">
                 <h2 id="submit-modal-title">Submit a Term</h2>
-                <button id="submit-modal-close" type="button" aria-label="Close submission dialog">&times;</button>
+                <button id="submit-modal-close" type="button" aria-label="Close submission dialog"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M6 18 18 6"/></svg></button>
             </div>
             <p id="submit-modal-description" class="muted-note submit-description">Submissions are reviewed before publication. They never change the published glossary automatically.</p>
             <p class="report-term-context" id="submit-term-context" hidden>Term: <strong id="submit-term-name"></strong></p>
             <p class="required-note"><span aria-hidden="true">*</span> Required fields</p>
             <form id="submit-form" class="submit-form">
-                <label class="submit-label" for="sub-name" data-new-submission-field>Term name <span aria-hidden="true">*</span></label>
-                    <span class="field-hint" id="sub-name-hint" data-new-submission-field>Use the clearest established community name.</span>
-                    <input id="sub-name" name="name" type="text" placeholder="e.g. One Cycle" autocomplete="off" minlength="2" maxlength="100" aria-describedby="sub-name-hint" data-new-submission-field required>
-                <label class="submit-label" for="sub-category" data-new-submission-field>Category <span aria-hidden="true">*</span></label>
-                    <select id="sub-category" name="category" data-new-submission-field required>
-                        <option value="">Choose a category</option>
-                    </select>
-                <label class="submit-label" for="sub-aliases" data-new-submission-field>Aliases</label>
-                    <span class="field-hint" id="sub-aliases-hint" data-new-submission-field>Comma-separated genuine alternate names; leave blank if none.</span>
-                    <input id="sub-aliases" name="aliases" type="text" placeholder="e.g. 1 Cycle, One-Cycle" maxlength="300" aria-describedby="sub-aliases-hint" data-new-submission-field>
-                <label class="submit-label" for="sub-tags" data-new-submission-field>Tags</label>
-                    <span class="field-hint" id="sub-tags-hint" data-new-submission-field>Comma-separated lowercase topics such as end, navigation, or ranked.</span>
-                    <input id="sub-tags" name="tags" type="text" placeholder="e.g. end, dragon, java" maxlength="300" aria-describedby="sub-tags-hint" data-new-submission-field>
+                <div class="form-row" data-new-submission-field>
+                    <div class="form-field">
+                        <label class="submit-label" for="sub-name">Term name <span aria-hidden="true">*</span></label>
+                        <input id="sub-name" name="name" type="text" placeholder="e.g. One Cycle" autocomplete="off" minlength="2" maxlength="100" required>
+                    </div>
+                    <div class="form-field">
+                        <label class="submit-label" for="sub-category">Category <span aria-hidden="true">*</span></label>
+                        <select id="sub-category" name="category" required><option value="">Choose a category</option></select>
+                    </div>
+                </div>
+                <details class="optional-fields" data-new-submission-field>
+                    <summary>Aliases &amp; tags <span>(optional)</span></summary>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="submit-label" for="sub-aliases">Aliases</label>
+                            <span class="field-hint" id="sub-aliases-hint">Alternate names, separated by commas.</span>
+                            <input id="sub-aliases" name="aliases" type="text" placeholder="e.g. 1 Cycle, One-Cycle" maxlength="300" aria-describedby="sub-aliases-hint">
+                        </div>
+                        <div class="form-field">
+                            <label class="submit-label" for="sub-tags">Tags</label>
+                            <span class="field-hint" id="sub-tags-hint">Topics, separated by commas.</span>
+                            <input id="sub-tags" name="tags" type="text" placeholder="e.g. end, dragon" maxlength="300" aria-describedby="sub-tags-hint">
+                        </div>
+                    </div>
+                </details>
                 <label class="submit-label" id="sub-definition-label" for="sub-definition">Definition <span aria-hidden="true">*</span></label>
                     <span class="field-hint" id="sub-definition-hint">Start with a plain-language meaning, then explain why it matters. Markdown is supported.</span>
-                    <textarea id="sub-definition" name="definition" rows="7" placeholder="Explain the term for a newcomer…" minlength="20" maxlength="5000" aria-describedby="sub-definition-hint sub-definition-count" required></textarea>
+                    <textarea id="sub-definition" name="definition" rows="6" placeholder="Explain the term for a newcomer…" minlength="20" maxlength="5000" aria-describedby="sub-definition-hint sub-definition-count" required></textarea>
                     <span class="field-count" id="sub-definition-count">0 / 5000</span>
                 <label class="honeypot-field" aria-hidden="true">Website
                     <input id="sub-website" name="website" type="text" autocomplete="off" tabindex="-1" maxlength="200">
@@ -70,7 +85,7 @@
         <div id="report-modal-box" tabindex="-1">
             <div id="report-modal-header">
                 <h2 id="report-modal-title">Report a Term</h2>
-                <button id="report-modal-close" type="button" aria-label="Close report dialog">&times;</button>
+                <button id="report-modal-close" type="button" aria-label="Close report dialog"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M6 18 18 6"/></svg></button>
             </div>
             <p id="report-modal-description" class="muted-note">Reports enter a private review queue and never change the published glossary automatically.</p>
             <p class="report-term-context">Term: <strong id="report-term-name"></strong></p>
@@ -119,7 +134,7 @@
             </nav>
 
             <button id="theme-toggle" type="button" aria-label="Switch to light theme">
-                <img src="images/dark-mode.webp" alt="" class="theme-toggle" width="96" height="96" draggable="false">
+                <svg class="icon theme-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="8" y="8" width="8" height="8"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M5 19l2-2M17 7l2-2"/></svg><svg class="icon theme-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 16a8 8 0 0 1-10-10V4a8 8 0 1 0 12 12Z"/></svg>
             </button>
         </header>
 
@@ -133,37 +148,39 @@
                 <div id="search-bar-wrapper" aria-labelledby="browse-title">
                     <div class="section-heading-row browse-heading">
                         <div>
-                            <p class="section-kicker">MCSR Glossary</p>
-                            <h1 id="browse-title">Find a term</h1>
+                            <p class="section-kicker">Minecraft speedrunning</p>
+                            <h1 id="browse-title">Find a term.</h1>
                         </div>
-                        <p id="search-help">Press <kbd>/</kbd> to search from anywhere.</p>
+                        <p class="browse-summary" id="browse-summary">100 terms · 5 categories</p>
+                        <p id="search-help" class="sr-only">Press / to search from anywhere. Use arrow keys to select a suggestion and Enter to open it.</p>
                     </div>
                     <div id="search">
                         <div id="search-input-wrap">
-                            <span class="search-icon" aria-hidden="true">⌕</span>
-                            <input id="search-input" name="Search Bar" type="search" role="combobox" placeholder="Search names, aliases, tags, or definitions…" autocomplete="off" aria-label="Search glossary" aria-describedby="search-help" aria-autocomplete="list" aria-controls="search-tooltip" aria-expanded="false" spellcheck="false">
-                            <button id="search-clear" type="button" aria-label="Clear search" style="display:none;">&times;</button>
+                            <svg class="icon search-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+                            <input id="search-input" name="Search Bar" type="search" role="combobox" placeholder="Search terms, aliases, definitions…" autocomplete="off" aria-label="Search glossary" aria-describedby="search-help" aria-autocomplete="list" aria-controls="search-tooltip" aria-expanded="false" spellcheck="false">
+                            <button id="search-clear" type="button" aria-label="Clear search" style="display:none;"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M6 18 18 6"/></svg></button>
+                            <kbd class="search-shortcut" aria-hidden="true">/</kbd>
                         </div>
 
                         <button id="random-btn" type="button">
-                            <span>Random</span>
+                            <svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h3l12 12h3M3 18h3l4-4m4-4 4-4h3m-4-3 4 3-4 3m0 6 4 3-4 3"/></svg><span>Random</span>
                         </button>
 
                         <button id="filter-btn" name="Filter" type="button" aria-expanded="false" aria-controls="filters">
-                            <span aria-hidden="true">▽</span>
+                            <svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h18M6 12h12M9 18h6"/></svg>
                             <span>Filter</span>
                             <span id="filter-count" class="control-count" hidden>0</span>
                         </button>
 
                         <button id="submit-trigger" type="button" aria-haspopup="dialog" aria-controls="submit-modal">
-                            <span aria-hidden="true">+</span>
+                            <svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4v16M4 12h16"/></svg>
                             <span>Submit</span>
                         </button>
                     </div>
 
                     <div class="results-toolbar">
                         <p id="result-count" role="status" aria-live="polite">Showing 100 terms</p>
-                        <button id="clear-all-filters" type="button" hidden>Clear search &amp; filters</button>
+                        <button id="clear-all-filters" type="button" hidden>Clear all</button>
                     </div>
 
                     <fieldset id="filters" style="display:none;" aria-label="Filter options">
@@ -214,18 +231,25 @@
                 <nav id="index" aria-label="Browse by letter"></nav>
 
                 <h2 class="sr-only" id="all-terms-title">All glossary terms</h2>
+                <div class="term-list-heading" aria-hidden="true"><span>Term / alias</span><span>Definition</span><span>Category</span></div>
                 <div id="terms" aria-labelledby="all-terms-title"></div>
 
             </section>
             <section id="page-term" class="page" style="display: none;">
             </section>
             <section id="page-stats" class="page" style="display: none;">
+                <p class="section-kicker">The glossary, by the numbers</p>
                 <h1 class="page-title">Glossary Stats</h1>
-                <p class="page-intro">A transparent snapshot of the published dataset and community rating layer. Pending submissions and voter identifiers are never included.</p>
+                <p class="page-intro">Published terminology, visual examples, and community feedback. Counts come directly from the glossary.</p>
                 <div id="stats-grid"></div>
+                <div class="stats-layout">
                 <section class="stats-section" aria-labelledby="category-stats-title">
                     <h2 id="category-stats-title">Coverage by category</h2>
                     <div id="category-stats"></div>
+                </section>
+                <section class="stats-section" aria-labelledby="status-stats-title">
+                    <h2 id="status-stats-title">Current &amp; archived</h2>
+                    <div id="status-stats"></div>
                 </section>
                 <section class="stats-section" aria-labelledby="recent-terms-title">
                     <h2 id="recent-terms-title">Recently added or revised</h2>
@@ -235,31 +259,34 @@
                     <h2 id="community-stats-title">Community ratings</h2>
                     <div id="community-stats"></div>
                 </section>
+                </div>
             </section>
             <section id="page-changelog" class="page" style="display: none;">
-                <h1 class="page-title">Changelog</h1>
+                <p class="section-kicker">Project log</p>
+                <div class="page-heading-row"><h1 class="page-title">Changelog</h1><a href="https://github.com/SirInfinite/mcsr-glossary/commits" target="_blank" rel="noopener noreferrer">Commit history on GitHub ↗</a></div>
+                <p class="page-intro">Release notes and work in progress, maintained with the project.</p>
                 <div id="changelog-content"></div>
             </section>
             <section id="page-about" class="page" style="display: none;">
-                <h1 class="page-title">About MCSR Glossary</h1>
+                <p class="section-kicker">A community reference</p>
+                <h1 class="page-title">About the glossary</h1>
+                <p class="page-intro">Minecraft speedrunning has its own language. This is a place to look it up.</p>
                 <div class="about-layout">
                     <section class="about-card">
-                        <p class="section-kicker">Why it exists</p>
-                        <h2>A clearer entrance to a technical community</h2>
-                        <p>Minecraft speedrunning has specialized language for routes, structures, tools, timing, and competitive play. MCSR Glossary turns that vocabulary into a searchable reference for runners and viewers who are still learning the scene.</p>
+                        <h2>For runners &amp; viewers</h2>
+                        <p>MCSR Glossary explains the routes, techniques, formats, tools, and shorthand used in Minecraft speedrunning. Search an unfamiliar term, follow a related concept, or share a definition during practice.</p>
                     </section>
                     <section class="about-card">
-                        <p class="section-kicker">Built for the run</p>
-                        <h2>Fast to scan, easy to share</h2>
-                        <p>Stable term links, compact metadata, related concepts, and inline demonstrations keep each entry useful during practice, commentary, or a quick rules check.</p>
+                        <h2>Researched in context</h2>
+                        <p>Definitions are checked against community guides, category rules, tool documentation, and technical references. Source notes record the evidence for each term. Historical and legacy entries keep older runs and guides understandable.</p>
+                        <div class="about-links"><a href="https://github.com/SirInfinite/mcsr-glossary/blob/main/CONTENT_SOURCES.md" target="_blank" rel="noopener noreferrer">Read the source notes ↗</a></div>
                     </section>
                     <section class="about-card">
-                        <p class="section-kicker">Open source</p>
-                        <h2>Inspect it, question it, improve it</h2>
-                        <p>The frontend, validation rules, migrations, source notes, and QA reports are public. Corrections are welcome—especially when terminology changes or a definition needs better version context.</p>
+                        <h2>Help keep it accurate</h2>
+                        <p>Suggest a missing term, propose an edit, or report a problem from a definition. Maintainers review contributions before publication. The project is open source and in early beta; wording and coverage are still being refined.</p>
                         <div class="about-links">
-                            <a href="https://github.com/SirInfinite/mcsr-glossary" target="_blank" rel="noopener noreferrer">Repository ↗</a>
-                            <a href="https://github.com/SirInfinite/mcsr-glossary/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">How to contribute ↗</a>
+                            <a href="https://github.com/SirInfinite/mcsr-glossary" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+                            <a href="https://github.com/SirInfinite/mcsr-glossary/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">Contributing ↗</a>
                             <a href="https://github.com/SirInfinite/mcsr-glossary/issues/new/choose" target="_blank" rel="noopener noreferrer">Report an issue ↗</a>
                         </div>
                     </section>
@@ -297,7 +324,7 @@
         <footer id="footer">
             <p><strong>MCSR Glossary</strong> · <span id="footer-term-count">100</span> published terms · Early beta</p>
             <nav class="footer-links" aria-label="Project links">
-                <a href="https://github.com/SirInfinite/mcsr-glossary" target="_blank" rel="noopener noreferrer">Repository</a>
+                <a href="https://github.com/SirInfinite/mcsr-glossary" target="_blank" rel="noopener noreferrer">GitHub</a>
                 <a href="https://github.com/SirInfinite/mcsr-glossary/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">Contributing</a>
                 <a href="https://github.com/SirInfinite/mcsr-glossary/issues/new/choose" target="_blank" rel="noopener noreferrer">Report an issue</a>
             </nav>

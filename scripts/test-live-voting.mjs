@@ -52,6 +52,14 @@ try {
         "Concurrent removals must restore the baseline."
     );
 
+    // Exercise all six reversible transitions before the conflicting-write test.
+    for (const vote of [1, 0, -1, 0, 1, -1, 1, 0]) {
+        const state = await setVote(target.term_id, browserIDs[0], vote);
+        assert.equal(Number(state.current_vote), vote);
+        assert.equal(Number(state.upvotes), baseline.up + (vote === 1 ? 1 : 0));
+        assert.equal(Number(state.downvotes), baseline.down + (vote === -1 ? 1 : 0));
+    }
+
     await Promise.all([
         setVote(target.term_id, browserIDs[2], 1),
         setVote(target.term_id, browserIDs[2], -1)
@@ -66,6 +74,8 @@ try {
 
     await setVote(target.term_id, browserIDs[2], 2, 400);
     await setVote(randomUUID(), browserIDs[2], 1, 400);
+    await setVote("invalid-uuid", browserIDs[2], 1, 400);
+    await rpc("get_glossary_vote_state", { p_browser_id: "invalid-uuid" }, 400);
 } finally {
     await Promise.allSettled(browserIDs.map(browserID => setVote(target.term_id, browserID, 0)));
 }

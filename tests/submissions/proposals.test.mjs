@@ -40,3 +40,15 @@ test("unconfirmed moderation writes retain a reviewable clipboard payload", asyn
     assert.match(result.copy, /Candidate term/);
     assert.match(result.reason, /could not be confirmed/);
 });
+
+test("malformed proposal receipts cannot claim delivery and preserve the proposed content", async () => {
+    const valid = { submission_id: glossary.terms[0].id, submission_status: "pending" };
+    for (const response of [null, [], [valid, valid], [{ ...valid, submission_id: "invalid" }], [{ ...valid, submission_status: "approved" }]]) {
+        const service = createContributions({ terms: glossary.terms, getBrowserID: () => "browser", client: { rpc: async () => response } });
+        const result = await service.submitTerm(input);
+        assert.equal(result.sent, false);
+        assert.equal(result.ok, false);
+        assert.match(result.reason, /invalid response/);
+        assert.ok(result.copy.includes(input.definition));
+    }
+});

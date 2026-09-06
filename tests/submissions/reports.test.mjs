@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { glossary, validMedia } from "../fixtures.mjs";
-import { validateTermReportInput } from "../../js/backend/contributions.js";
+import { glossary } from "../fixtures.mjs";
+import { createContributions, validateTermReportInput } from "../../js/backend/contributions.js";
 
 test("term report input accepts a canonical term and supported reason", () => {
     const mapless = glossary.terms.find(term => term.name === "Mapless");
@@ -29,4 +29,17 @@ test("term report input rejects spoofed terms, unsupported reasons, honeypots, a
 
     const unsupported = validateTermReportInput({ reason: "anything" });
     assert.ok(unsupported.errors.some(error => error.includes("supported")));
+});
+
+test("malformed report receipts cannot claim delivery or lose the report target", async () => {
+    const term = glossary.terms[0];
+    const valid = { report_id: term.id, report_status: "pending", created: true };
+    for (const response of [null, [], [valid, valid], [{ ...valid, report_id: "invalid" }], [{ ...valid, report_status: "resolved" }], [{ ...valid, created: "true" }]]) {
+        const service = createContributions({ terms: glossary.terms, getBrowserID: () => "browser", client: { rpc: async () => response } });
+        const result = await service.submitReport({ termId: term.id, termName: term.name, reason: "inaccurate" });
+        assert.equal(result.sent, false);
+        assert.equal(result.ok, false);
+        assert.match(result.reason, /invalid response/);
+        assert.ok(result.copy.includes(term.id));
+    }
 });

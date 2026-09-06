@@ -21,7 +21,7 @@ Content and behavior may still change, and tester feedback is welcome.
 - Alphabetical browsing, combined category/tag filters, result counts, and keyboard search
 - A compact seven-day Trending view based on recent positive vote balance rather than a curated fallback
 - Shareable reference-style term pages with compact metadata, contextual related terms, and icon-first copy, correction, and private-report actions
-- 20 structured media examples placed inside 19 visual definitions, including lazy privacy-enhanced video embeds and original diagrams
+- 20 structured media examples placed inside 19 visual definitions, including automatically initialized privacy-enhanced video embeds and original diagrams; playback never starts automatically
 - Understated current, historical, and legacy classifications backed by per-term research provenance
 - Random-term navigation
 - Light and dark themes saved in the browser
@@ -51,6 +51,17 @@ Node.js 20 or newer is required only for the content checks; no install step is 
 ```sh
 npm run check-content
 ```
+
+For browser QA, serve the parent directory so the local URL includes the GitHub Pages subpath, then run the Playwright CLI flow suite:
+
+```sh
+python -m http.server 8000 --directory ..
+# In a second terminal:
+npx @playwright/cli -s=qa open http://127.0.0.1:8000/mcsr-glossary/
+npx @playwright/cli -s=qa run-code --filename scripts/test-browser.cjs
+```
+
+The browser suite uses isolated RPC responses and never submits moderation records. `npm run test-live-voting` checks the configured live voting RPCs and removes its test votes afterward. For Lighthouse, `python scripts/serve-qa.py` serves the same files on port 8001 with gzip and the 10-minute cache policy observed on GitHub Pages. This optional QA server adds no production dependency or build step. See [`VISUAL_OVERHAUL_QA.md`](VISUAL_OVERHAUL_QA.md) for audit conditions, screenshots, and known service limitations.
 
 ## Contributing
 

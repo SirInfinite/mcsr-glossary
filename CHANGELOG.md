@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Full visual overhaul
+
+- Rebuilt dark charcoal and light stone themes around local Minecraft UI typography, readable sans-serif definitions, compact navigation, and a single reference-row glossary.
+- Redesigned search suggestions, filters, the A–Z index, article metadata, inline examples, related links, reversible vote states, Stats, Changelog, About, and contribution dialogs.
+- Kept term actions accessible while expanding labels without article reflow; improved focus restoration, narrow-screen layouts, and reduced-motion behavior.
+- Made local content independent of community-service loading, reserved initial layout space, and guarded optional trending and unavailable voting records on older backends.
+- Preserved all researched definitions, stable routes, provider allowlists, CSP, and database contracts.
+
 ### Homepage discovery refinement
 
 - Removed the oversized homepage hero so search and glossary controls are immediately available.

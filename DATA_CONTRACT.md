@@ -34,8 +34,8 @@ Media is presentation data, never arbitrary HTML. Each item requires `type`, `sr
 
 | Type | `src` | Additional fields | Browser behavior |
 | --- | --- | --- | --- |
-| `youtube` | Exact 11-character video ID | Optional integer `start`, 0–86400 seconds | Lazy iframe from `youtube-nocookie.com`, initialized with no autoplay. |
-| `twitch` | Exact Twitch clip slug | None | Lazy clip iframe with the current hostname supplied as `parent` and autoplay disabled. |
+| `youtube` | Exact 11-character video ID | Optional integer `start`, 0–86400 seconds | Allowlisted iframe from `youtube-nocookie.com`, initialized when the definition opens, with no autoplay. |
+| `twitch` | Exact Twitch clip slug | None | Allowlisted clip iframe initialized when the definition opens, with the current hostname supplied as `parent` and autoplay disabled. |
 | `image` | Local image under `images/media/`, or HTTPS from the explicit host allowlist | Required `alt`, integer `width`, integer `height` | Lazy image with an accessible click-to-expand dialog. |
 | `gif` | Local GIF under `images/media/`, or allowlisted HTTPS GIF | Required `alt`, `width`, `height`, and local static `poster` | Lazy animated image with accessible alt text and click-to-expand behavior; the poster remains a static fallback. |
 | `video` | Local `.mp4` or `.webm` under `media/` | Required `width`, `height`, `hasAudio`; optional local `poster` and `.vtt` `captions` | Native controls, metadata preload, inline playback, and no autoplay. Captions are mandatory when `hasAudio` is true. |

@@ -33,12 +33,14 @@
     --type-title: clamp(1.75rem, 3vw, 2.25rem);
     --motion: 140ms ease;
     --radius: 2px;
-    /* Compatibility with existing service feedback. */
-    --text: var(--text-primary);
-    --text-dim: var(--text-muted);
-    --vote-up: var(--upvote);
-    --vote-down: var(--downvote);
-    --update-tag-text: var(--warning);
+    /* Layer order. Native dialog lightboxes use the browser top layer. */
+    --layer-menu: 20;
+    --layer-back-to-top: 50;
+    --layer-header: 100;
+    --layer-search: 110;
+    --layer-modal: 1000;
+    --layer-notice: 1200;
+
 }
 html[data-theme='light'] {
     color-scheme: light;
@@ -77,7 +79,7 @@ button svg { pointer-events: none; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
 [hidden] { display: none !important; }
 .sr-only, .honeypot-field { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-.skip-link { position: fixed; top: 8px; left: 8px; z-index: 1200; padding: 10px 16px; background: var(--surface-raised); transform: translateY(-160%); }
+.skip-link { position: fixed; top: 8px; left: 8px; z-index: var(--layer-notice); padding: 10px 16px; background: var(--surface-raised); transform: translateY(-160%); }
 .skip-link:focus { transform: none; }
 .container { width: min(1184px, calc(100% - 64px)); margin-inline: auto; }
 main.container { flex: 1; padding-block: 36px 64px; }
@@ -92,7 +94,7 @@ h1, h2 { font-family: var(--font-ui); font-weight: 400; }
 .muted-note { color: var(--text-secondary); font-size: var(--type-sm); }
 
 /* Masthead: existing artwork, compact navigation, squared active marker. */
-#header { position: sticky; top: 0; z-index: 100; min-height: 72px; display: flex; align-items: center; gap: 24px; padding: 8px max(32px, calc((100% - 1184px) / 2)); background: var(--surface-inset); border-bottom: 1px solid var(--border-strong); }
+#header { position: sticky; top: 0; z-index: var(--layer-header); min-height: 72px; display: flex; align-items: center; gap: 24px; padding: 8px max(32px, calc((100% - 1184px) / 2)); background: var(--surface-inset); border-bottom: 1px solid var(--border-strong); }
 #logo-link { display: block; flex-shrink: 0; line-height: 0; }
 #logo { display: block; width: 114px; height: 50px; object-fit: contain; }
 .beta-badge { color: var(--text-muted); font: 11px/1 var(--font-ui); white-space: nowrap; padding-left: 16px; border-left: 1px solid var(--border); }
@@ -131,7 +133,7 @@ input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 1
 .results-toolbar { display: flex; justify-content: space-between; align-items: center; min-height: 44px; gap: 12px; margin: 10px 0 0; }
 #result-count { margin: 0; font-size: var(--type-sm); color: var(--text-secondary); }
 #clear-all-filters { padding: 6px 0 6px 10px; flex-shrink: 0; background: none; border: 0; color: var(--accent); font-size: var(--type-xs); text-decoration: underline; text-underline-offset: 3px; min-height: 36px; }
-#search-tooltip { position: fixed; z-index: 110; max-height: min(400px, 55vh); overflow-y: auto; overscroll-behavior: contain; background: var(--surface-raised); border: 1px solid var(--border-strong); box-shadow: var(--shadow); }
+#search-tooltip { position: fixed; z-index: var(--layer-search); max-height: min(400px, 55vh); overflow-y: auto; overscroll-behavior: contain; background: var(--surface-raised); border: 1px solid var(--border-strong); box-shadow: var(--shadow); }
 .tooltip-item { display: grid; grid-template-columns: 1fr auto; gap: 5px 16px; padding: 11px 16px; border-bottom: 1px solid var(--border); border-left: 3px solid transparent; cursor: pointer; }
 .tooltip-item:last-child { border-bottom: 0; }
 .tooltip-item:hover, .tooltip-focused { background: var(--hover); border-left-color: var(--accent); }
@@ -150,7 +152,7 @@ mark { background: var(--accent-soft); color: var(--accent); padding: 0; box-sha
 .tag-filter-wrap { position: relative; min-width: 0; }
 #tag-dropdown-btn { border-color: var(--border); background: var(--surface-raised); padding-right: 28px; position: relative; }
 #tag-dropdown-btn::after { content: ''; width: 6px; height: 6px; border-right: 1px solid; border-bottom: 1px solid; transform: rotate(45deg); position: absolute; right: 12px; top: 13px; }
-#tag-dropdown { position: absolute; top: calc(100% + 6px); left: 0; width: 340px; z-index: 20; border: 1px solid var(--border-strong); background: var(--surface-raised); box-shadow: var(--shadow); }
+#tag-dropdown { position: absolute; top: calc(100% + 6px); left: 0; width: 340px; z-index: var(--layer-menu); border: 1px solid var(--border-strong); background: var(--surface-raised); box-shadow: var(--shadow); }
 .tag-match-row { display: flex; gap: 12px; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); }
 .match-label { padding: 0; min-width: auto; }
 .chip-radio { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; font-size: 12px; }
@@ -293,7 +295,7 @@ input[type='radio'], input[type='checkbox'] { accent-color: var(--accent); width
 .vote-btn:disabled { opacity: .65; }
 .vote-btn:focus-visible { outline-color: var(--vote-state-color); }
 .vote-note { font-size: 12px; color: var(--text-muted); margin: 12px 0 0; min-height: 20px; }
-.copy-toast { position: fixed; z-index: 1200; bottom: 24px; left: 50%; transform: translate(-50%, 8px); opacity: 0; pointer-events: none; width: max-content; max-width: calc(100vw - 32px); padding: 10px 16px; border: 1px solid var(--border-strong); border-left: 3px solid var(--accent); background: var(--surface-raised); color: var(--text-primary); box-shadow: var(--shadow); font-size: 13px; transition: opacity var(--motion), transform var(--motion); }
+.copy-toast { position: fixed; z-index: var(--layer-notice); bottom: 24px; left: 50%; transform: translate(-50%, 8px); opacity: 0; pointer-events: none; width: max-content; max-width: calc(100vw - 32px); padding: 10px 16px; border: 1px solid var(--border-strong); border-left: 3px solid var(--accent); background: var(--surface-raised); color: var(--text-primary); box-shadow: var(--shadow); font-size: 13px; transition: opacity var(--motion), transform var(--motion); }
 .copy-toast.show { opacity: 1; transform: translate(-50%, 0); }
 
 /* Dataset ledger: large values and measured bars, without dashboard boxes. */
@@ -354,7 +356,7 @@ input[type='radio'], input[type='checkbox'] { accent-color: var(--accent); width
 .credit-name { font-size: 14px; }
 
 /* Shared contribution dialogs and fields. */
-#submit-modal, #report-modal { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 24px; }
+#submit-modal, #report-modal { position: fixed; inset: 0; z-index: var(--layer-modal); display: grid; place-items: center; padding: 24px; }
 #submit-modal-backdrop, #report-modal-backdrop { position: absolute; inset: 0; background: #080b08b8; }
 #submit-modal-box, #report-modal-box { position: relative; width: min(100%, 580px); max-height: calc(100dvh - 48px); padding: 24px; overflow-y: auto; overscroll-behavior: contain; background: var(--surface-raised); border: 1px solid var(--border-strong); border-top: 3px solid var(--accent); box-shadow: var(--shadow); animation: reveal 140ms ease; scrollbar-gutter: stable; }
 #report-modal-box, #submit-modal.is-correction #submit-modal-box { width: min(100%, 540px); }
@@ -382,7 +384,7 @@ input[type='radio'], input[type='checkbox'] { accent-color: var(--accent); width
 .submit-btn:hover { box-shadow: inset 0 -3px 0 #0004; }
 .submit-btn:disabled { opacity: .6; }
 #sub-status, #report-status { padding-top: 12px; margin: 0; font-size: 13px; }
-#btt-wrapper { position: fixed; z-index: 50; right: 16px; bottom: 18px; }
+#btt-wrapper { position: fixed; z-index: var(--layer-back-to-top); right: 16px; bottom: 18px; }
 .btt { min-height: 36px; padding: 8px 12px; background: var(--surface-raised); border: 1px solid var(--border-strong); color: var(--text-secondary); font: 11px/1.5 var(--font-ui); visibility: hidden; opacity: 0; transition: opacity var(--motion); }
 .btt.visible { visibility: visible; opacity: 1; }
 .btt:hover { color: var(--text-primary); background: var(--hover); }

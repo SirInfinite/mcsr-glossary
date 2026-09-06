@@ -3,11 +3,27 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "assign-ids": "node js/uuid.js",
+    "start": "node scripts/serve.mjs",
+    "assign-ids": "node scripts/assign-ids.mjs",
     "validate-content": "node scripts/validate-content.mjs",
-    "test-content-validator": "node --test scripts/validate-content.test.mjs",
-    "test-ui-core": "node --test scripts/glossary-core.test.mjs",
+    "test-content-validator": "node --test tests/content/*.test.mjs",
+    "test-ui-core": "node --test tests/search/*.test.mjs tests/routing/*.test.mjs tests/media/*.test.mjs tests/voting/*.test.mjs tests/submissions/*.test.mjs",
+    "test": "node --test tests/*/*.test.mjs",
+    "test-browser": "node scripts/test-browser.mjs",
+    "test-database": "node scripts/test-database.mjs",
     "test-live-voting": "node scripts/test-live-voting.mjs",
-    "check-content": "npm run validate-content && npm run test-content-validator && npm run test-ui-core"
+    "check-content": "npm run validate-content && npm run test-content-validator && npm run test-ui-core",
+    "check-static": "node scripts/check-static.mjs",
+    "scan-secrets": "node scripts/scan-secrets.mjs",
+    "check": "npm run validate-content && npm test && npm run check-static && npm run scan-secrets",
+    "test-live-backend": "node scripts/test-live-backend.mjs"
+  },
+  "devDependencies": {
+    "axe-core": "4.13.0",
+    "pg": "8.23.0",
+    "playwright": "1.58.2"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

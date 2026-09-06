@@ -1,7 +1,7 @@
 const freezeList = values => Object.freeze([...values]);
 
 export const TERM_CONTRACT = Object.freeze({
-    schemaVersion: 3,
+    schemaVersion: 4,
     requiredFields: freezeList([
         "id",
         "name",
@@ -15,7 +15,7 @@ export const TERM_CONTRACT = Object.freeze({
         "needsUpdating",
         "updatedDate"
     ]),
-    optionalFields: freezeList(["historicalNote", "media"]),
+    optionalFields: freezeList(["historicalNote", "media", "legacySlugs"]),
     categories: freezeList([
         "format",
         "strategy",
@@ -111,7 +111,8 @@ function isTrimmedString(value, { min = 1, max = Infinity } = {}) {
 function isHTTPSURL(value) {
     if (!isTrimmedString(value)) return false;
     try {
-        return new URL(value).protocol === "https:";
+        const url = new URL(value);
+        return url.protocol === "https:" && !url.username && !url.password;
     } catch {
         return false;
     }
@@ -125,6 +126,8 @@ function isAllowedImageSource(value, { gifOnly = false } = {}) {
     try {
         const url = new URL(value);
         const hostAllowed = url.protocol === "https:"
+            && !url.username && !url.password
+            && !url.port
             && MEDIA_CONTRACT.externalImageHosts.includes(url.hostname.toLowerCase());
         const extensionAllowed = gifOnly
             ? /\.gif$/i.test(url.pathname)
@@ -146,6 +149,7 @@ export function validateMediaItem(item) {
         errors.push(`type must be one of: ${MEDIA_CONTRACT.types.join(", ")}`);
         return errors;
     }
+    if (typeof item.src !== "string") errors.push("src must be a string");
 
     const allowedFields = new Set([
         ...MEDIA_CONTRACT.commonFields,

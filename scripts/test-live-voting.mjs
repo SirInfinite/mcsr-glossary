@@ -1,26 +1,17 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import { readFile } from "node:fs/promises";
-
-const configSource = await readFile(new URL("../js/supabase-config.js", import.meta.url), "utf8");
-const projectURL = configSource.match(/supabaseUrl:\s*"([^"]+)"/)?.[1];
-const publishableKey = configSource.match(/supabasePublishableKey:\s*"([^"]+)"/)?.[1];
-
-assert.match(projectURL || "", /^https:\/\/[a-z0-9]+\.supabase\.co$/, "Expected a public Supabase project URL.");
-assert.match(publishableKey || "", /^sb_publishable_/, "Expected a public Supabase publishable key.");
-
+import { createSupabaseClient } from "../js/backend/client.js";
+const client = createSupabaseClient();
+assert.ok(client.enabled, "A valid public Supabase configuration is required.");
 async function rpc(functionName, body, expectedStatus = 200) {
-    const response = await fetch(`${projectURL}/rest/v1/rpc/${functionName}`, {
-        method: "POST",
-        headers: {
-            apikey: publishableKey,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-    });
-    const payload = await response.json().catch(() => null);
-    assert.equal(response.status, expectedStatus, `${functionName} returned ${response.status}: ${JSON.stringify(payload)}`);
-    return payload;
+    try {
+        const payload = await client.rpc(functionName, body);
+        assert.equal(expectedStatus, 200, `${functionName} unexpectedly succeeded.`);
+        return payload;
+    } catch (error) {
+        assert.equal(error.status, expectedStatus, `${functionName} returned ${error.status || error.kind}.`);
+        return null;
+    }
 }
 
 async function getState(browserID) {

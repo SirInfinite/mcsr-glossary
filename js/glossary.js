@@ -74,6 +74,8 @@ let activeIndexLetter = "ALL";
 let searchQuery = "";
 let tooltipFocusIdx = -1;
 let tooltipItems = [];
+let refreshVisibleVotes = null;
+let votesLoaded = false;
 
 async function fetchWithTimeout(url, options = {}) {
     const controller = new AbortController();
@@ -492,14 +494,6 @@ function applyTheme(theme) {
     document.documentElement.setAttribute("data-theme", theme);
     try { localStorage.setItem("theme", theme); } catch { /* Storage is optional. */ }
 
-    const icon = document.querySelector("#theme-toggle img");
-    if (icon) {
-        icon.src = isDark ? "images/dark-mode.webp" : "images/light-mode.webp";
-    }
-
-    const logo = document.getElementById("logo");
-    if (logo) logo.src = isDark ? "images/logo.webp" : "images/logo-dark.webp";
-
     const toggle = document.getElementById("theme-toggle");
     if (toggle) {
         toggle.setAttribute("aria-label", isDark ? "Switch to light theme" : "Switch to dark theme");
@@ -535,6 +529,11 @@ function setURLParams(updates, { replace = false } = {}) {
 }
 
 function showPage(page, termId) {
+    // Leaving a definition must stop any player the reader started.
+    if (currentPage === "term" && page !== "term") {
+        document.getElementById("page-term")?.replaceChildren();
+        refreshVisibleVotes = null;
+    }
     currentPage = page;
 
     document.querySelectorAll(".page").forEach(el => el.style.display = "none");
@@ -543,7 +542,7 @@ function showPage(page, termId) {
 
     document.querySelectorAll(".nav-btn").forEach(btn => {
         btn.removeAttribute("aria-current");
-        if ((btn.dataset.page === page || (page === "term" && btn.dataset.page === "home"))) btn.setAttribute("aria-current", "page");
+        if (btn.dataset.page === page || (page === "term" && btn.dataset.page === "home")) btn.setAttribute("aria-current", "page");
     });
 
     if (page === "term" && termId) renderTermDetail(termId);
@@ -557,6 +556,11 @@ function showPage(page, termId) {
 
     const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+    const heading = target?.querySelector("h1");
+    if (heading) {
+        heading.tabIndex = -1;
+        heading.focus({ preventScroll: true });
+    }
 }
 
 function navigateToTerm(term) {
@@ -565,10 +569,13 @@ function navigateToTerm(term) {
     showPage("term", term.id);
 }
 
+const definitionPreviewCache = new WeakMap();
 function getDefinitionPreview(term, maxLength = 220) {
-    const text = plainText(parseDefinition(stripMediaSlots(term?.definition || "")))
-        .replace(/\s+/g, " ")
-        .trim();
+    let text = definitionPreviewCache.get(term);
+    if (text === undefined) {
+        text = plainText(parseDefinition(stripMediaSlots(term?.definition || ""))).replace(/\s+/g, " ").trim();
+        definitionPreviewCache.set(term, text);
+    }
     if (text.length <= maxLength) return text;
     const shortened = text.slice(0, maxLength + 1).replace(/\s+\S*$/, "").trim();
     return `${shortened || text.slice(0, maxLength).trim()}…`;
@@ -698,23 +705,33 @@ function renderTermsList(terms) {
     container.appendChild(fragment);
 }
 
+function canVoteOnTerm(id) {
+    return sb.enabled && voteServiceAvailable && Object.hasOwn(votesCache, id);
+}
+
+function getVoteNote(id) {
+    if (!sb.enabled) return sb.configurationError || "Voting is not configured.";
+    if (!votesLoaded) return "Loading community votes…";
+    if (!voteServiceAvailable) return `${voteServiceMessage} Totals may be out of date.`;
+    if (!Object.hasOwn(votesCache, id)) return "Community voting is not yet available for this entry.";
+    const currentVote = getVoteState(id);
+    return currentVote === 1
+        ? "Upvote saved. Select it again to remove it, or choose Downvote to switch."
+        : currentVote === -1
+            ? "Downvote saved. Select it again to remove it, or choose Upvote to switch."
+            : "Select a reaction; select it again to remove it.";
+}
+
 function renderTermDetail(id) {
     const term = data.terms.find(t => t.id === id);
     const page = document.getElementById("page-term");
     if (!term || !page) return;
+    page.dataset.termId = term.id;
 
     const votes = getVotes(term.id);
     const currentVote = getVoteState(term.id);
-    const votingEnabled = sb.enabled && voteServiceAvailable;
-    const voteNote = !sb.enabled
-        ? (sb.configurationError || "Voting is not configured.")
-        : !voteServiceAvailable
-            ? `${voteServiceMessage} Totals may be out of date.`
-            : currentVote === 1
-                ? "Upvote saved. Select it again to remove it, or choose Downvote to switch."
-                : currentVote === -1
-                    ? "Downvote saved. Select it again to remove it, or choose Upvote to switch."
-                    : "Select a reaction; select it again to remove it.";
+    const votingEnabled = canVoteOnTerm(term.id);
+    const voteNote = getVoteNote(term.id);
     const updatedDate = term.updatedDate ? new Date(`${term.updatedDate}T00:00:00`) : null;
     const dateStr = updatedDate && !Number.isNaN(updatedDate.getTime())
         ? updatedDate.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
@@ -825,6 +842,8 @@ function renderTermDetail(id) {
     });
 
     function updateVoteControls(vote, totals, enabled = true) {
+        // A pending response belongs to the entry that initiated it.
+        if (page.dataset.termId !== term.id) return;
         const upButton = document.getElementById("vote-up");
         const downButton = document.getElementById("vote-down");
         const upCount = document.getElementById("vote-up-count");
@@ -842,6 +861,11 @@ function renderTermDetail(id) {
     }
 
     let voteRequestPending = false;
+    refreshVisibleVotes = () => {
+        if (voteRequestPending) return;
+        updateVoteControls(getVoteState(term.id), getVotes(term.id), canVoteOnTerm(term.id));
+        document.getElementById("vote-status").textContent = getVoteNote(term.id);
+    };
     async function handleVote(direction) {
         if (voteRequestPending) return;
         voteRequestPending = true;
@@ -868,7 +892,7 @@ function renderTermDetail(id) {
             votesCache[term.id] = previousTotals;
             writeStoredJSON("mcsr_vote_totals", votesCache);
             rememberVote(term.id, previousVote);
-            updateVoteControls(previousVote, previousTotals, sb.enabled && voteServiceAvailable);
+            updateVoteControls(previousVote, previousTotals, canVoteOnTerm(term.id));
             status.textContent = result.reason || "Vote could not be saved.";
             showToast(status.textContent);
             return;
@@ -907,7 +931,7 @@ function positionTooltip() {
     const input = document.getElementById("search-input");
     const tooltip = document.getElementById("search-tooltip");
     if (!input || !tooltip) return;
-    const rect = input.getBoundingClientRect();
+    const rect = document.getElementById("search-input-wrap").getBoundingClientRect();
     tooltip.style.top = `${rect.bottom + 6}px`;
     tooltip.style.left = `${rect.left}px`;
     tooltip.style.width = `${rect.width}px`;
@@ -1389,7 +1413,9 @@ async function loadVotes() {
 }
 
 async function loadTrendingTerms() {
-    if (!sb.enabled) {
+    // Enable only after the existing trending migration is deployed (SUPABASE.md).
+    // An older backend has no such RPC; do not send a known-invalid request.
+    if (!sb.enabled || runtimeConfig.trendingEnabled !== true) {
         trendingTerms = [];
         trendingServiceAvailable = false;
         return false;
@@ -1542,7 +1568,9 @@ function renderStats() {
             community.replaceChildren();
             const intro = document.createElement("p");
             intro.className = "stats-note";
-            intro.textContent = "Highest net-rated definitions from the public aggregate totals.";
+            intro.textContent = voteServiceAvailable
+                ? "Highest net-rated definitions from the public aggregate totals."
+                : "Last available aggregate ratings. The live rating service is currently unavailable.";
             const list = document.createElement("div");
             list.className = "community-rating-list";
             rated.forEach(term => {
@@ -2044,9 +2072,16 @@ async function init() {
 
     document.getElementById("footer-term-count").textContent = String(data.terms.length);
     document.getElementById("browse-summary").textContent = `${data.terms.length} terms · ${new Set(data.terms.map(term => term.category)).size} categories`;
-    await Promise.all([loadVotes(), loadTrendingTerms()]);
-    renderTrending();
     handleURLRouting();
+    // Local reference content and navigation never wait for the community service.
+    await Promise.all([
+        loadVotes().then(() => {
+            votesLoaded = true;
+            if (currentPage === "term") refreshVisibleVotes?.();
+            if (currentPage === "stats") renderStats();
+        }),
+        loadTrendingTerms().then(renderTrending)
+    ]);
 }
 
 document.addEventListener("DOMContentLoaded", init);

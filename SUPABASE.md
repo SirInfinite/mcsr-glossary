@@ -185,6 +185,20 @@ revoked.
 
 ## Public frontend configuration
 
+The redesigned frontend treats recent trending as an optional deployed capability.
+Set `trendingEnabled: true` in `window.MCSR_CONFIG` only after
+`20260904023801_add_recent_vote_trending.sql` has been applied. Until then, the
+trending strip stays hidden and the browser does not call a missing RPC. The
+existing ranking and seven-day contract are unchanged when enabled.
+
+The September 6, 2026 visual-overhaul audit found that the configured beta project
+had not deployed that RPC (`PGRST202`) and was missing the 20 vote targets in
+`20260904013041_seed_researched_term_vote_totals.sql`. No database migrations were
+applied during the visual overhaul. A definition whose ID is absent from the live
+vote response now displays an unavailable message and disables its vote buttons;
+available vote targets retain the same reversible RPC behavior.
+
+
 <code>js/supabase-config.js</code> is intentionally public and contains only:
 
 - the project URL

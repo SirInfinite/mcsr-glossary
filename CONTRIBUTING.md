@@ -10,7 +10,7 @@ Contributions are welcome from runners, researchers, and newcomers who notice so
 
 Website submissions enter a private moderation queue. They do not automatically become public glossary entries.
 
-Published term pages also include **Suggest an edit**. This prefills the current term and adds correction context, but it still creates only a pending submission for manual review.
+Published term pages include **Suggest an edit** and **Report a term**. Suggestions are pending proposals tied to the published entry; reports enter a distinct private queue. Neither action can publish or modify a definition. The released correction-compatible API is retained until the structured endpoint is deployed.
 
 ## Contributing through GitHub
 
@@ -33,7 +33,7 @@ Every entry follows the documented [glossary data contract](DATA_CONTRACT.md). I
 - Use exact canonical names in `relatedTerms`; every reference must resolve.
 - Use `YYYY-MM-DD` for known editorial dates and an empty string when a date is unknown.
 - Do not fabricate a historical creation date.
-- Add the new UUID to a Supabase migration that seeds `glossary_vote_totals`.
+- Add the UUID, canonical name and category to a migration for `glossary_vote_totals`. Preserve previous routes in `legacySlugs` when renaming a term, and update target metadata through a migration.
 - Add structured `media` only when it teaches something the definition cannot show as clearly. Use the provider allowlist and required attribution fields in `DATA_CONTRACT.md`; never paste iframe or script markup into a definition.
 
 `data/termTemplate.txt` provides the field order used by the dataset. The validator prints the exact term and field when the contract is broken.
@@ -52,19 +52,22 @@ Add the URLs and a short note about what they support to `CONTENT_SOURCES.md`. I
 
 ## Validation
 
-Node.js 20 or newer is required. The repository has no install-time dependencies.
+Node.js 22 or newer is required. Install the pinned development tools, then run the same local checks as CI:
 
 ```sh
-npm run check-content
+npm ci
+npm run check
+npx playwright install chromium
+npm run test-browser
 ```
 
-This validates the current dataset and runs deliberate failure cases against the validator. Pull requests should leave this command passing and should load successfully through a local HTTP server:
+The checks cover content, runtime invariants, browser failure modes and accessibility. For backend changes also run the disposable database suite documented in [README.md](README.md). Serve the project with:
 
 ```sh
-python -m http.server 8000
+npm start
 ```
 
-Then open <http://localhost:8000/> and check the changed term, search aliases, filters, and related-term links.
+Then open <http://127.0.0.1:8001/mcsr-glossary/> and check the changed term, search aliases, filters and related links. Use [ARCHITECTURE.md](ARCHITECTURE.md) to find the responsible module and [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) for release gates. Local results never substitute for actual hosted migration/advisor verification.
 
 ## Pull request scope
 

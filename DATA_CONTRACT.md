@@ -1,20 +1,20 @@
 # Glossary Data Contract
 
-`data/terms.json` is the source of truth for published glossary content. The browser and the Node validator share the contract constants in `js/content-contract.js`; there is no build step or runtime schema dependency.
+`data/terms.json` is the source of truth for published glossary content. Contract version 4 is declared in `js/content-contract.js`; the browser and CLI execute the same pure validator in `js/content-validation.js`. The accepted dataset is frozen before rendering. There is no build step or runtime schema dependency.
 
 The root JSON object contains:
 
-- `terms` (required): an array of term objects.
+- `terms` (required): a nonempty array of term objects.
 - `titleString` (optional): site title metadata. It must be a string when present.
 - `aboutParagraph` (optional): site description metadata. It must be a string when present.
 
 ## Term schema
 
-Every term contains the required fields below and may contain the documented optional `historicalNote` and `media` fields. Unknown fields fail validation.
+Every term contains the required fields below and may contain the documented optional `historicalNote`, `media` and `legacySlugs` fields. Unknown term fields fail validation.
 
 | Field | Type | Contract |
 | --- | --- | --- |
-| `id` | string | Unique UUID in `8-4-4-4-12` hexadecimal form. IDs are stable database keys and must not change after publication. |
+| `id` | string | Unique lowercase UUID in `8-4-4-4-12` hexadecimal form. IDs are stable database keys and must not change after publication. |
 | `name` | string | Unique canonical display name, 2–100 characters, trimmed. Names are compared case-insensitively and must produce a unique URL slug. |
 | `category` | string | One value from the controlled category list below. |
 | `status` | string | One of `current`, `historical`, or `legacy`. This describes present community relevance, not content quality. |
@@ -27,6 +27,11 @@ Every term contains the required fields below and may contain the documented opt
 | `updatedDate` | string | Most recent substantive content revision in `YYYY-MM-DD`, or an empty string when unknown. The term page displays this value when present. |
 | `historicalNote` | string (optional) | Required for `historical` and `legacy` terms and forbidden for `current` terms. A trimmed 20–500 character explanation of when the term mattered and, only when sourced, what changed. |
 | `media` | object[] (optional) | Zero to six validated media items. Omit the field when a definition has no useful visual example. |
+| `legacySlugs` | string[] (optional) | At most ten distinct lowercase kebab-case routes, at most 100 characters each. Add the old canonical slug when renaming a term. UUIDs, canonical slugs and legacy slugs share one collision-checked namespace. |
+
+Dates must be real calendar dates; when both are known, `updatedDate` cannot precede `creationDate`. Case folding for names/aliases/tags uses fixed English comparison. Slugs retain the existing lowercase ASCII letters/digits with hyphens algorithm, so current links remain stable. Incoming UUID routes and slug casing normalize to the canonical route. Keep previous slugs explicitly when renaming. Do not add a second definition/block representation: Markdown plus standalone structured-media references is the only supported content model.
+
+All media `src` values are strings. HTTPS links cannot contain username/password components. Allowlisted external images use the default HTTPS port, matching CSP; local media paths cannot traverse directories. Canonical source provenance remains in `CONTENT_SOURCES.md` and the research documents rather than an undocumented term field.
 
 ### Media schema
 
@@ -86,7 +91,7 @@ The current model does not define `modes` or `versions` fields and the site does
 1. Add an object following `data/termTemplate.txt`, keeping `data/terms.json` alphabetized by canonical `name`.
 2. Generate a UUID. `npm run assign-ids` fills any blank `id`, or a UUID can be generated before editing.
 3. Use one controlled category and status, then verify aliases, tags, dates, historical context, and related terms against this contract.
-4. If the ID is new, add it to a Supabase migration that seeds `glossary_vote_totals`; validation prevents published terms from silently lacking a vote row.
+4. If the ID is new, add it to a Supabase migration that seeds `glossary_vote_totals` with `term_id`, `term_name` and `term_category`. Renames/category changes also require target-metadata updates. Preserve the old slug in `legacySlugs`. Database reproduction verifies the migrated target registry against the canonical dataset.
 5. Record factual and media sources in `CONTENT_SOURCES.md`. Do not copy third-party files into the repository without clear permission.
 6. Run the complete local check:
 

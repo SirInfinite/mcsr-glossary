@@ -31,7 +31,7 @@ Every term contains the required fields below and may contain the documented opt
 
 Dates must be real calendar dates; when both are known, `updatedDate` cannot precede `creationDate`. Case folding for names/aliases/tags uses fixed English comparison. Slugs retain the existing lowercase ASCII letters/digits with hyphens algorithm, so current links remain stable. Incoming UUID routes and slug casing normalize to the canonical route. Keep previous slugs explicitly when renaming. Do not add a second definition/block representation: Markdown plus standalone structured-media references is the only supported content model.
 
-All media `src` values are strings. HTTPS links cannot contain username/password components. Allowlisted external images use the default HTTPS port, matching CSP; local media paths cannot traverse directories. Canonical source provenance remains in `CONTENT_SOURCES.md` and the research documents rather than an undocumented term field.
+All media `src` values are strings. HTTPS links cannot contain username/password components. Allowlisted external images use the default HTTPS port, matching CSP; local media paths cannot traverse directories. The CLI also verifies that local images, video files, posters, and caption tracks exist with their exact case-sensitive filename and resolve inside the repository. Broken image requests fall back to a descriptive source link. Canonical source provenance remains in `CONTENT_SOURCES.md` and the research documents rather than an undocumented term field.
 
 ### Media schema
 

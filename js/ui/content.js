@@ -111,7 +111,7 @@ function openMediaLightbox(item, trigger) {
     image.width = item.width;
     image.height = item.height;
     const captionText = item.caption.trim().replace(/[.!?]+$/, "");
-    caption.textContent = `${captionText} by ${item.credit.name}`;
+    caption.textContent = `${captionText} · ${item.credit.name}`;
     lightboxReturnFocus = trigger;
     dialog.showModal();
 }
@@ -154,6 +154,10 @@ function createMediaBody(item) {
         image.height = item.height;
         image.loading = "lazy";
         image.decoding = "async";
+        image.addEventListener("error", () => {
+            const fallback = createExternalLink(item.sourceUrl, `${item.title} — open source ↗`, "media-fallback-link");
+            if (fallback) button.replaceWith(fallback);
+        }, { once: true });
         button.appendChild(image);
         button.addEventListener("click", () => openMediaLightbox(item, button));
         return button;
@@ -207,7 +211,7 @@ function createMediaBody(item) {
     }
 
     if (item.type === "link") {
-        const link = createExternalLink(item.src, "Open this example in a new tab ↗", "media-link-preview");
+        const link = createExternalLink(item.src, `${item.title} ↗`, "media-link-preview");
         if (link) link.setAttribute("aria-label", `${item.title} (opens in a new tab)`);
         return link;
     }
@@ -241,13 +245,14 @@ function createMediaFigure(item, index, presentation = classifyMediaItem(item)) 
         const captionText = item.caption.trim().replace(/[.!?]+$/, "");
         caption.append(captionText);
         const credit = createExternalLink(item.credit.url, item.credit.name);
-        if (credit) caption.append(" by ", credit);
+        if (credit) caption.append(" · ", credit);
         const providerLabel = item.type === "youtube"
             ? "YouTube"
             : item.type === "twitch"
                 ? "Twitch"
                 : "Source";
         const source = createExternalLink(item.sourceUrl, providerLabel);
+        if (source) source.setAttribute("aria-label", `${item.title} — ${providerLabel} (opens in a new tab)`);
         if (source) caption.append(" · ", source);
         figure.appendChild(caption);
     }

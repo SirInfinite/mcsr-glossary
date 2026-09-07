@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { glossary, validMedia } from "../fixtures.mjs";
-import { classifyMediaItem, getMediaPresentations, getMediaSlotMarker, markMediaSlots, stripMediaSlots, analyzeMediaSlots } from "../../js/content/media.js";
+import { classifyMediaItem, splitDefinitionBlocks, stripMediaSlots, analyzeMediaSlots } from "../../js/content/media.js";
 import { normalizeTrendingTerms } from "../../js/content/search.js";
 
 test("valid structured media is renderable", () => {
@@ -17,14 +17,6 @@ test("invalid media degrades to its safe original source", () => {
 test("invalid media without a safe source is ignored", () => {
     const result = classifyMediaItem({ type: "unsupported", src: "javascript:alert(1)" });
     assert.equal(result.kind, "ignored");
-});
-
-test("term media presentation handles media-backed and text-only definitions", () => {
-    const mapless = glossary.terms.find(term => term.name === "Mapless");
-    const anyPercent = glossary.terms.find(term => term.name === "Any%");
-    assert.equal(getMediaPresentations(mapless.media).length, 1);
-    assert.deepEqual(getMediaPresentations(anyPercent.media), []);
-    assert.deepEqual(getMediaPresentations(undefined), []);
 });
 
 test("recent vote activity ranks only published terms with a positive balance", () => {
@@ -58,10 +50,27 @@ test("recent vote activity rejects malformed counts, deduplicates terms, and res
     });
 });
 
-test("inline media slots are marked for safe DOM replacement and stripped from previews", () => {
+test("inline media slots separate Markdown blocks and are stripped from previews", () => {
     const source = "Setup paragraph.\n\n{{media:0}}\n\nWhat to notice afterward.";
-    assert.equal(markMediaSlots(source), `Setup paragraph.\n\n${getMediaSlotMarker(0)}\n\nWhat to notice afterward.`);
+    assert.deepEqual(splitDefinitionBlocks(source), [
+        { type: "text", value: "Setup paragraph.\n\n" },
+        { type: "media", index: 0 },
+        { type: "text", value: "\n\nWhat to notice afterward." }
+    ]);
     assert.equal(stripMediaSlots(source), "Setup paragraph.\n\nWhat to notice afterward.");
+});
+
+test("media parsing preserves literal marker-like text and never guesses embedded tokens", () => {
+    const value = "MCSRINLINEMEDIA0MARKER\n\nInline {{media:0}} stays text.\n\n{{media:01}}";
+    assert.deepEqual(splitDefinitionBlocks(value), [{ type: "text", value }]);
+});
+
+test("media block order is deterministic for repeated parses and CRLF content", () => {
+    const value = "Before.\r\n\r\n{{media:1}}\r\n\r\nBetween.\r\n\r\n{{media:0}}\r\n\r\nAfter.";
+    const blocks = splitDefinitionBlocks(value);
+    assert.deepEqual(blocks.filter(block => block.type === "media").map(block => block.index), [1, 0]);
+    assert.deepEqual(splitDefinitionBlocks(value), blocks);
+    assert.deepEqual(analyzeMediaSlots(value, 2).errors, []);
 });
 
 test("inline media slot analysis requires one contextual placement per media item", () => {
@@ -74,13 +83,4 @@ test("inline media slot analysis requires one contextual placement per media ite
     assert.ok(invalid.errors.some(error => error.includes("does not reference")));
     assert.ok(invalid.errors.some(error => error.includes("media[0]")));
     assert.ok(invalid.errors.some(error => error.includes("media[1]")));
-});
-
-test("invalid UI media is ignored while a safe-source fallback remains available", () => {
-    const presentations = getMediaPresentations([
-        { type: "unsupported", src: "javascript:alert(1)" },
-        { ...validMedia, type: "unsupported" }
-    ]);
-    assert.equal(presentations.length, 1);
-    assert.equal(presentations[0].presentation.kind, "fallback");
 });

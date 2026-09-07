@@ -3,15 +3,19 @@ import { validateMediaItem } from "../content-contract.js";
 const MEDIA_SLOT_EXACT_PATTERN = /^\{\{media:(0|[1-9]\d*)\}\}$/;
 const MEDIA_SLOT_LINE_PATTERN = /^\{\{media:(0|[1-9]\d*)\}\}$/gm;
 
-export function getMediaSlotMarker(index) {
-    return `MCSRINLINEMEDIA${Number(index)}MARKER`;
-}
-
-export function markMediaSlots(value) {
-    return String(value || "").replace(
-        MEDIA_SLOT_LINE_PATTERN,
-        (_, index) => getMediaSlotMarker(index)
-    );
+// Media tokens delimit Markdown blocks before parsing. Text never becomes a
+// placeholder, and Markdown/HTML cannot consume a validated media placement.
+export function splitDefinitionBlocks(value) {
+    const source = String(value || "");
+    const blocks = [];
+    let offset = 0;
+    for (const match of source.matchAll(MEDIA_SLOT_LINE_PATTERN)) {
+        if (match.index > offset) blocks.push({ type: "text", value: source.slice(offset, match.index) });
+        blocks.push({ type: "media", index: Number(match[1]) });
+        offset = match.index + match[0].length;
+    }
+    if (offset < source.length) blocks.push({ type: "text", value: source.slice(offset) });
+    return blocks;
 }
 
 export function stripMediaSlots(value) {
@@ -73,11 +77,4 @@ export function classifyMediaItem(item) {
         fallbackURL,
         errors
     };
-}
-
-export function getMediaPresentations(items) {
-    if (!Array.isArray(items)) return [];
-    return items
-        .map((item, index) => ({ item, index, presentation: classifyMediaItem(item) }))
-        .filter(entry => entry.presentation.kind !== "ignored");
 }

@@ -46,7 +46,7 @@ Media is presentation data, never arbitrary HTML. Each item requires `type`, `sr
 | `video` | Local `.mp4` or `.webm` under `media/` | Required `width`, `height`, `hasAudio`; optional local `poster` and `.vtt` `captions` | Native controls, metadata preload, inline playback, and no autoplay. Captions are mandatory when `hasAudio` is true. |
 | `link` | HTTPS URL | None | Safe external preview/link only; useful for providers that should not be embedded. |
 
-Unsupported fields or providers fail repository validation. At runtime, an invalid item with a safe HTTPS source degrades to a normal source link; an item without even a safe source is omitted. External image hosts are intentionally limited to `minecraft.wiki` and `upload.wikimedia.org`. Expanding any embed or image host requires both a contract change and a matching CSP review.
+Unsupported fields or providers fail both repository validation and runtime dataset loading. The media renderer also has a defensive source-link fallback for an invalid item with a safe HTTPS source; it omits items without a safe source. External image hosts are intentionally limited to `minecraft.wiki` and `upload.wikimedia.org`. Expanding any embed or image host requires both a contract change and a matching CSP review.
 
 ### Inline media placement
 
@@ -60,7 +60,7 @@ Paragraph introducing the technique.
 Paragraph explaining what to notice.
 ```
 
-Every media item must be referenced exactly once, every index must exist, and each token must be surrounded by blank lines. Terms without media need no token and continue to use ordinary Markdown. The browser replaces tokens with inert markers, renders and sanitizes the complete Markdown document once, then swaps only exact marker paragraphs for media elements created by trusted JavaScript. Tokens never become arbitrary HTML or iframe input.
+Every media item must be referenced exactly once, every index must exist, and each token must be surrounded by blank lines. Terms without media need no token and continue to use ordinary Markdown. Tokens separate independent Markdown blocks before parsing. Close Markdown constructs before a token and keep reference-link declarations in the block that uses them. Each text block crosses the shared sanitizer; media elements are created through trusted DOM APIs between blocks. Ordinary text is never treated as an internal placeholder, and Markdown or HTML cannot swallow a media placement. Tokens never become arbitrary HTML or iframe input.
 
 ## Categories
 

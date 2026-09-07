@@ -36,7 +36,7 @@ moderator → reviewed repository edit → tests → GitHub Pages
 | `js/content-validation.js` | The same pure whole-dataset validator used by Node and the browser. |
 | `js/content/loader.js` | Fetch, validate, clone and freeze the complete dataset; invalid content fails closed. |
 | `js/content/search.js` | Pure ranking, composed category/tag/A–Z filtering, related-term resolution and recent-vote ranking. |
-| `js/content/media.js` | Inline-slot analysis, media classification, safe HTTPS fallback URLs. |
+| `js/content/media.js` | Inline-slot analysis, deterministic text/media block splitting, media classification, safe HTTPS fallback URLs. |
 | `js/backend/client.js` | Configuration validation and the only Supabase HTTP/RPC adapter. |
 | `js/backend/vote-contract.js` | Vote values, transitions, optimistic projections and strict response-shape validation. |
 | `js/backend/voting.js` | Confirmed rows, per-term in-flight state, stale-read protection, optional trending and versioned confirmed cache. |
@@ -86,7 +86,7 @@ Browser storage is optional. `theme` is a validated enum, `mcsr_browser_id` is o
 5. Optimistic totals are ephemeral. Only confirmed responses enter persistent cache. Timeout/network/malformed-response outcomes are uncertain; the last confirmed display is retained and another write is disabled until a fresh page load checks the backend. Browser cancellation does not imply server rollback.
 6. Proposal rows explicitly distinguish `new` (no target) and `correction` (stable target FK). Reports have their own private queue and cannot update static terms. Server-generated IDs, timestamps and moderation state are authoritative.
 7. Anonymous callers can queue pending items through validated RPCs but cannot enumerate queues, read receipts, modify aggregates directly, approve records or publish content. Browser UUIDs are only weak duplicate friction, not authentication.
-8. Repeated form actions cannot overlap. Closing and reopening a form invalidates its former response and success timer. Failed/unconfirmed delivery preserves a reviewable copy without claiming that the server certainly rolled back.
+8. Repeated form actions cannot overlap, including while clipboard permission or fallback is pending. Closing and reopening a form invalidates its former response and success timer. Failed/unconfirmed delivery preserves a reviewable copy without claiming that the server certainly rolled back.
 
 ### Security, initialization and deployment
 
@@ -100,6 +100,8 @@ Browser storage is optional. `theme` is a validated enum, `mcsr_browser_id` is o
 ## HTML and media trust boundary
 
 `ui/content.js::parseDefinition` parses Markdown, runs the local DOMPurify allowlist, then removes unsafe link protocols and adds safe external-link attributes. Its output is the only content-derived rich HTML accepted by article/changelog rendering. `plainText` consumes that sanitized result. Search highlighting splits original text and escapes each fragment, so highlighting cannot break an HTML entity into markup.
+
+Standalone media tokens separate text and media blocks before Markdown parsing. The renderer sanitizes each text block and builds media with DOM APIs into one detached fragment, then replaces the article contents once. It does not search rendered paragraphs for magic marker text. All 100 existing definitions retain their element order and text; regression fixtures cover marker-like prose and Markdown/HTML around media boundaries.
 
 Other UI templates contain fixed local markup/SVG, escaped text, contract-validated UUIDs/enums or validated numeric values. `innerHTML = ""` is only clearing. CSS widths/aspect ratios come from counts or validated dimensions. Media embeds are constructed with DOM APIs from validated IDs; they never pass supplied iframe HTML through a sanitizer exception. Image/video source links remain available if a third-party provider fails. Cross-origin player internals are outside the application's control.
 

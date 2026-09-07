@@ -110,21 +110,26 @@ export function createContributionModals({ contributions, client: sb }) {
 
         submitButton.disabled = true;
         submitButton.textContent = sb.enabled ? "Submitting…" : "Copying…";
-        let result = await contributions.submitTerm({
-            kind: submissionMode,
-            termId: correctedTerm?.id,
-            name: document.getElementById("sub-name").value,
-            category: document.getElementById("sub-category").value,
-            aliases: document.getElementById("sub-aliases").value,
-            tags: document.getElementById("sub-tags").value,
-            definition: document.getElementById("sub-definition").value,
-            website: document.getElementById("sub-website").value
-        });
-
-        submitPending = false;
-        submitButton.disabled = false;
-        if (generation !== submitGeneration) return;
-        result = await copyFallback(result);
+        let result;
+        try {
+            result = await contributions.submitTerm({
+                kind: submissionMode,
+                termId: correctedTerm?.id,
+                name: document.getElementById("sub-name").value,
+                category: document.getElementById("sub-category").value,
+                aliases: document.getElementById("sub-aliases").value,
+                tags: document.getElementById("sub-tags").value,
+                definition: document.getElementById("sub-definition").value,
+                website: document.getElementById("sub-website").value
+            });
+            if (generation !== submitGeneration) return;
+            // Clipboard permission may resolve much later than the HTTP call.
+            // Keep the whole action serialized until that fallback finishes.
+            result = await copyFallback(result);
+        } finally {
+            submitPending = false;
+            submitButton.disabled = false;
+        }
         if (generation !== submitGeneration) return;
         submitStatus.hidden = false;
         if (result.ok && result.sent) {
@@ -214,18 +219,21 @@ export function createContributionModals({ contributions, client: sb }) {
 
         reportButton.disabled = true;
         reportButton.textContent = sb.enabled ? "Sending…" : "Copying…";
-        let result = await contributions.submitReport({
-            termId: reportedTerm.id,
-            termName: reportedTerm.name,
-            reason: reportReason.value,
-            details: reportDetails.value,
-            website: document.getElementById("report-website").value
-        });
-
-        reportPending = false;
-        reportButton.disabled = false;
-        if (generation !== reportGeneration) return;
-        result = await copyFallback(result);
+        let result;
+        try {
+            result = await contributions.submitReport({
+                termId: reportedTerm.id,
+                termName: reportedTerm.name,
+                reason: reportReason.value,
+                details: reportDetails.value,
+                website: document.getElementById("report-website").value
+            });
+            if (generation !== reportGeneration) return;
+            result = await copyFallback(result);
+        } finally {
+            reportPending = false;
+            reportButton.disabled = false;
+        }
         if (generation !== reportGeneration) return;
         reportStatus.hidden = false;
         if (result.ok && result.sent) {

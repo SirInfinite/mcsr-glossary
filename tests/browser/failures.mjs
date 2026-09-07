@@ -138,5 +138,80 @@ export async function failureFlows(browser, base) {
             check(await page.locator("#submit-modal").isVisible(), "A stale success timer cannot close a new dialog");
         } finally { finish?.(); await context.close(); }
     }
+    {
+        const { context, page } = await environment();
+        try {
+            await page.goto(base);
+            const media = await page.evaluate(async () => {
+                const { renderDefinitionWithMedia } = await import("./js/ui/content.js");
+                const { validateGlossary } = await import("./js/content-validation.js");
+                const { terms } = await (await fetch("./data/terms.json")).json();
+                const published = terms.map(term => {
+                    const node = document.createElement("div");
+                    return renderDefinitionWithMedia(term, node) === (term.media?.length || 0);
+                });
+                const term = terms.find(term => term.media?.length === 1);
+                const literal = "MCSRINLINEMEDIA0MARKER";
+                const fixture = { ...term, relatedTerms: [], definition: `Before.\n\n${literal}\n\nBetween.\n\n{{media:0}}\n\nAfter.` };
+                const node = document.createElement("div");
+                const count = renderDefinitionWithMedia(fixture, node);
+                const boundaries = ["```text", "<!--", '<div><script>window.attack=true</script>'];
+                return {
+                    published,
+                    literal: count === 1 && node.textContent.includes(literal) && !validateGlossary({ terms: [fixture] }).errors.length,
+                    boundaries: boundaries.map(before => {
+                        const definition = `Before.\n\n${before}\n\n{{media:0}}\n\nAfter.`;
+                        const target = document.createElement("div");
+                        return renderDefinitionWithMedia({ ...fixture, definition }, target) === 1
+                            && !target.querySelector("script,[onclick],[onerror]");
+                    })
+                };
+            });
+            check(media.published.every(Boolean), "Every published media item renders exactly once");
+            check(media.literal, "Literal marker-like text survives safe media rendering");
+            check(media.boundaries.every(Boolean), "Markdown and HTML cannot consume or bypass sanitized media block boundaries");
+        } finally { await context.close(); }
+    }
+    for (const mode of ["proposal", "report"]) {
+        let writes = 0;
+        const { context, page } = await environment(async context => {
+            await context.addInitScript(() => {
+                window.clipboardJobs = [];
+                Object.defineProperty(navigator, "clipboard", { configurable: true, value: {
+                    writeText: () => new Promise(resolve => window.clipboardJobs.push(resolve))
+                } });
+            });
+            await context.route(`**/rest/v1/rpc/${mode === "proposal" ? "submit_glossary_term" : "submit_glossary_term_report"}`, route => {
+                writes++;
+                return route.fulfill({ status: 503, body: "unavailable" });
+            });
+        });
+        try {
+            await page.goto(base + (mode === "report" ? "?t=bastion" : ""));
+            const open = mode === "proposal" ? "#submit-trigger" : "#report-term-btn";
+            const button = mode === "proposal" ? "#sub-submit" : "#report-submit";
+            const form = mode === "proposal" ? "#submit-form" : "#report-form";
+            const close = mode === "proposal" ? "#submit-modal-close" : "#report-modal-close";
+            const field = mode === "proposal" ? "#sub-definition" : "#report-details";
+            const status = mode === "proposal" ? "#sub-status" : "#report-status";
+            await page.locator(open).click();
+            if (mode === "proposal") {
+                await page.locator("#sub-name").fill("Clipboard regression fixture");
+                await page.locator("#sub-category").selectOption("technique");
+            } else await page.locator("#report-reason").selectOption("other");
+            await page.locator(field).fill("A local fixture awaiting delayed clipboard permission.");
+            await page.locator(button).click();
+            await page.waitForFunction(() => window.clipboardJobs.length === 1);
+            check(await page.locator(button).isDisabled(), `${mode}: slow clipboard fallback keeps the action pending`);
+            await page.locator(form).dispatchEvent("submit");
+            await page.locator(close).click();
+            await page.locator(open).click();
+            await page.locator(field).fill("New form content must survive the old clipboard result.");
+            check(await page.locator(button).isDisabled() && writes === 1, `${mode}: reopening and repeated submit cannot overlap clipboard work`);
+            await page.evaluate(() => window.clipboardJobs.forEach(resolve => resolve()));
+            await page.waitForFunction(selector => !document.querySelector(selector).disabled, button);
+            check((await page.locator(field).inputValue()).startsWith("New form content") && await page.locator(status).isHidden(), `${mode}: a stale clipboard result cannot modify the reopened form`);
+        } finally { await context.close(); }
+    }
     return { result: "PASS", checks: checks.length, passed: checks };
 }

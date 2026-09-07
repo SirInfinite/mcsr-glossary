@@ -1,4 +1,4 @@
-import { classifyMediaItem, getMediaSlotMarker, markMediaSlots, stripMediaSlots, safeHTTPSURL } from "../content/media.js";
+import { classifyMediaItem, splitDefinitionBlocks, stripMediaSlots, safeHTTPSURL } from "../content/media.js";
 
 export function escapeHTML(str) {
     return String(str)
@@ -227,26 +227,23 @@ function createMediaFigure(item, index, presentation = classifyMediaItem(item)) 
 
 export function renderDefinitionWithMedia(term, container) {
     if (!container) return 0;
-    container.innerHTML = parseDefinition(markMediaSlots(term.definition));
+    const fragment = document.createDocumentFragment();
     let renderedCount = 0;
-    (term.media || []).forEach((item, index) => {
-        const marker = getMediaSlotMarker(index);
-        const markerElement = [...container.querySelectorAll("p")]
-            .find(element => element.textContent.trim() === marker && !element.children.length);
-        if (!markerElement) return;
-        const presentation = classifyMediaItem(item);
-        const figure = createMediaFigure(item, index, presentation);
-        if (!figure) {
-            markerElement.remove();
-            return;
+    for (const block of splitDefinitionBlocks(term.definition)) {
+        if (block.type === "text") {
+            const template = document.createElement("template");
+            template.innerHTML = parseDefinition(block.value);
+            fragment.appendChild(template.content);
+        } else {
+            const item = term.media?.[block.index];
+            const figure = createMediaFigure(item, block.index);
+            if (figure) {
+                fragment.appendChild(figure);
+                renderedCount += 1;
+            }
         }
-        markerElement.replaceWith(figure);
-        renderedCount += 1;
-    });
-
-    container.querySelectorAll("p").forEach(element => {
-        if (/^MCSRINLINEMEDIA\d+MARKER$/.test(element.textContent.trim())) element.remove();
-    });
+    }
+    container.replaceChildren(fragment);
     return renderedCount;
 }
 

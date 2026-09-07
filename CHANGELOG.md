@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### MCSR theming
+
+- Restored compact Minecraft menu-style navigation and added coordinated deepslate/stone surfaces, inset search and filter controls, and explicit dimension-tag accents.
+- Refined article metadata, inline media frames, related links, vote states and contribution dialogs; Stats now uses tabular counters and split-style category rows.
+- Added seven-size visual coverage and open search/filter accessibility checks. Preserved researched definitions, backend behavior and the vanilla architecture.
+
 ### Full visual overhaul
 
 - Rebuilt dark charcoal and light stone themes around local Minecraft UI typography, readable sans-serif definitions, compact navigation, and a single reference-row glossary.

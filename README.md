@@ -8,7 +8,7 @@ A community reference for Minecraft speedrunning terminology. Search 100 researc
 
 This is an early beta. The repository contains newer work than the deployed site. Published content lives in `data/terms.json`; community proposals and reports remain private until maintainer review. Changing a database moderation status never publishes a term.
 
-The structural branch preserves the approved design and lightweight HTML/CSS/native-JavaScript architecture. See [STRUCTURAL_INTEGRITY_QA.md](STRUCTURAL_INTEGRITY_QA.md) for current evidence and hosted release blockers.
+The MCSR theme uses Minecraft menu controls, stone/deepslate surfaces and compact technical metadata, preserving the lightweight HTML/CSS/native-JavaScript architecture. See [MCSR_THEME_QA.md](MCSR_THEME_QA.md) for visual and performance evidence, and [STRUCTURAL_INTEGRITY_QA.md](STRUCTURAL_INTEGRITY_QA.md) for the existing hosted release blockers.
 
 ## Product
 
@@ -50,6 +50,15 @@ The browser suite starts/closes its own server and browser contexts, intercepts 
 | `npm run test-live-voting` | Real public voting RPCs; removes its QA votes and verifies cleanup. |
 | `npm run test-live-backend` | Public table-access denial, RPC capability and target coverage; no valid moderation inserts. |
 | `node scripts/scan-secrets.mjs --history` | Current files and historical text blobs; never prints matched credentials. |
+
+Browser QA covers both themes at seven viewport sizes, including open search/filter states and all contribution dialogs. To save screenshots and results in a separate review directory, set `QA_OUTPUT_DIR` before running the suite. For example, in PowerShell:
+
+```powershell
+$env:QA_OUTPUT_DIR = 'output/playwright/mcsr-theme/final'
+npm run test-browser
+```
+
+Without that variable, the existing `output/structural/final` destination remains the default. Generated screenshots and reports are local QA artifacts, excluded from Git.
 
 For database reproduction, use an isolated local PostgreSQL 17 installation with pgcrypto, or a disposable container:
 

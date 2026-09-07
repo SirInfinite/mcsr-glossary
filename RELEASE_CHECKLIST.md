@@ -18,6 +18,9 @@ Release from a reviewed commit. Passing local checks does not authorize a merge,
 - [ ] No application exceptions, unexpected console/CSP errors or missing static assets.
 - [ ] `node scripts/scan-secrets.mjs --history` reports no privileged credentials.
 - [ ] Sanitizer attack tests pass; CSP and provider allowlists agree.
+- [ ] Every published media item renders once; Markdown cannot consume media placements or discard marker-like prose.
+- [ ] Delayed clipboard fallback and closing/reopening a contribution form cannot create overlapping actions or overwrite new input.
+- [ ] Review the pinned vendored parser/sanitizer versions against their maintainers' security advisories.
 
 ## Backend
 

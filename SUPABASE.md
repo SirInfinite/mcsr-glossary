@@ -4,7 +4,7 @@ The configured public beta project is `olmazjfubvpgtpoxlxzy`. Its URL and publis
 
 ## Current deployment boundary
 
-The September 6 structural audit found 80 live vote targets for 100 local published terms. Recent-trending and structured-correction RPCs were absent. `trendingEnabled` and `structuredCorrectionsEnabled` remain `false` until authenticated migration/capability verification succeeds. Released correction-compatible submissions remain usable.
+The September 7 recheck found 80 live vote targets for the branch's 100 canonical terms. Recent-trending and structured-correction RPCs remain absent. `trendingEnabled` and `structuredCorrectionsEnabled` remain `false` until authenticated migration/capability verification succeeds. The released correction-compatible submission path is retained.
 
 Supabase MCP tools and CLI authentication were unavailable. Local reproduction and public API denial tests do not establish hosted migration parity, schema definitions or advisor results. See [STRUCTURAL_INTEGRITY_QA.md](STRUCTURAL_INTEGRITY_QA.md).
 

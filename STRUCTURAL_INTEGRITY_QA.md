@@ -1,4 +1,94 @@
-# Structural integrity QA — September 6, 2026
+# Structural integrity QA — September 7, 2026
+
+## Current verification and recommendation
+
+**HOLD / full structural integrity gate: FAIL.** The local architecture and checks pass, but this branch is not ready for release. Public probes still show 20 missing vote targets and two missing RPCs. Supabase MCP tools are absent from this session, and the CLI reports `LegacyPlatformAuthRequiredError`. Hosted migration history, actual schema/RLS definitions, valid moderation flows and Security/Performance Advisors remain unverified. No hosted schema changes, push, merge, tag or release were made.
+
+This verification started from clean commit `b06432f` on the already-existing `refactor/structural-integrity-overhaul` branch. It inspected and extended the earlier structural implementation rather than repeating the module split. New implementation checkpoints are `c52cf9a` (media/form integrity) and `cc796c7` (secret scanning). The earlier implementation record is preserved below.
+
+### Current baseline
+
+Before further edits, `npm run check` passed 105 tests, the browser suite passed 61 product plus 23 failure checks, and migration reproduction passed 72 fresh plus 72 legacy checks. Live reversible voting passed and its QA votes were removed. The live backend capability check failed for the same target/RPC gaps listed below. Baseline screenshots, a 100-article rendering snapshot, regression probes and Lighthouse are retained in `output/structural/recheck/baseline/`.
+
+GitHub metadata was refreshed: the latest published prerelease remains `v0.1.0-beta.1` at commit `3fb1451f1b2782f13d493821fbe44f6078eda4af`; the latest successful legacy Pages build remains `75c2e82a4aaa3b1c475168eb5eac605990e3ee8c`, sourced from `main` on September 2. The public site returned HTTP 200 and was inspected in Chromium. Its deployed content/design precede this branch. The configured Supabase project remains `olmazjfubvpgtpoxlxzy`.
+
+| Measurement | This review's starting state (`b06432f`) | Current implementation (`cc796c7`) |
+| --- | --- | --- |
+| First-party JavaScript | 20 ES modules + prepaint script | 20 ES modules + prepaint script |
+| Largest first-party file | `js/ui/home.js`, 520 lines | Unchanged; Home/search/filter presentation |
+| Unit tests | 105 | 108 |
+| Browser product / failure checks | 61 / 23 | 61 / 32 |
+| Database checks | 72 fresh + 72 legacy | 72 fresh + 72 legacy |
+| SQL migrations | 11 | 11, unchanged during this review |
+| Canonical terms | 100 | 100, byte-for-byte unchanged |
+| npm dependencies | 0 runtime / 3 direct development / 17 installed packages | Unchanged |
+| CSS | 41,957 bytes | Byte-for-byte unchanged |
+
+The three net additional unit tests reflect five new tests and removal of two tests for an unused media helper. Actual browser coverage now verifies every published media placement, plus the newly identified failure cases.
+
+### Findings fixed in the follow-up review
+
+| Priority | Reproduced defect | Correction and evidence |
+| --- | --- | --- |
+| P1 | The pending form guard ended before asynchronous clipboard fallback. A delayed clipboard permission permitted two concurrent proposal requests; reports shared the same defect. | The guard covers the complete request/copy action and clears in `finally`. Browser tests cover duplicate dispatch, close/reopen, delayed completion and preservation of the new form for both queues. |
+| P1 | The renderer treated `MCSRINLINEMEDIA0MARKER` prose as an internal marker and discarded it. A valid media token inside Markdown could pass validation yet render no media. | The pure media pipeline splits text/media blocks before parsing. Each text block uses the existing sanitizer, and media uses DOM APIs. No text placeholders remain. All 100 existing articles preserve text, element order and media count. |
+| P1 | Historical secret scanning excluded some text file extensions, and its loopback exception also matched remote hostnames beginning with `localhost` or `127.0.0.1`. | Scan every historical text blob and require an exact loopback hostname. Tests cover short remote passwords, lookalike hostnames, privileged JWTs and redacted findings. No credentials were found. |
+| P1 — open | Hosted capabilities do not cover the branch's content/backend contract. | Keep both capability flags disabled and retain the release hold until authenticated reconciliation and verification are possible. |
+
+No new local P0 or known local data-corruption path was identified. Hosted security cannot be certified without authenticated inspection.
+
+### Final architecture, invariants and contracts
+
+The module/state map in [ARCHITECTURE.md](ARCHITECTURE.md) was reread after the changes. Startup still composes one immutable content snapshot, a router, isolated Home/page/modal controllers and narrow backend services. Search/filter/routing/media analysis are pure operations. There are no circular imports or new application globals. Voting owns confirmed state, pending writes, stale-read guards and uncertain outcomes independently of article mounts.
+
+[DATA_CONTRACT.md](DATA_CONTRACT.md) now explicitly describes media tokens as independent Markdown block boundaries. The runtime and validator retain one content contract, UUID/route/alias/relation integrity and controlled taxonomy. The defensive renderer fallback is distinguished from the loader's rejection of malformed datasets. No researched definitions, statuses, dates, IDs or media records changed.
+
+[SUPABASE.md](SUPABASE.md) remains the RPC, authorization, errors, idempotency and concurrency contract. The 11 migration files reproduce the application schema from both a fresh PostgreSQL 17 database and legacy prototype history. Atomic vote transitions, deferred aggregate/receipt consistency, queue constraints, private moderation, denied public table access and cleanup pass locally. A local replay does not prove remote history parity or the managed Supabase platform.
+
+### Tests, failures, fresh clone and CI
+
+| Check | Current result |
+| --- | --- |
+| Content / deterministic / static checks | PASS: 100 terms, 100 unique UUIDs/routes, 20 media items, resolved relations; 108/108 unit tests; 20 reachable acyclic modules; project-relative paths and CSP checks. |
+| Browser automation | PASS: 61 product + 32 failure checks, 90 layouts, 36 axe scans, zero violations or unexpected host errors. |
+| Database reproduction | PASS: 144/144 checks; fresh and legacy paths replay all 11 migrations and drop their disposable databases. |
+| Live voting | PASS: all reversible transitions, idempotency, concurrent clients, rapid conflicting writes, malformed/unknown inputs and verified QA vote removal. |
+| Live backend capability / denial probes | FAIL overall: 16 direct-table operations denied (401), but 20 target IDs and the trending/correction RPCs are absent. No valid moderation records were inserted. |
+| Secret scan | PASS: current tree and all 244 historical text blobs at `cc796c7`; output contains types/locations only. |
+| Real-service browser smoke | PASS: Home, Bastion, Triangulation, Nether Travel, Stats, Changelog and About; real media loaded, with no application exceptions, failed local requests, failed external responses or host CSP violations in that run. |
+| CI commands | PASS locally from the clean checkout. The new branch commits were not pushed, so no hosted Actions run is claimed. Linux browser/system-package installation was not executed on Windows. |
+
+The failure suite covers missing/broken/invalid content, invalid routes, unavailable or malformed backend responses, unavailable release notes, blocked/corrupt storage, sanitizer payloads, stale voting reads/results, duplicate writes, reopened dialogs and delayed clipboard completion. Pure tests cover timeouts during body consumption, cancellation, ranking, normalization, route collisions, malformed receipts and contribution validation.
+
+Fresh clone: `git clone --no-local --branch refactor/structural-integrity-overhaul . output/structural/recheck/fresh-clone` at `cc796c7`. It began with no `node_modules`. The documented `npm ci`, `npm run check`, `npx playwright install chromium`, `npm run test-browser`, `npm run test-database` with the documented local PostgreSQL connection, history secret scan and `npm start` all succeeded. Installation added 17 packages and reported zero dependency vulnerabilities. The clone served `/mcsr-glossary/` on the documented default port and retained a clean worktree. Logs are `output/structural/recheck/fresh-*.txt`; its browser/database evidence is inside the clone's ignored output directory.
+
+### Accessibility, performance and visual preservation
+
+Lighthouse 12.8.2 on the local gzip-enabled Home page: **mobile Performance 99, desktop Performance 100, Accessibility 100, Best Practices 100, SEO 100**. The newly measured mobile baseline was also 99/100/100/100. These are application Home scores, not a guarantee about third-party player internals. Node 22.11.0, Playwright 1.58.2 / Chromium 145, axe-core 4.13.0 and PostgreSQL 17.11 were used.
+
+Both themes passed 1440×900, 1024×768, 768×1024, 390×844 and 360×800 layout checks. Keyboard suggestions, route focus, modal traps/restoration, vote `aria-pressed`, live regions, skip link and reduced motion remained working. Screenshots reviewed included the public/local baseline Home; desktop Bastion; mobile Triangulation, Bastion and light Home; and the light report dialog. Baseline/current comparisons retained the approved design. All 100 rendered definitions were also compared programmatically, independently of screenshot differences from transient interaction states.
+
+Artifacts: `output/structural/recheck/lighthouse-{mobile,desktop}.json`, `definition-parity.json`, `live-voting.txt`, `live-browser.json`, `real-media.png`, and the baseline directory. The primary browser captures and report are under `output/structural/final/`; the fresh clone has its own independent captures.
+
+### Security and remaining release gates
+
+The CSP, public configuration, sanitizer allowlist, RLS migrations and backend behavior were preserved. Vendored Marked 17.0.1 and DOMPurify 3.4.14 were checked against their maintainers' [Marked advisories](https://github.com/markedjs/marked/security/advisories) and [DOMPurify advisories](https://github.com/cure53/DOMPurify/security/advisories); the published affected ranges inspected did not include these versions. This is separate from the missing Supabase advisor evidence and from the pattern-based credential scan.
+
+- **Hosted migration parity / RLS / advisors: unverified, release gate FAIL.** MCP tools remain unavailable; CLI authentication is absent. Security and Performance Advisor finding counts are unknown, not zero.
+- **Known hosted gaps:** 80 live voting targets versus 100 branch terms; `get_glossary_trending_terms` and `submit_glossary_correction` return 404 / `PGRST202`. The exact missing term list is retained in the earlier record below and in the current live-backend artifact.
+- **Hosted valid moderation tests:** pending authenticated access and targeted cleanup. Local valid/rejection/concurrency tests passed; public denial probes do not establish the full hosted schema contract.
+- **Fresh Supabase platform:** application migrations reproduce locally; the full CLI/Docker stack was not launched because the Docker Linux engine was unavailable. Hosted API settings/version/history remain to be inspected.
+- **Deployment/CI:** the existing public site is healthy, but these local commits have not been published or run by hosted Actions.
+
+Second architecture review: **YES**. The new media/form failures were reproduced before fixing them, contracts were updated, dead placeholder functions and the unused media-presentation helper were removed, and clean-checkout verification followed. No framework, runtime dependency, build system, new abstraction layer or database mutation was introduced in this follow-up.
+
+Release recommendation: finish the authenticated checks in [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md), reconcile the missing target/RPC migrations safely, verify hosted moderation and cleanup, then rerun the live gates. The full overhaul remains **FAIL / HOLD** until those required conditions are demonstrated.
+
+---
+
+## Earlier implementation record — September 6, 2026
+
+The remainder preserves the original implementation baseline and its evidence at `b06432f`. Its 105-test totals are historical; the current results above supersede them.
 
 **Release recommendation: HOLD.** Local implementation and all critical local checks pass. The full structural-integrity release gate is **FAIL** because hosted migration parity, catalog/RLS verification and Security/Performance Advisors could not be completed. Public probes also demonstrate missing backend capabilities. No hosted schema changes, push, merge commit, tag or release were made.
 

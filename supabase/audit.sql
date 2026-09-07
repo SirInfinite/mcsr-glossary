@@ -1,23 +1,18 @@
--- Read-only inspection. Run through authenticated Supabase MCP execute_sql.
-select version, name from supabase_migrations.schema_migrations order by version;
-select c.relname, c.relrowsecurity, c.relforcerowsecurity
-from pg_class c join pg_namespace n on n.oid=c.relnamespace
-where n.nspname='public' and c.relkind='r' order by c.relname;
-select schemaname, tablename, policyname, roles, cmd, permissive, qual, with_check
-from pg_policies where schemaname in ('public','private') order by tablename,policyname;
-select grantee, table_schema, table_name, privilege_type from information_schema.role_table_grants
-where table_schema='public' order by table_name,grantee,privilege_type;
-select n.nspname, p.proname, pg_get_function_identity_arguments(p.oid) as arguments,
-       p.prosecdef, p.proconfig, p.proacl
-from pg_proc p join pg_namespace n on n.oid=p.pronamespace
-where n.nspname in ('public','private') order by n.nspname,p.proname;
-select schemaname, tablename, indexname, indexdef from pg_indexes
-where schemaname in ('public','private') order by tablename,indexname;
-select event_object_table, trigger_name, action_timing, event_manipulation
-from information_schema.triggers where trigger_schema in ('public','private') order by event_object_table;
--- Compatible with the pre-overhaul schema: a nonzero difference may be a
--- historical import, not corruption. Confirm provenance before any migration.
-select t.term_id, t.upvotes, t.downvotes,
-    (select count(*) from public.glossary_vote_receipts r where r.term_id=t.term_id and direction='up') as receipt_upvotes,
-    (select count(*) from public.glossary_vote_receipts r where r.term_id=t.term_id and direction='down') as receipt_downvotes
-from public.glossary_vote_totals t order by t.term_id;
+-- Read-only authenticated management snapshot. Does not read moderation payloads
+-- or voter hashes. Save the catalog object as JSON for check-supabase-parity.mjs.
+SELECT jsonb_build_object(
+'connection', jsonb_build_object('current_user',current_user,'session_user',session_user,'database',current_database(),'server',current_setting('server_version')),
+'schemas',(SELECT jsonb_agg(jsonb_build_object('name',nspname,'owner',pg_get_userbyid(nspowner),'acl',nspacl::text) ORDER BY nspname) FROM pg_namespace WHERE nspname IN ('public','private')),
+'tables',(SELECT jsonb_agg(jsonb_build_object('schema',n.nspname,'name',c.relname,'kind',c.relkind,'rls',c.relrowsecurity,'force_rls',c.relforcerowsecurity,'owner',pg_get_userbyid(c.relowner),'acl',c.relacl::text) ORDER BY c.relname) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v')),
+'functions',(SELECT jsonb_agg(jsonb_build_object('schema',n.nspname,'name',p.proname,'args',pg_get_function_identity_arguments(p.oid),'returns',pg_get_function_result(p.oid),'security_definer',p.prosecdef,'owner',pg_get_userbyid(p.proowner),'acl',p.proacl::text,'settings',p.proconfig,'definition',pg_get_functiondef(p.oid)) ORDER BY n.nspname,p.proname,pg_get_function_identity_arguments(p.oid)) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname IN ('public','private') AND p.prokind='f'),
+'policies',(SELECT coalesce(jsonb_agg(to_jsonb(p) ORDER BY schemaname,tablename,policyname),'[]'::jsonb) FROM pg_policies p WHERE schemaname IN ('public','private')),
+'indexes',(SELECT jsonb_agg(to_jsonb(i) ORDER BY schemaname,tablename,indexname) FROM pg_indexes i WHERE schemaname IN ('public','private')),
+'constraints',(SELECT jsonb_agg(jsonb_build_object('table',r.relname,'name',c.conname,'type',c.contype,'definition',pg_get_constraintdef(c.oid)) ORDER BY r.relname,c.conname) FROM pg_constraint c JOIN pg_class r ON r.oid=c.conrelid JOIN pg_namespace n ON n.oid=r.relnamespace WHERE n.nspname IN ('public','private')),
+'column_contract',(SELECT jsonb_agg(jsonb_build_object('table',c.relname,'column',a.attname,'type',format_type(a.atttypid,a.atttypmod),'not_null',a.attnotnull,'default',pg_get_expr(d.adbin,d.adrelid)) ORDER BY c.relname,a.attnum) FROM pg_attribute a JOIN pg_class c ON c.oid=a.attrelid JOIN pg_namespace n ON n.oid=c.relnamespace LEFT JOIN pg_attrdef d ON d.adrelid=a.attrelid AND d.adnum=a.attnum WHERE n.nspname='public' AND c.relkind IN ('r','p') AND a.attnum>0 AND NOT a.attisdropped),
+'role_table_access',(SELECT jsonb_agg(jsonb_build_object('table',c.relname,'role',r.rolname,'select',has_table_privilege(r.oid,c.oid,'SELECT'),'insert',has_table_privilege(r.oid,c.oid,'INSERT'),'update',has_table_privilege(r.oid,c.oid,'UPDATE'),'delete',has_table_privilege(r.oid,c.oid,'DELETE')) ORDER BY c.relname,r.rolname) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace CROSS JOIN pg_roles r WHERE n.nspname='public' AND c.relkind='r' AND r.rolname IN ('anon','authenticated')),
+'role_function_access',(SELECT jsonb_agg(jsonb_build_object('schema',n.nspname,'function',p.proname,'args',pg_get_function_identity_arguments(p.oid),'role',r.rolname,'schema_usage',has_schema_privilege(r.oid,n.oid,'USAGE'),'execute',has_function_privilege(r.oid,p.oid,'EXECUTE')) ORDER BY n.nspname,p.proname,r.rolname) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace CROSS JOIN pg_roles r WHERE n.nspname IN ('public','private') AND p.prokind='f' AND r.rolname IN ('anon','authenticated')),
+'default_acl',(SELECT jsonb_agg(jsonb_build_object('owner',pg_get_userbyid(d.defaclrole),'schema',n.nspname,'type',d.defaclobjtype,'acl',d.defaclacl::text) ORDER BY n.nspname,d.defaclobjtype) FROM pg_default_acl d LEFT JOIN pg_namespace n ON n.oid=d.defaclnamespace WHERE n.nspname IN ('public','private') OR d.defaclnamespace=0),
+'event_triggers',(SELECT jsonb_agg(jsonb_build_object('name',evtname,'event',evtevent,'function',evtfoid::regproc::text,'enabled',evtenabled,'tags',evttags) ORDER BY evtname) FROM pg_event_trigger),
+'triggers',(SELECT coalesce(jsonb_agg(jsonb_build_object('table',c.relname,'name',t.tgname,'definition',pg_get_triggerdef(t.oid),'enabled',t.tgenabled,'deferrable',t.tgdeferrable,'initially_deferred',t.tginitdeferred) ORDER BY c.relname,t.tgname),'[]'::jsonb) FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal),
+'vote_targets',(SELECT jsonb_agg(to_jsonb(v) ORDER BY term_id) FROM public.glossary_vote_totals v)
+) AS catalog;

@@ -41,6 +41,22 @@ test("unconfirmed moderation writes retain a reviewable clipboard payload", asyn
     assert.match(result.reason, /could not be confirmed/);
 });
 
+test("released correction compatibility retains canonical context when the capability is disabled", async () => {
+    let called;
+    const term = glossary.terms[0];
+    const service = createContributions({ terms: glossary.terms, getBrowserID: () => "browser",
+        config: { structuredCorrectionsEnabled: false }, client: { rpc: async (name, body) => {
+            called = { name, body };
+            return [{ submission_id: term.id, submission_status: "pending" }];
+        } } });
+    const result = await service.submitTerm({ ...input, kind: "correction", termId: term.id, name: term.name, category: term.category });
+    assert.equal(result.sent, true);
+    assert.equal(called.name, "submit_glossary_term");
+    assert.equal(called.body.p_name, term.name);
+    assert.equal(called.body.p_category, term.category);
+    assert.ok(called.body.p_tags.includes("correction"));
+});
+
 test("malformed proposal receipts cannot claim delivery and preserve the proposed content", async () => {
     const valid = { submission_id: glossary.terms[0].id, submission_status: "pending" };
     for (const response of [null, [], [valid, valid], [{ ...valid, submission_id: "invalid" }], [{ ...valid, submission_status: "approved" }]]) {

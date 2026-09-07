@@ -41,7 +41,7 @@ export async function productFlows(page, base, { output = 'output/structural/fin
             if (holdVote) await new Promise(resolve => { releaseVote = resolve; });
             states.set(body.p_term_id, body.p_vote);
             payload = [{ ...totals(body.p_term_id), changed: true }];
-        } else if (name === 'submit_glossary_term') {
+        } else if (name === 'submit_glossary_term' || name === 'submit_glossary_correction') {
             payload = [{ submission_id: '10000000-0000-4000-8000-000000000001', submission_status: 'pending' }];
         } else if (name === 'submit_glossary_term_report') {
             payload = [{ report_id: '10000000-0000-4000-8000-000000000002', report_status: 'pending', created: true }];

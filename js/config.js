@@ -8,8 +8,8 @@ export const APP_CONFIG = Object.freeze({
     contentPath: "data/terms.json",
     changelogPath: "CHANGELOG.md",
     requestTimeoutMs: 8000,
-    trendingEnabled: false,
-    structuredCorrectionsEnabled: false,
+    trendingEnabled: true,
+    structuredCorrectionsEnabled: true,
     supabaseUrl: "https://olmazjfubvpgtpoxlxzy.supabase.co",
     supabasePublishableKey: "sb_publishable_a0WJXP6ARYxooUVFJuv9iA_CaEGt1E_"
 });

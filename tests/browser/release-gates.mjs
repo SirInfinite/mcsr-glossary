@@ -120,7 +120,13 @@ export async function releaseGates(browser, base) {
                 await page.locator(status).waitFor();
                 if (response === "success") {
                     check(/submitted|sent|successfully/i.test(await page.locator(status).innerText()), `${mode}: a valid pending receipt acknowledges delivery`);
-                    if (mode === "edit") check(moderationRequests.at(-1).body.p_name === "Bastion" && moderationRequests.at(-1).body.p_tags.includes("correction"), "The currently enabled edit compatibility path retains canonical context and the correction marker");
+                    if (mode === "edit") {
+                        const request = moderationRequests.at(-1);
+                        check(request.name === "submit_glossary_correction"
+                            && request.body.p_term_id === terms.find(term => term.name === "Bastion").id
+                            && Object.keys(request.body).sort().join(",") === "p_browser_id,p_definition,p_term_id,p_website",
+                        "The enabled structured edit path sends the canonical target and only the intended fields");
+                    }
                     await page.locator(modal).waitFor({ state: "hidden" });
                 } else {
                     check((await page.locator(field).inputValue()).startsWith("Release QA fixture") && /kept|not confirmed/i.test(await page.locator(status).innerText()), `${mode}: ${response} with unavailable clipboard retains the form without claiming delivery`);

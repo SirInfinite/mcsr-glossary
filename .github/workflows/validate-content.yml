@@ -1,4 +1,4 @@
-name: Validate glossary content
+name: Validate glossary integrity
 
 on:
   push:
@@ -8,8 +8,21 @@ permissions:
   contents: read
 
 jobs:
-  validate-content:
+  integrity:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -17,5 +30,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Validate glossary data
-        run: npm run check-content
+          cache: npm
+      - name: Install pinned development tools
+        run: npm ci
+      - name: Content, unit, static and secret checks
+        run: npm run check
+      - name: Install test browser
+        run: npx playwright install --with-deps chromium
+      - name: Product, failure, accessibility and viewport checks
+        run: npm run test-browser
+      - name: Reproduce migrations and enforce database invariants
+        env:
+          MCSR_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+        run: npm run test-database
+      - name: Keep QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: structural-qa
+          path: output/structural/final/
+          retention-days: 14

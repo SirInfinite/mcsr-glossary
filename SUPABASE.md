@@ -1,270 +1,105 @@
-# Supabase beta backend
+# Supabase backend contract
 
-MCSR Glossary uses the Supabase development/beta project with project ref
-<code>olmazjfubvpgtpoxlxzy</code> and public API URL
-<code>https://olmazjfubvpgtpoxlxzy.supabase.co</code>.
+The configured public beta project is `olmazjfubvpgtpoxlxzy`. Its URL and publishable key live in `js/config.js`. `data/terms.json` remains the only published content store. Supabase holds vote target identity, receipts/totals and private moderation queues, never published definitions.
 
-<code>data/terms.json</code> remains the only published glossary dataset.
-Supabase stores community submissions, vote records, and aggregate vote totals;
-it does not publish or replace glossary content.
+## Current deployment boundary
 
-## Architecture
+The September 7 release repair verified authenticated Supabase MCP management access and applied the three missing tracked migrations. Hosted voting now covers all 100 canonical terms. Recent trending and structured corrections pass the actual hosted RPC and application checks; `trendingEnabled` and `structuredCorrectionsEnabled` are `true`. The released correction-compatible submission path remains available.
 
-| Object | Purpose | Anonymous access |
+All eleven migration versions/names and the effective application schema match the repository replay. RLS, grants, private queues, advisors, hosted moderation and targeted QA cleanup were verified through authenticated management access. Security advisors returned zero findings; the remaining performance notices are informational unused indexes. See [SUPABASE_RELEASE_PARITY.md](SUPABASE_RELEASE_PARITY.md) and [FINAL_RELEASE_AUDIT.md](FINAL_RELEASE_AUDIT.md). A production frontend deployment smoke pass is still required; backend certification does not authorize publication.
+
+## Tables and authorization
+
+| Table | Stored data | Anonymous/authenticated SELECT / INSERT / UPDATE / DELETE |
 | --- | --- | --- |
-| <code>public.glossary_vote_totals</code> | Aggregate counts for canonical term UUIDs | None |
-| <code>public.glossary_vote_receipts</code> | One hashed vote receipt per term/browser | None |
-| <code>public.glossary_submissions</code> | Private moderation queue | None |
-| <code>public.cast_glossary_vote(uuid, uuid, text)</code> | Public invoker RPC wrapper | <code>EXECUTE</code> |
-| <code>public.get_glossary_vote_totals()</code> | Public read-only invoker RPC wrapper | <code>EXECUTE</code> |
-| <code>public.set_glossary_vote(uuid, uuid, smallint)</code> | Reversible public vote RPC wrapper | <code>EXECUTE</code> |
-| <code>public.get_glossary_vote_state(uuid)</code> | Aggregate totals plus this browser's current state | <code>EXECUTE</code> |
-| <code>public.submit_glossary_term(uuid, text, text, text[], text[], text, text)</code> | Public invoker RPC wrapper | <code>EXECUTE</code> |
-| <code>private.cast_glossary_vote(...)</code> | Privileged atomic vote implementation | Only through the wrapper |
-| <code>private.get_glossary_vote_totals()</code> | Privileged aggregate reader | Only through the wrapper |
-| <code>private.set_glossary_vote(...)</code> | Privileged reversible vote implementation | Only through the wrapper |
-| <code>private.get_glossary_vote_state(...)</code> | Privileged current-state reader | Only through the wrapper |
-| <code>private.submit_glossary_term(...)</code> | Privileged validated submission implementation | Only through the wrapper |
+| `glossary_vote_totals` | Target UUID/name/category, totals, legacy baselines, updated timestamp | All denied; read only through RPCs. |
+| `glossary_vote_receipts` | Unique term/hash receipt, direction, creation/meaningful-update timestamps | All denied. |
+| `glossary_submissions` | Hashed submitter, proposed text/taxonomy, explicit kind, target FK and moderation fields | All denied. |
+| `glossary_term_reports` | Hashed reporter, target/name snapshot, reason/details and moderation fields | All denied. |
 
-The <code>private</code> schema is not exposed through the Data API. The public
-RPCs are <code>SECURITY INVOKER</code> wrappers. Their narrowly scoped
-implementations are <code>SECURITY DEFINER</code>, have an empty
-<code>search_path</code>, qualify every relation, and cannot be called as
-independent REST RPC routes.
+All are in `public`, enable RLS, and revoke public table grants. Totals/receipts/proposals have restrictive deny-all policies for `anon`; reports explicitly deny both public roles. `authenticated` has neither grants nor permissive policies. `service_role` retains trusted moderation privileges and is never delivered to the browser. Old prototype tables, when present, are retained and locked down; a fresh project does not need them.
 
-The old prototype tables <code>public.votes</code> and
-<code>public.submissions</code> are retained for audit rather than dropped. The
-migrations remove their permissive policies and revoke all
-<code>anon</code>/<code>authenticated</code> privileges. Matching legacy vote
-totals are copied without lowering existing counts. The beta project had one
-such row: Any% with one upvote and zero downvotes. The old submissions table was
-empty.
+Expose `public`, never `private`, through PostgREST. Public RPCs are `SECURITY INVOKER`; validated implementations are `SECURITY DEFINER` in `private` with `search_path = ''`. SQL `anon` has the narrow usage/execute grants required by these wrappers, but private functions are not separate HTTP endpoints. Internal insertion/trigger helpers have no anonymous execute grants. The CHECK list helper is executable only by trusted moderation writers.
 
-## Voting
+## RPC contract
 
-The v0.2 browser sends:
+Calls are POST JSON to `/rest/v1/rpc/NAME` with the public `apikey`. Successful table-returning functions produce arrays. Responses are validated before entering application state; no arbitrary HTML is accepted.
 
-- <code>p_term_id</code>: the stable UUID from <code>data/terms.json</code>
-- <code>p_browser_id</code>: a persistent random UUID generated in the browser
-- <code>p_vote</code>: <code>1</code> for up, <code>-1</code> for down, or
-  <code>0</code> for neutral/removal
+| Name | Inputs (parameter names) | Output | Authorization, idempotency and concurrency |
+| --- | --- | --- | --- |
+| `get_glossary_vote_state` | `p_browser_id: uuid` | Rows `{term_id, upvotes, downvotes, current_vote}` | Anonymous read-only snapshot; includes only the supplied weak browser identity's state. |
+| `set_glossary_vote` | `p_term_id: uuid`, `p_browser_id: uuid`, `p_vote: smallint` | One row `{changed, current_vote, upvotes, downvotes}` | Anonymous; atomic target-row lock, receipt transition and deltas. Same target is a no-op. |
+| `get_glossary_vote_totals` | `{}` | Rows `{term_id, upvotes, downvotes}` | Read-only compatibility endpoint. |
+| `cast_glossary_vote` | `p_term_id`, `p_browser_id`, `p_direction: up/down` | One row `{accepted, upvotes, downvotes}` | Released one-time-vote API; same row lock/receipt key, no switching existing votes. |
+| `get_glossary_trending_terms` | `{}` | Up to five `{term_id, recent_upvotes, recent_downvotes}` rows | Read-only positive net balance among active receipts changed in seven days. Ties: upvotes, latest activity, UUID. Removal deletes activity; unchanged votes do not refresh it. |
+| `submit_glossary_term` | `p_browser_id`, `p_name`, `p_category`, `p_aliases: text[]`, `p_tags: text[]`, `p_definition`, `p_website` | One `{submission_id: uuid, submission_status: pending}` | Pending private queue. Per-browser advisory lock serializes duplicate/cooldown/limit checks. Same pending name is rejected. Released correction tags are validated and classified explicitly. |
+| `submit_glossary_correction` | `p_browser_id`, `p_term_id`, `p_definition`, `p_website` | Same pending proposal receipt | Additive endpoint; server derives target name/category and stores kind/FK. Same serialized proposal limits. |
+| `submit_glossary_term_report` | `p_browser_id`, `p_term_id`, `p_term_name`, `p_reason`, `p_details`, `p_website` | One `{report_id: uuid, report_status: pending, created: boolean}` | Private report only; exact target/name check, per-browser lock, duplicate browser+term returns existing pending ID with `created=false`. |
 
-The application tables store only a SHA-256 hash of the browser UUID. They do
-not store an account, email address, IP address, user agent, or the raw browser
-UUID. Supabase infrastructure may still retain ordinary request logs under the
-project's platform settings.
+Mutation IDs must be non-null; browser IDs cannot be zero. PostgreSQL rejects malformed UUID input. Unknown targets and vote values outside `-1,0,1` are rejected. Counts are nonnegative integers; the JS boundary accepts only safe integer numbers or bigint digit strings. Target metadata is a migration-backed identity registry, not another published definition store.
 
-The private vote implementation locks the term's aggregate row before reading
-or changing its receipt. In that same transaction it inserts, updates, or
-deletes the unique <code>(term_id, voter_hash)</code> receipt and applies both
-aggregate deltas. This serializes simultaneous changes for one term, prevents
-lost read-modify-write updates, and keeps the receipt and totals consistent.
+### Queue validation
 
-The supported transitions are neutral to up/down, up/down to neutral, and
-up-to-down or down-to-up. Repeating the already-authoritative target is
-idempotent: <code>changed = false</code> and the totals remain unchanged. The
-frontend temporarily disables both controls while a request is pending, uses an
-optimistic projection, and rolls back to its prior truthful state if the RPC
-fails.
+- Trimmed names: 2–100 characters. Categories: format, strategy, technique, terminology, tool.
+- Trimmed definitions/suggestions: 20–5000 characters. IDs, creation timestamps and pending status are generated by the server; the API accepts no approval/publication fields.
+- Aliases: at most 10 non-null one-dimensional values, 1–80 characters each, case-insensitively unique, not the canonical name. Tags: at most 12 values, 1–40 characters, normalized lowercase kebab-case, unique.
+- Proposal kind: new with no target, or correction with a target FK. Status: pending/approved/rejected; reviewed states require a review timestamp.
+- Report reasons: inaccurate, inappropriate, broken_media, spam, other. Details are absent or 10–2000 trimmed characters; other requires details. Report status: pending/resolved/dismissed, with consistent review timestamps.
+- Empty honeypot `p_website`; 30-second per-browser queue cooldown and at most five pending items per queue. This is weak abuse friction, not authentication or a global rate limit.
+- Application tables store SHA-256 hashes, not raw browser UUIDs, accounts, email, IP or user agents. Supabase infrastructure has its own logging settings.
 
-This is lightweight early-beta integrity, not strong abuse prevention. A
-visitor can clear browser storage or supply another random UUID.
+### Errors and uncertain writes
 
-<code>set_glossary_vote</code> returns one authoritative row with:
+SQLSTATEs: validation/unknown target `22023`; malformed UUID `22P02`; duplicate proposal `23505`; constraint violation `23514`; cooldown/limit `P0001`; unauthorized operation `42501`. PostgREST commonly maps validation to 400, duplicates to 409, authorization to 401/403. Missing RPCs return 404 / `PGRST202`.
 
-~~~text
-changed boolean
-current_vote smallint
-upvotes bigint
-downvotes bigint
-~~~
+The client distinguishes validation, network, timeout, rejection, unavailable service, configuration, malformed response, cancellation and content failures. Every request has an eight-second deadline through body parsing; mutations are never automatically retried. A failed transport may follow a committed write. Voting disables uncertain further writes until reload; moderation copy fallback says online delivery was unconfirmed. Copy success is not online submission success.
 
-Only term UUIDs seeded in <code>glossary_vote_totals</code> can receive votes.
-Content validation fails when a published term lacks a migration seed.
-The v0.2 frontend loads aggregate totals and only its own current state through
-<code>get_glossary_vote_state(p_browser_id)</code>. It never receives receipt
-hashes or other browsers' choices. The v0.1 <code>cast_glossary_vote</code> and
-<code>get_glossary_vote_totals</code> RPCs remain deployed for compatibility
-with the released beta; the underlying tables are not exposed through REST or
-GraphQL.
+## Voting consistency
 
-## Submissions
+The receipt primary key enforces one current vote per term/browser hash. Each transition locks the aggregate row before reading/changing its receipt and commits both deltas atomically. Explicit `legacy_upvotes` / `legacy_downvotes` preserve historical aggregate-only imports:
 
-The frontend sends <code>p_browser_id</code>, <code>p_name</code>,
-<code>p_category</code>, <code>p_aliases</code>, <code>p_tags</code>,
-<code>p_definition</code>, and <code>p_website</code>. The last field is the
-existing honeypot and must be empty.
+```text
+upvotes   = legacy_upvotes   + count(current up receipts)
+downvotes = legacy_downvotes + count(current down receipts)
+```
 
-The private moderation row contains:
+Deferred constraint triggers reject inconsistent final transactions, including accidental trusted maintenance writes. The migration never lowers totals. Negative receipt differences or unresolved historical correction proposals abort migration for maintainer review. Baseline changes require reviewed migrations.
 
-- <code>id</code>
-- <code>submitter_hash</code> (SHA-256; never the raw browser UUID)
-- <code>name</code>
-- <code>category</code>
-- <code>aliases</code>
-- <code>tags</code>
-- <code>definition</code>
-- <code>status</code>
-- <code>created_at</code>
-- <code>reviewed_at</code>
-- <code>moderation_notes</code>
+Tabs/clients serialize at the database; the last committed target wins. Click times across tabs are not an ordering guarantee. Local pending/revision guards stop overlapping page writes and stale reads overwriting newer state. Browser storage identity is deliberately weak and replaceable.
 
-Database checks enforce the five published categories, required and trimmed
-text, field and array limits, lowercase kebab-case tags, valid moderation
-states, and 32-byte hashes. The RPC rejects duplicate pending names for one
-browser, serializes simultaneous submissions from one browser, imposes a
-30-second cooldown, and allows at most five pending submissions per browser
-hash.
+## Migrations and fresh projects
 
-The RPC returns <code>submission_id uuid</code> and
-<code>submission_status text</code>. Public submissions always start in
-<code>pending</code> status.
+Apply every SQL file in `supabase/migrations/` in filename order. The first eight applied migrations are unchanged. The final three retain their original SQL and logical names, with their previously pending filenames aligned to the deployment versions assigned by authenticated MCP. The eleventh is `20260907210851_enforce_structural_integrity.sql`. It adds target metadata, preserved legacy baselines, deferred consistency checks, explicit corrections and stricter moderation boundaries; it removes no production rows. The original-to-deployed filename mapping is recorded in [SUPABASE_RELEASE_PARITY.md](SUPABASE_RELEASE_PARITY.md); remote history was not rewritten.
 
-There is no anonymous <code>SELECT</code>, <code>UPDATE</code>, or
-<code>DELETE</code> path for submissions. There is no database path that writes
-to <code>data/terms.json</code>.
+Local/CI reproduction uses PostgreSQL 17, pgcrypto, synthetic Supabase platform roles and the extensions schema. `npm run test-database` replays the same files both fresh and with prototype history, checks authorization/constraints/concurrency, and deletes only its disposable databases. This proves the application schema, not the entire managed Auth/Storage/Realtime platform. No dashboard-only application table/function is required.
 
-## RLS and privileges
+For a fresh hosted Supabase project:
 
-RLS is enabled on every public table, including the retained prototype tables.
+1. Create a project, enable the Data API and expose public only for this application. Keep private unexposed. The glossary does not require Auth.
+2. Use the checked-in `supabase/config.toml` (CLI 2.116.0). It exposes only public, disables implicit grants and separate seeds, and selects PostgreSQL 17 for local reproduction. The remote project version/settings still require verification; this local file does not certify or update them. Authenticate/link outside public configuration, inspect pending migrations and apply the reviewed files:
 
-- <code>anon</code> has no direct table grants.
-- <code>anon</code> can execute only the five public RPC wrappers and the
-  corresponding non-exposed implementations required by those wrappers.
-- <code>anon</code> cannot directly insert, update, or delete any backend table.
-- <code>authenticated</code> has no beta-site table or RPC privileges because
-  this static site does not use Supabase Auth.
-- <code>service_role</code> retains table access for trusted moderation and
-  maintenance only. It is never delivered to the website.
-- The existing <code>rls_auto_enable()</code> event-trigger function remains
-  installed, but all Data API roles have had direct execution revoked.
+   ```sh
+   npx --yes supabase@2.116.0 login
+   npx --yes supabase@2.116.0 link --project-ref YOUR_PROJECT_REF
+   npx --yes supabase@2.116.0 migration list --linked
+   npx --yes supabase@2.116.0 db push --linked --dry-run
+   npx --yes supabase@2.116.0 db push --linked
+   ```
 
-Every public table has an explicit restrictive
-<code>deny_anon_direct_access</code> policy. These policies use
-<code>USING (false)</code> and <code>WITH CHECK (false)</code>; grants are also
-revoked.
+3. Verify ordered versions and actual definitions through authenticated Supabase MCP. Run `supabase/audit.sql` read-only, then Security and Performance Advisors; local results do not replace these gates.
+4. Set only public project URL/key in `js/config.js`; privileged credentials are rejected. Check CSP if the hosting origin changes. Enable capability flags only after endpoint checks and migration parity.
+5. Follow [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md), including hosted valid proposal/correction/report tests, unique QA identities, targeted cleanup and verification.
 
-## Public frontend configuration
-
-<code>js/supabase-config.js</code> is intentionally public and contains only:
-
-- the project URL
-- the enabled <code>sb_publishable_...</code> key
-
-A publishable key identifies a public client; it is not an authorization
-boundary. RLS, grants, and RPC privileges provide the authorization boundary.
-<code>js/glossary.js</code> rejects <code>sb_secret_...</code>, legacy
-<code>service_role</code> JWTs, and any key that is neither publishable nor
-legacy <code>anon</code>.
-
-Never add a service-role key, <code>sb_secret_...</code> key, database password,
-or personal access token to this repository.
-
-## Migration history
-
-Apply files from <code>supabase/migrations/</code> in filename order:
-
-1. <code>20260902031536_harden_public_interactions.sql</code>
-2. <code>20260902031554_seed_v1_vote_totals.sql</code>
-3. <code>20260902032016_hide_direct_api_tables.sql</code>
-4. <code>20260902033232_clarify_vote_totals_access.sql</code>
-5. <code>20260902203148_add_reversible_term_voting.sql</code>
-6. <code>20260902205450_seed_v02_vote_totals.sql</code>
-
-These filenames match the beta project's remote migration versions and names.
-Do not edit an applied migration. Add a new timestamped migration for every
-future schema, policy, function, or canonical vote-target change.
-
-## Fresh-project setup
-
-1. Create a Supabase project and ensure its Data API exposes
-   <code>public</code>, not <code>private</code>.
-2. Link an authenticated Supabase CLI:
-
-   ~~~sh
-   supabase link --project-ref YOUR_PROJECT_REF
-   ~~~
-
-3. Apply the checked-in migrations:
-
-   ~~~sh
-   supabase db push --linked
-   ~~~
-
-   MCP <code>apply_migration</code> may also be used. It generates the remote
-   timestamp, so reconcile the local filename to the returned migration version
-   before committing.
-4. Retrieve the project URL and an enabled publishable key. Put only those two
-   public values in <code>js/supabase-config.js</code>.
-5. Run <code>npm run check-content</code>.
-6. Serve the repository over HTTP and test vote loading, all six reversible
-   vote transitions, repeat/idempotent requests, concurrent clients, a valid
-   submission, rejected malformed requests, and graceful behavior when
-   Supabase is unavailable.
-7. Run the Supabase Security Advisor and review the live grants and policies.
+For an existing project, inspect history/schema and historical data before pushing. Never repair history to pretend unapplied SQL ran. Keep applied files immutable; add timestamped migrations for later schema or target changes. Database reproduction compares each target UUID/name/category to terms.json. The only application-specific external settings are public configuration, exposed schemas and the Pages source, all documented here and in ARCHITECTURE.md.
 
 ## Moderation and publication
 
-Review pending rows only in a trusted Supabase Dashboard, SQL session, or
-server-side tool. Treat every submitted field as untrusted text.
+The canonical procedure is [MODERATION.md](MODERATION.md); architectural choices and simulations are in [MODERATION_DECISIONS.md](MODERATION_DECISIONS.md). Use the existing trusted Dashboard/SQL connection and GitHub. No custom admin UI, moderation CLI, new schema or public queue endpoint is needed. Treat every field as untrusted. Proposal kind/target/name/category/definition identify the requested change; reports use their independent target/reason/details record. Hosted parity is verified: both the released correction-tag path and the structured correction RPC now bind proposals to canonical target UUIDs.
 
-~~~sql
-select id, name, category, aliases, tags, definition, created_at
-from public.glossary_submissions
-where status = 'pending'
-order by created_at;
-~~~
+Keep exact stored statuses: proposals use `pending`, `approved`, `rejected`; reports use `pending`, `resolved`, `dismissed`. Research, missing information, duplicates and publication dependencies are next-action/resolution notes, not additional enums. NEW_TERM / EDIT_SUGGESTION / REPORT / SOURCE_UPDATE are explicit editorial classifications recorded in existing notes; SOURCE_UPDATE uses the correction flow, not a new API kind.
 
-After factual and Markdown review, copy approved content into
-<code>data/terms.json</code>, assign or preserve its stable UUID, add that UUID
-to a new vote-seed migration, update the content sources, and run repository
-validation. Changing a submission's database status alone never publishes it.
+Use existing `id`, `created_at`, target/kind fields where deployed, `status`, `reviewed_at` and `moderation_notes` for the decision record. Notes (at most 2000 characters) contain type, reviewer handle, resolution, evidence links, resulting full commit SHA or no-change reason, and a next action while pending. No queue IDs, hashes or private notes belong in public PRs or logs.
 
-The published site renders Markdown with the vendored <code>marked</code>
-library, then sanitizes it with DOMPurify using an explicit element and
-attribute allowlist. Raw iframe HTML is prohibited by content validation;
-supported embeds are recreated from validated YouTube IDs, Twitch clip slugs,
-or safe media URLs.
+Publish through a researched repository edit to terms.json, preserving UUID/legacy routes, updating target migrations and source documentation, and passing release checks. Leave the record pending while its change is still only researched, committed locally, in a PR, or awaiting deployment/backend verification. After explicit publication and verification, close a proposal as approved or a report as resolved. Save terminal status, `reviewed_at` and notes together and verify the row. Rejections/dismissals need a reason and review time even without a content commit. Changing moderation status never publishes content.
 
-To record moderation after publication:
-
-~~~sql
-update public.glossary_submissions
-set status = 'approved',
-    reviewed_at = now(),
-    moderation_notes = 'Published through a reviewed terms.json change.'
-where id = 'SUBMISSION_UUID'
-  and status = 'pending';
-~~~
-
-## Verification
-
-Inspect the deployed state with read-only catalog queries:
-
-~~~sql
-select c.relname, c.relrowsecurity
-from pg_class c
-join pg_namespace n on n.oid = c.relnamespace
-where n.nspname = 'public'
-  and c.relkind in ('r', 'p')
-order by c.relname;
-
-select schemaname, tablename, policyname, roles, cmd
-from pg_policies
-where schemaname = 'public'
-order by tablename, policyname;
-
-select routine_schema, routine_name, grantee, privilege_type
-from information_schema.role_routine_grants
-where routine_name in (
-  'cast_glossary_vote',
-  'get_glossary_vote_totals',
-  'set_glossary_vote',
-  'get_glossary_vote_state',
-  'submit_glossary_term'
-)
-order by routine_schema, routine_name, grantee;
-~~~
-
-Then run the Security Advisor. A clean run should have no security lints for
-these objects.
+References: [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security), [functions](https://supabase.com/docs/guides/database/functions), [advisors](https://supabase.com/docs/guides/observability/advisors).

@@ -2,15 +2,50 @@
 
 ## [Unreleased]
 
+### UI readability and discovery
+
+- Increased dark-surface contrast and reserved Minecraft lettering for titles and primary controls; categories, tags, aliases and supporting UI use readable sans-serif text.
+- Replaced the glossary's table header and narrow metadata column with reference entries that show one primary category and a few useful context tags. Version labels remain precise, and exceptional statuses remain visible.
+- Removed repeated project totals and per-entry media counts from ordinary browsing. Stats retains aggregate metrics; search and filters retain matching-result feedback.
+
+### MCSR theming
+
+- Restored compact Minecraft menu-style navigation and added coordinated deepslate/stone surfaces, inset search and filter controls, and explicit dimension-tag accents.
+- Refined article metadata, inline media frames, related links, vote states and contribution dialogs; Stats now uses tabular counters and split-style category rows.
+- Added seven-size visual coverage and open search/filter accessibility checks. Preserved researched definitions, backend behavior and the vanilla architecture.
+
+### Full visual overhaul
+
+- Rebuilt dark charcoal and light stone themes around local Minecraft UI typography, readable sans-serif definitions, compact navigation, and a single reference-row glossary.
+- Redesigned search suggestions, filters, the A–Z index, article metadata, inline examples, related links, reversible vote states, Stats, Changelog, About, and contribution dialogs.
+- Kept term actions accessible while expanding labels without article reflow; improved focus restoration, narrow-screen layouts, and reduced-motion behavior.
+- Made local content independent of community-service loading, reserved initial layout space, and guarded optional trending and unavailable voting records on older backends.
+- Preserved all researched definitions, stable routes, provider allowlists, CSP, and database contracts.
+
+### Homepage discovery refinement
+
+- Removed the oversized homepage hero so search and glossary controls are immediately available.
+- Replaced the curated featured-term fallback with a compact “Trending this week” strip driven only by positive vote activity from the trailing seven days.
+- Added a least-privilege read-only trending RPC without exposing individual vote receipts or browser hashes.
+
+### Full terminology research rebuild
+
+- Re-researched every starting term from community, rules, tool, runner-guide, and technical-mechanics evidence; rewrote all published definitions from that evidence.
+- Expanded the glossary from 80 to 100 admitted terms, removed unsupported aliases, and documented rejected candidates rather than publishing plausible guesses.
+- Added validated `current`, `historical`, and `legacy` status metadata with concise public context for non-current terminology.
+- Rebuilt related-term links and audited every structured media placement against the rewritten definitions.
+- Added per-term existence, definition, mode/version, and historical provenance plus a randomized 15-term source audit.
+
 ### v0.2 showcase work
 
 - Expanded the reviewed glossary from 52 to 80 published terms and strengthened 21 existing definitions with clearer context and relationships.
-- Added a validated structured-media contract and 21 attributed examples across 20 definitions, with click-to-load privacy controls, safe fallbacks, and accessible image expansion.
+- Added a validated structured-media contract and 21 attributed examples across 20 definitions, placed inline with the explanatory text, loaded lazily from allowlisted providers, and paired with safe fallbacks and accessible image expansion.
 - Added atomic reversible voting: visitors can add, remove, or switch a vote while the database returns authoritative current state and totals.
 - Reworked search ranking, suggestions, filters, result feedback, keyboard shortcuts, term cards, related-term discovery, and empty states.
-- Added complete term-detail layouts, a source-review link, pending edit suggestions, expanded truthful stats, and a maintained About page.
+- Refined term pages into compact reference articles with inline media, icon-first link/edit/report actions, pending edit suggestions, reversible ratings, compact related terms, and a cleaner reference hierarchy.
+- Added a private, RLS-protected term-report queue for inaccurate content, inappropriate content, broken media, spam, and other serious issues.
 - Removed remote font/icon dependencies, optimized header artwork, strengthened CSP provider limits, and improved responsive and keyboard behavior.
-- Expanded the automated suite to 46 content-contract and UI-core tests.
+- Expanded the automated suite to 53 content-contract and UI-core tests.
 
 Definitions remain under active review, and community terminology or correction submissions are reviewed before publication.
 

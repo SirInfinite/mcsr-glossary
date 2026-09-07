@@ -4,7 +4,7 @@ title: "[New term]: "
 body:
   - type: markdown
     attributes:
-      value: Suggestions enter editorial review and are not added automatically. Please include evidence that the term is used in the MCSR community when possible.
+      value: This issue is public. Suggestions are reviewed before publication and are not added automatically; no response time is promised. Include evidence of genuine MCSR usage when possible, but do not paste private messages or personal information. Niche terminology is welcome.
   - type: input
     id: term
     attributes:
@@ -41,5 +41,5 @@ body:
     id: evidence
     attributes:
       label: Sources or evidence
-      description: Link current rules, documentation, primary guides, or representative community usage when possible.
+      description: Link genuine community usage and explain the meaning each source supports. Creator clips with timestamps are useful for niche terms; include mode/version when known. Mechanics references alone do not establish slang.
       placeholder: Paste links and briefly explain what each supports.

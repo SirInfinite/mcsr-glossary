@@ -1,11 +1,12 @@
 const freezeList = values => Object.freeze([...values]);
 
 export const TERM_CONTRACT = Object.freeze({
-    schemaVersion: 2,
+    schemaVersion: 4,
     requiredFields: freezeList([
         "id",
         "name",
         "category",
+        "status",
         "aliases",
         "tags",
         "definition",
@@ -14,7 +15,7 @@ export const TERM_CONTRACT = Object.freeze({
         "needsUpdating",
         "updatedDate"
     ]),
-    optionalFields: freezeList(["media"]),
+    optionalFields: freezeList(["historicalNote", "media", "legacySlugs"]),
     categories: freezeList([
         "format",
         "strategy",
@@ -22,6 +23,7 @@ export const TERM_CONTRACT = Object.freeze({
         "terminology",
         "tool"
     ]),
+    statuses: freezeList(["current", "historical", "legacy"]),
     arrayFields: freezeList(["aliases", "tags", "relatedTerms"]),
     dateFields: freezeList(["creationDate", "updatedDate"]),
     limits: Object.freeze({
@@ -32,6 +34,8 @@ export const TERM_CONTRACT = Object.freeze({
         tagsMax: 12,
         tagMax: 40,
         relatedTermsMax: 20,
+        historicalNoteMin: 20,
+        historicalNoteMax: 500,
         definitionMin: 20,
         definitionMax: 5000,
         definitionWarningMin: 80,
@@ -107,7 +111,8 @@ function isTrimmedString(value, { min = 1, max = Infinity } = {}) {
 function isHTTPSURL(value) {
     if (!isTrimmedString(value)) return false;
     try {
-        return new URL(value).protocol === "https:";
+        const url = new URL(value);
+        return url.protocol === "https:" && !url.username && !url.password;
     } catch {
         return false;
     }
@@ -121,6 +126,8 @@ function isAllowedImageSource(value, { gifOnly = false } = {}) {
     try {
         const url = new URL(value);
         const hostAllowed = url.protocol === "https:"
+            && !url.username && !url.password
+            && !url.port
             && MEDIA_CONTRACT.externalImageHosts.includes(url.hostname.toLowerCase());
         const extensionAllowed = gifOnly
             ? /\.gif$/i.test(url.pathname)
@@ -142,6 +149,7 @@ export function validateMediaItem(item) {
         errors.push(`type must be one of: ${MEDIA_CONTRACT.types.join(", ")}`);
         return errors;
     }
+    if (typeof item.src !== "string") errors.push("src must be a string");
 
     const allowedFields = new Set([
         ...MEDIA_CONTRACT.commonFields,

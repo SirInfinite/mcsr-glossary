@@ -3,3 +3,4 @@ output/
 .playwright-cli/
 supabase/.temp/
 *.log
+__pycache__/

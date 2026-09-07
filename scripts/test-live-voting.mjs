@@ -1,26 +1,17 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import { readFile } from "node:fs/promises";
-
-const configSource = await readFile(new URL("../js/supabase-config.js", import.meta.url), "utf8");
-const projectURL = configSource.match(/supabaseUrl:\s*"([^"]+)"/)?.[1];
-const publishableKey = configSource.match(/supabasePublishableKey:\s*"([^"]+)"/)?.[1];
-
-assert.match(projectURL || "", /^https:\/\/[a-z0-9]+\.supabase\.co$/, "Expected a public Supabase project URL.");
-assert.match(publishableKey || "", /^sb_publishable_/, "Expected a public Supabase publishable key.");
-
+import { createSupabaseClient } from "../js/backend/client.js";
+const client = createSupabaseClient();
+assert.ok(client.enabled, "A valid public Supabase configuration is required.");
 async function rpc(functionName, body, expectedStatus = 200) {
-    const response = await fetch(`${projectURL}/rest/v1/rpc/${functionName}`, {
-        method: "POST",
-        headers: {
-            apikey: publishableKey,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-    });
-    const payload = await response.json().catch(() => null);
-    assert.equal(response.status, expectedStatus, `${functionName} returned ${response.status}: ${JSON.stringify(payload)}`);
-    return payload;
+    try {
+        const payload = await client.rpc(functionName, body);
+        assert.equal(expectedStatus, 200, `${functionName} unexpectedly succeeded.`);
+        return payload;
+    } catch (error) {
+        assert.equal(error.status, expectedStatus, `${functionName} returned ${error.status || error.kind}.`);
+        return null;
+    }
 }
 
 async function getState(browserID) {
@@ -61,6 +52,14 @@ try {
         "Concurrent removals must restore the baseline."
     );
 
+    // Exercise all six reversible transitions before the conflicting-write test.
+    for (const vote of [1, 0, -1, 0, 1, -1, 1, 0]) {
+        const state = await setVote(target.term_id, browserIDs[0], vote);
+        assert.equal(Number(state.current_vote), vote);
+        assert.equal(Number(state.upvotes), baseline.up + (vote === 1 ? 1 : 0));
+        assert.equal(Number(state.downvotes), baseline.down + (vote === -1 ? 1 : 0));
+    }
+
     await Promise.all([
         setVote(target.term_id, browserIDs[2], 1),
         setVote(target.term_id, browserIDs[2], -1)
@@ -75,6 +74,8 @@ try {
 
     await setVote(target.term_id, browserIDs[2], 2, 400);
     await setVote(randomUUID(), browserIDs[2], 1, 400);
+    await setVote("invalid-uuid", browserIDs[2], 1, 400);
+    await rpc("get_glossary_vote_state", { p_browser_id: "invalid-uuid" }, 400);
 } finally {
     await Promise.allSettled(browserIDs.map(browserID => setVote(target.term_id, browserID, 0)));
 }

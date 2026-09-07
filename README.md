@@ -1,63 +1,101 @@
 # MCSR Glossary
 
-[![Validate glossary content](https://github.com/SirInfinite/mcsr-glossary/actions/workflows/validate-content.yml/badge.svg)](https://github.com/SirInfinite/mcsr-glossary/actions/workflows/validate-content.yml)
+A community reference for Minecraft speedrunning terminology. Search 100 researched terms, browse categories/tags, and read definitions with contextual media, related entries and community feedback.
 
-MCSR Glossary is a searchable reference for Minecraft speedrunning terminology. It is intended to make a jargon-heavy community easier to understand for new runners, viewers, and contributors.
+[Live early beta](https://sirinfinite.github.io/mcsr-glossary/) · [GitHub](https://github.com/SirInfinite/mcsr-glossary) · [Feedback](https://github.com/SirInfinite/mcsr-glossary/issues/new/choose)
 
-## EARLY BETA
+## Project status
 
-Live beta: <https://sirinfinite.github.io/mcsr-glossary/>
+This is an early beta. The repository contains newer work than the deployed site. Published content lives in `data/terms.json`; community proposals and reports remain private, and only reviewed content changes are published. Changing a database moderation status never publishes a term. [MODERATION.md](MODERATION.md) describes the evidence standard and manual publication procedure.
 
-Repository: <https://github.com/SirInfinite/mcsr-glossary>
+Minecraft title lettering and menu controls sit alongside readable sans-serif UI, distinct charcoal/stone surfaces and contextual tags. The lightweight HTML/CSS/native-JavaScript architecture is preserved. See [UI_DIRECTION_QA.md](UI_DIRECTION_QA.md) for the latest visual and performance evidence, [MCSR_THEME_QA.md](MCSR_THEME_QA.md) for the earlier theme pass, and [STRUCTURAL_INTEGRITY_QA.md](STRUCTURAL_INTEGRITY_QA.md) for the existing hosted release blockers.
 
-Feedback: <https://github.com/SirInfinite/mcsr-glossary/issues/new/choose>
+## Product
 
-Content and behavior may still change, and tester feedback is welcome.
+- Ranked search across names, aliases, taxonomy and definitions; keyboard suggestions and `/` shortcut.
+- Combined category/tag filters, A–Z browsing, random discovery and stable direct term links.
+- Reference articles, inline allowlisted media, related terms and current/historical/legacy context.
+- Reversible votes and private new-term/edit/report flows with a reviewable clipboard fallback.
+- Light/dark themes, derived statistics and local release notes.
+- Optional seven-day trending, enabled only after its backend migration is verified.
 
-## Features
+There is no framework, build step, bundler or npm runtime dependency. Marked, DOMPurify, CSS normalization and the existing fonts are vendored locally. The three pinned development tools are Playwright, axe-core and the PostgreSQL test client.
 
-- 80 source-reviewed published terms across formats, strategies, techniques, terminology, and tools
-- Ranked search across canonical names, aliases, tags, categories, and definition text
-- Alphabetical browsing, combined category/tag filters, result counts, and keyboard search
-- Shareable term pages with metadata, 3–6 contextual related-term cards, and correction links
-- 21 structured media examples across 20 visual definitions, including privacy-oriented click-to-load videos and original diagrams
-- Random-term navigation
-- Light and dark themes saved in the browser
-- Truthful glossary coverage, recency, media, and aggregate-rating statistics
-- Reversible anonymous voting with atomic neutral/up/down transitions
-- New-term and edit proposals sent to a private moderation queue, with a clipboard fallback when the backend is unavailable
-- Sanitized Markdown, a provider allowlist, a restrictive Content Security Policy, and automated content-contract tests
+## Fresh checkout
 
-## Tech
-
-The site is plain HTML, CSS, and JavaScript with no framework or build step. Glossary content lives in [`data/terms.json`](data/terms.json), browser code uses native JavaScript modules, and small vendored libraries handle Markdown rendering, sanitization, and CSS normalization. The configured Supabase beta integration supports private moderated submissions and atomic reversible voting through a public project URL and publishable key; see [`SUPABASE.md`](SUPABASE.md) for the security and deployment model.
-
-The structured content contract, source register, SQL migrations, browser-facing security controls, and QA reports are tracked in the same public repository. At the current v0.2 showcase checkpoint, 46 automated checks cover 80 stable term routes, 254 related-term links, and 21 media records.
-
-## Running Locally
-
-From the repository root, serve the files over HTTP:
+Install Node.js 22 or newer and Git. From a new checkout:
 
 ```sh
-python -m http.server 8000
+git clone https://github.com/SirInfinite/mcsr-glossary.git
+cd mcsr-glossary
+npm ci
+npm run check
+npx playwright install chromium
+npm run test-browser
+npm start
 ```
 
-Then open <http://localhost:8000/>. Opening `index.html` directly is not supported because the app fetches JSON and uses JavaScript modules.
+Open **http://127.0.0.1:8001/mcsr-glossary/**. The development server maps that subpath independently of the folder name. It is not a production backend; GitHub Pages directly serves the static files. Opening `index.html` through `file://` is unsupported.
 
-Node.js 20 or newer is required only for the content checks; no install step is needed:
+The browser suite starts/closes its own server and browser contexts, intercepts community RPCs, tests both themes at seven viewport sizes, and writes evidence under ignored `output/structural/final/` (override with `QA_OUTPUT_DIR`). It never inserts live moderation records. On Linux, use `npx playwright install --with-deps chromium`, as CI does. An installed Chrome can alternatively be selected through `QA_BROWSER_CHANNEL=chrome`.
+
+## Checks
+
+| Command | Purpose |
+| --- | --- |
+| `npm run check` | Content validator, deterministic tests, static/import/CSP checks and current-tree secret scan. |
+| `npm run check-content` | Content validator and content/UI-core test groups. |
+| `npm run test-browser` | Product, failure, responsive and accessibility checks with service fixtures. |
+| `npm run test-database` | Disposable local database reproduction and integrity checks; setup below. |
+| `npm run test-live-voting` | Real public voting RPCs; removes its QA votes and verifies cleanup. |
+| `npm run test-live-backend` | Public table-access denial, RPC capability and target coverage; no valid moderation inserts. |
+| `node scripts/scan-secrets.mjs --history` | Current files and historical text blobs; never prints matched credentials. |
+
+Browser QA covers both themes at seven viewport sizes, including open search/filter states and all contribution dialogs. To save screenshots and results in a separate review directory, set `QA_OUTPUT_DIR` before running the suite. For example, in PowerShell:
+
+```powershell
+$env:QA_OUTPUT_DIR = 'output/playwright/mcsr-theme/final'
+npm run test-browser
+```
+
+Without that variable, the existing `output/structural/final` destination remains the default. Generated screenshots and reports are local QA artifacts, excluded from Git.
+
+For database reproduction, use an isolated local PostgreSQL 17 installation with pgcrypto, or a disposable container:
 
 ```sh
-npm run check-content
+docker run --name mcsr-integrity-db -e POSTGRES_PASSWORD=postgres -p 127.0.0.1:5432:5432 -d postgres:17
 ```
 
-## Contributing
+Set the **local test** connection. In PowerShell:
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the content contract, sourcing expectations, and local validation workflow.
+```powershell
+$env:MCSR_TEST_DATABASE_URL = 'postgresql://postgres:postgres@127.0.0.1:5432/postgres'
+npm run test-database
+```
 
-## Content Accuracy
+In Bash:
 
-Corrections, missing terminology, and better supporting evidence are welcome through [GitHub Issues](https://github.com/SirInfinite/mcsr-glossary/issues/new/choose) or the site's term-proposal form. Research provenance is recorded in [`CONTENT_SOURCES.md`](CONTENT_SOURCES.md), with deeper review notes in [`CONTENT_AUDIT.md`](CONTENT_AUDIT.md).
+```sh
+MCSR_TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres npm run test-database
+```
+
+The script refuses remote hosts, creates unique `mcsr_integrity_*` databases, replays all migrations fresh and with historical prototype data, checks authorization/concurrency/constraints, removes QA rows and drops its databases. Supabase credentials are unnecessary. Stop the optional container with `docker stop mcsr-integrity-db` when finished.
+
+For Lighthouse, keep `npm start` running:
+
+```sh
+npx --yes lighthouse@12.8.2 http://127.0.0.1:8001/mcsr-glossary/ --chrome-flags=--headless --output=json --output-path=output/lighthouse-mobile.json
+npx --yes lighthouse@12.8.2 http://127.0.0.1:8001/mcsr-glossary/ --preset=desktop --chrome-flags=--headless --output=json --output-path=output/lighthouse-desktop.json
+```
+
+The server uses gzip and a ten-minute cache policy for Pages-like measurements. Record conditions and separate third-party embed results. A successful local check is not a hosted database, CI or release result.
+
+## Maintainer guide
+
+[Architecture/invariants](ARCHITECTURE.md) · [Data contract](DATA_CONTRACT.md) · [Backend/migrations](SUPABASE.md) · [Contributing](CONTRIBUTING.md) · [Moderation procedure](MODERATION.md) · [Moderation decisions](MODERATION_DECISIONS.md) · [Release gates](RELEASE_CHECKLIST.md)
+
+Research provenance remains in [CONTENT_SOURCES.md](CONTENT_SOURCES.md), [TERM_RESEARCH_REPORT.md](TERM_RESEARCH_REPORT.md) and [CONTENT_AUDIT.md](CONTENT_AUDIT.md). Historical QA reports remain dated records; use the current checklist/report for a new release.
 
 ## License
 
-MCSR Glossary is available under the [MIT License](LICENSE).
+[MIT](LICENSE).

@@ -1,0 +1,45 @@
+# Supabase CLI 2.116.0. Local application settings; no credentials belong here.
+# Hosted project settings must be inspected before any deployment (SUPABASE.md).
+project_id = "mcsr-glossary"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+# Migrations grant every application capability explicitly.
+auto_expose_new_tables = false
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+
+[db.migrations]
+enabled = true
+schema_paths = []
+
+[db.seed]
+# Canonical targets are seeded by versioned migrations, not dashboard state.
+enabled = false
+sql_paths = []
+
+# These services are not used by the glossary.
+[auth]
+enabled = false
+
+[storage]
+enabled = false
+
+[realtime]
+enabled = false
+
+[edge_runtime]
+enabled = false
+
+[analytics]
+enabled = false
+
+[local_smtp]
+enabled = false

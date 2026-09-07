@@ -94,8 +94,12 @@ For an existing project, inspect history/schema and historical data before pushi
 
 ## Moderation and publication
 
-Review queues through a trusted Dashboard/SQL/MCP connection; treat every field as untrusted. Proposal kind/target/name/category/definition identify the requested change. Reports use an independent target/reason/details record.
+The canonical procedure is [MODERATION.md](MODERATION.md); architectural choices and simulations are in [MODERATION_DECISIONS.md](MODERATION_DECISIONS.md). Use the existing trusted Dashboard/SQL connection and GitHub. No custom admin UI, moderation CLI, new schema or public queue endpoint is needed. Treat every field as untrusted. Proposal kind/target/name/category/definition identify the requested change; reports use their independent target/reason/details record. Until hosted parity is verified, resolve released correction-tag records against canonical names/UUIDs manually.
 
-Publish through a researched repository edit to terms.json, preserving UUID/legacy routes, updating target migrations and source documentation, and passing release checks. Mark queue records reviewed with the appropriate status, `reviewed_at` and concise `moderation_notes`. Changing moderation status never publishes content.
+Keep exact stored statuses: proposals use `pending`, `approved`, `rejected`; reports use `pending`, `resolved`, `dismissed`. Research, missing information, duplicates and publication dependencies are next-action/resolution notes, not additional enums. NEW_TERM / EDIT_SUGGESTION / REPORT / SOURCE_UPDATE are explicit editorial classifications recorded in existing notes; SOURCE_UPDATE uses the correction flow, not a new API kind.
+
+Use existing `id`, `created_at`, target/kind fields where deployed, `status`, `reviewed_at` and `moderation_notes` for the decision record. Notes (at most 2000 characters) contain type, reviewer handle, resolution, evidence links, resulting full commit SHA or no-change reason, and a next action while pending. No queue IDs, hashes or private notes belong in public PRs or logs.
+
+Publish through a researched repository edit to terms.json, preserving UUID/legacy routes, updating target migrations and source documentation, and passing release checks. Leave the record pending while its change is still only researched, committed locally, in a PR, or awaiting deployment/backend verification. After explicit publication and verification, close a proposal as approved or a report as resolved. Save terminal status, `reviewed_at` and notes together and verify the row. Rejections/dismissals need a reason and review time even without a content commit. Changing moderation status never publishes content.
 
 References: [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security), [functions](https://supabase.com/docs/guides/database/functions), [advisors](https://supabase.com/docs/guides/observability/advisors).

@@ -6,7 +6,7 @@ A community reference for Minecraft speedrunning terminology. Search 100 researc
 
 ## Project status
 
-This is an early beta. The repository contains newer work than the deployed site. Published content lives in `data/terms.json`; community proposals and reports remain private until maintainer review. Changing a database moderation status never publishes a term.
+This is an early beta. The repository contains newer work than the deployed site. Published content lives in `data/terms.json`; community proposals and reports remain private, and only reviewed content changes are published. Changing a database moderation status never publishes a term. [MODERATION.md](MODERATION.md) describes the evidence standard and manual publication procedure.
 
 Minecraft title lettering and menu controls sit alongside readable sans-serif UI, distinct charcoal/stone surfaces and contextual tags. The lightweight HTML/CSS/native-JavaScript architecture is preserved. See [UI_DIRECTION_QA.md](UI_DIRECTION_QA.md) for the latest visual and performance evidence, [MCSR_THEME_QA.md](MCSR_THEME_QA.md) for the earlier theme pass, and [STRUCTURAL_INTEGRITY_QA.md](STRUCTURAL_INTEGRITY_QA.md) for the existing hosted release blockers.
 
@@ -92,7 +92,7 @@ The server uses gzip and a ten-minute cache policy for Pages-like measurements. 
 
 ## Maintainer guide
 
-[Architecture/invariants](ARCHITECTURE.md) · [Data contract](DATA_CONTRACT.md) · [Backend/migrations](SUPABASE.md) · [Contributing](CONTRIBUTING.md) · [Release gates](RELEASE_CHECKLIST.md)
+[Architecture/invariants](ARCHITECTURE.md) · [Data contract](DATA_CONTRACT.md) · [Backend/migrations](SUPABASE.md) · [Contributing](CONTRIBUTING.md) · [Moderation procedure](MODERATION.md) · [Moderation decisions](MODERATION_DECISIONS.md) · [Release gates](RELEASE_CHECKLIST.md)
 
 Research provenance remains in [CONTENT_SOURCES.md](CONTENT_SOURCES.md), [TERM_RESEARCH_REPORT.md](TERM_RESEARCH_REPORT.md) and [CONTENT_AUDIT.md](CONTENT_AUDIT.md). Historical QA reports remain dated records; use the current checklist/report for a new release.
 

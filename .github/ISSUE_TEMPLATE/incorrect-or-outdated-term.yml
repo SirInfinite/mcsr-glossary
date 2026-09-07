@@ -4,7 +4,7 @@ title: "[Term correction]: "
 body:
   - type: markdown
     attributes:
-      value: Thanks for helping keep the glossary accurate. Please include supporting evidence when possible.
+      value: This issue is public. Explain the correction or source/media update and include supporting evidence when possible. Do not paste private moderation records, personal details or private messages. Publication requires maintainer review.
   - type: input
     id: term
     attributes:
@@ -31,5 +31,5 @@ body:
     id: evidence
     attributes:
       label: Sources or evidence
-      description: Link current rules, leaderboards, documentation, primary guides, or representative community usage when possible.
+      description: Explain which claim each source supports and its mode/version/era. For media, include the source, creator, useful timestamp and what it demonstrates. State unresolved uncertainty instead of guessing.
       placeholder: Paste links and briefly explain what each supports.

@@ -82,6 +82,8 @@ Use the most specific category that describes why a newcomer needs the entry. Do
 
 Only non-current terms receive a public status marker. Their required `historicalNote` is concise context, not a warning that the entry is invalid. Status and history claims require the same source provenance as definitions.
 
+The moderation workflow in [MODERATION.md](MODERATION.md) keeps these content statuses separate from private queue outcomes. `needsUpdating` may coexist with any content status when genuine usage is established but a recorded research question remains. Clearing it requires stronger evidence and a provenance update; no additional content or moderation fields are implied.
+
 ## Modes and versions
 
 The current model does not define `modes` or `versions` fields and the site does not present mode/version filters. The dataset does not classify every term completely enough for those filters to be truthful. Put important limitations in the definition, and use a descriptive tag such as `ranked`, `rsg`, or `version-1-16-1` only when it is accurate. An invented `modes` or `versions` field is rejected as an unsupported schema change.

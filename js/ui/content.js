@@ -8,11 +8,33 @@ export function escapeHTML(str) {
         .replace(/"/g, "&quot;");
 }
 
-// A presentation detail based only on explicit, validated dimension tags.
-// No category-to-dimension inference or new content taxonomy is introduced.
-export function renderDimensionLabels(tags = []) {
-    return tags.filter(tag => ["overworld", "nether", "end"].includes(tag))
-        .map(tag => `<span class="dimension-label" data-dimension="${tag}">${tag}</span>`).join("");
+// Display labels never change canonical tags, filtering, or researched content.
+const TAG_CONTEXT = Object.freeze({
+    overworld: "overworld", nether: "nether", end: "end",
+    bastion: "nether", fortress: "nether", blaze: "nether", "nether-entry": "nether",
+    dragon: "end", perch: "end",
+    ranked: "mode", rsg: "mode", fsg: "mode", "random-seed": "mode", "set-seed": "mode", "filtered-seed": "mode",
+});
+const GENERAL_TAGS = new Set(["category", "format", "tool", "minecraft", "speedrunning"]);
+const RUN_CONTEXT_TAGS = new Set(["stronghold", "navigation", "resetting", "routing", "route", "timer", "timing", "completion"]);
+
+export function formatTagLabel(tag) {
+    if (/^version-\d+(?:-\d+)*$/.test(tag)) return tag.slice(8).replaceAll("-", ".");
+    if (["rsg", "fsg", "igt", "rng"].includes(tag)) return tag.toUpperCase();
+    if (tag === "java") return "Java";
+    return tag.replaceAll("-", " ");
+}
+
+export function previewTags(tags = []) {
+    // Prefer where/how a term is used to generic labels that repeat its category.
+    const contextual = tags.filter(tag => !GENERAL_TAGS.has(tag));
+    const priority = tag => Object.hasOwn(TAG_CONTEXT, tag) ? 0 : RUN_CONTEXT_TAGS.has(tag) ? 1 : tag.startsWith("version-") ? 2 : 3;
+    return [...contextual]
+        .sort((a, b) => priority(a) - priority(b)).slice(0, 4);
+}
+
+export function renderTagLabels(tags = []) {
+    return tags.map(tag => `<span class="term-tag" data-tag="${escapeHTML(tag)}"${Object.hasOwn(TAG_CONTEXT, tag) ? ` data-context="${TAG_CONTEXT[tag]}"` : ""}>${escapeHTML(formatTagLabel(tag))}</span>`).join("");
 }
 
 function plainText(html) {

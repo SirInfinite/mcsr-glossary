@@ -1,6 +1,6 @@
 import { TERM_CONTRACT } from "../content-contract.js";
 import { filterTerms, normalizeText as toLower } from "../content/search.js";
-import { escapeHTML, highlightMatch, getDefinitionPreview, renderDimensionLabels } from "./content.js";
+import { escapeHTML, highlightMatch, getDefinitionPreview, renderTagLabels, previewTags, formatTagLabel } from "./content.js";
 import { showToast } from "./feedback.js";
 
 export function createHome({ data, navigateToTerm, bindTermLink, showHome, getTrending, dataLoadFailed }) {
@@ -21,10 +21,9 @@ function buildTermCard(term) {
         <p class="term-card-preview">${highlightMatch(getDefinitionPreview(term), searchQuery)}</p>
         <div class="term-row-meta">
             <span class="term-category">${escapeHTML(term.category)}</span>
-            ${renderDimensionLabels(term.tags)}
+            ${renderTagLabels(previewTags(term.tags))}
             ${term.status !== "current" ? `<span class="term-status term-status-${escapeHTML(term.status)}">${escapeHTML(term.status)}</span>` : ""}
-            ${term.needsUpdating ? '<span class="term-status term-status-updating">Needs updating</span>' : ""}
-            ${term.media?.length ? `<span class="term-media-count"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16"/><path d="m10 8 6 4-6 4Z"/></svg>${term.media.length} ${term.media.length === 1 ? "example" : "examples"}</span>` : ""}
+            ${term.needsUpdating ? '<span class="term-status term-status-updating">Needs Updating</span>' : ""}
         </div>`;
     bindTermLink(card.querySelector("a"), term);
     return card;
@@ -51,9 +50,9 @@ function updateResultsToolbar(count) {
         if (searchQuery.trim()) {
             resultCount.textContent = `${count} ${count === 1 ? "result" : "results"} for “${searchQuery.trim()}”`;
         } else if (activeFilters || activeIndexLetter !== "ALL") {
-            resultCount.textContent = `Showing ${count} of ${data.terms.length} terms`;
+            resultCount.textContent = `${count} matching ${count === 1 ? "term" : "terms"}`;
         } else {
-            resultCount.textContent = `Showing ${count} terms`;
+            resultCount.textContent = "";
         }
     }
     if (clearAll) clearAll.hidden = !hasActiveBrowseState();
@@ -169,7 +168,7 @@ function showSearchTooltip(query) {
         const matchContext = matchingAlias
             ? `Alias: ${matchingAlias}`
             : matchingTag
-                ? `Tag: ${matchingTag}`
+                ? `Tag: ${formatTagLabel(matchingTag)}`
                 : toLower(term.category).includes(query)
                     ? `Category: ${term.category}`
                     : getDefinitionPreview(term, 120);
@@ -299,7 +298,7 @@ function buildTagDropdown() {
     allTags.forEach(tag => {
         const item = document.createElement("label");
         item.className = "tag-dropdown-item";
-        item.innerHTML = `<input type="checkbox" name="tag" value="${escapeHTML(tag)}"> <span>${escapeHTML(tag)}</span>`;
+        item.innerHTML = `<input type="checkbox" name="tag" value="${escapeHTML(tag)}"> <span>${escapeHTML(formatTagLabel(tag))}</span>`;
         const cb = item.querySelector("input");
         cb.addEventListener("change", () => {
             if (cb.checked) filterState.tags.add(tag);

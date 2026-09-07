@@ -72,8 +72,6 @@ export async function start() {
         if (heading) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
     }
     document.querySelectorAll(".nav-btn").forEach(button => button.addEventListener("click", () => router.navigate(button.dataset.page)));
-    document.getElementById("footer-term-count").textContent = String(data.terms.length);
-    document.getElementById("browse-summary").textContent = `${data.terms.length} terms · ${new Set(data.terms.map(term => term.category)).size} categories`;
     router.start();
     // Local content and routing never wait for optional community services.
     void voting.load().then(() => {

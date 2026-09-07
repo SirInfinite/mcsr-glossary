@@ -25,19 +25,21 @@ export async function visualAudit(browser, base, { output = "output/structural/f
         // audit checks the host's real iframe geometry and CSP without provider ads.
         await context.route(/https:\/\/(www.youtube-nocookie.com|clips.twitch.tv)\//, route => route.fulfill({ contentType: "text/html", body: "<!doctype html><title>Media provider QA fixture</title>" }));
         try {
-            for (const [name, query] of [["home",""],["search",""],["filters",""],["term","?t=bastion"],["media","?t=triangulation"],["stats","?page=stats"],["changelog","?page=changelog"],["about","?page=about"]]) {
+            for (const [name, query] of [["home",""],["list",""],["search",""],["search-results",""],["filters",""],["filtered",""],["term","?t=bastion"],["legacy","?t=axis-calculated"],["historical","?t=forced-perch"],["media","?t=triangulation"],["stats","?page=stats"],["changelog","?page=changelog"],["about","?page=about"]]) {
                 await page.goto(base+query);
                 await page.locator("#terms article").first().waitFor({ state: "attached" });
                 if (name === "changelog") await page.locator(".changelog-release").first().waitFor();
-                if (name === "search") {
+                if (name === "list") await page.getByRole("link", { name: "View Bastion", exact: true }).evaluate(element => element.scrollIntoView({ block: "start" }));
+                if (name === "search" || name === "search-results") {
                     await page.locator("#search-input").fill("bastion");
                     await page.locator(".tooltip-item").first().waitFor();
                     await page.locator("#search-input").press("ArrowDown");
+                    if (name === "search-results") await page.locator("#search-input").press("Escape");
                 }
-                if (name === "filters") {
+                if (name === "filters" || name === "filtered") {
                     await page.locator("#filter-btn").click();
                     await page.locator("#category-filters .chip[data-value='technique']").click();
-                    await page.locator("#tag-dropdown-btn").click();
+                    if (name === "filters") await page.locator("#tag-dropdown-btn").click();
                 }
                 await page.evaluate(() => document.fonts.ready);
                 await page.mouse.move(0, 0);

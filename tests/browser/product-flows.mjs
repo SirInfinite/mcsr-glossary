@@ -59,11 +59,27 @@ export async function productFlows(page, base, { output = 'output/structural/fin
         await tab.goto(base);
         await tab.getByRole('link', { name: 'View Bastion', exact: true }).waitFor();
         assert(await count() === terms.length, 'All canonical terms appear on home');
+        const previews = await tab.locator('#terms article').evaluateAll(rows => rows.map(row => ({
+            id: row.id.slice(5), category: row.querySelector('.term-category').textContent,
+            tags: [...row.querySelectorAll('[data-tag]')].map(tag => tag.dataset.tag),
+            statuses: [...row.querySelectorAll('.term-status')].map(status => status.textContent.toLowerCase()),
+        })));
+        assert(previews.every(row => {
+            const term = terms.find(term => term.id === row.id);
+            return row.category === term.category && row.tags.length <= 4 && row.tags.every(tag => term.tags.includes(tag));
+        }), 'Every preview shows one canonical category and at most four tags from its own content');
+        assert(previews.every(row => row.tags.every(tag => !['category', 'format', 'tool', 'minecraft', 'speedrunning'].includes(tag))), 'Preview tags add context instead of repeating generic taxonomy');
+        assert(previews.every(row => {
+            const term = terms.find(term => term.id === row.id);
+            return !row.statuses.includes('current') && (term.status === 'current' || row.statuses.includes(term.status));
+        }), 'Archived status remains visible without adding Current badges to ordinary entries');
+        assert(await tab.locator('#result-count').innerText() === '', 'Default browsing does not repeat a project total');
         await tab.keyboard.press('/');
         assert(await focusIs('search-input'), 'Slash shortcut focuses search');
         await tab.locator('#search-input').fill('1 cycle');
         await tab.locator('#search-tooltip [role="option"]').first().waitFor();
         assert((await tab.locator('#search-tooltip').innerText()).includes('One Cycle'), 'Alias search discovers One Cycle');
+        assert((await tab.locator('#result-count').innerText()).includes('result'), 'Search still announces the number of matching results');
         await tab.keyboard.press('ArrowUp');
         const selected = await tab.locator('#search-input').getAttribute('aria-activedescendant');
         assert(Boolean(selected) && await tab.locator('#' + selected).getAttribute('aria-selected') === 'true', 'Keyboard selection has a valid active descendant');
@@ -82,6 +98,7 @@ export async function productFlows(page, base, { output = 'output/structural/fin
         assert(await tab.locator('#filter-count').innerText() === '1', 'Active filter count is visible');
         await tab.locator('#clear-all-filters').click();
         await tab.locator('#tag-dropdown-btn').click();
+        assert((await tab.locator('#tag-dropdown-list input[value="version-1-16-1"]').locator('..').innerText()).trim() === '1.16.1', 'Readable version labels preserve the canonical filter value');
         const tags = ['nether', 'end'];
         for (const tag of tags) await tab.locator('#tag-dropdown-list input[value="' + tag + '"]').check();
         for (const mode of ['any', 'all', 'none']) {

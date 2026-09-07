@@ -197,19 +197,19 @@
             ],
             "creationDate": "2026-09-02",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03",
+            "updatedDate": "2026-09-07",
             "media": [
                 {
                     "type": "youtube",
                     "src": "3TD4jkuT8QA",
-                    "start": 0,
+                    "start": 132,
                     "title": "Practical Guide to Blaze Bedding in Minecraft Speedrunning",
-                    "caption": "Open and enclosed Blaze Bed setups",
+                    "caption": "Bed placement for an open blaze spawner (1.16.1)",
                     "credit": {
                         "name": "k4yfour",
                         "url": "https://www.youtube.com/@k4yfour"
                     },
-                    "sourceUrl": "https://www.youtube.com/watch?v=3TD4jkuT8QA"
+                    "sourceUrl": "https://www.youtube.com/watch?v=3TD4jkuT8QA&t=132s"
                 }
             ]
         },
@@ -310,7 +310,7 @@
                 "measurement",
                 "stronghold"
             ],
-            "definition": "**Boat Eye** is a current high-precision Eye of Ender measurement technique used with Ninjabrain Bot. Entering and exiting a boat puts the player's view angle into a predictable state; after the runner gives that boat angle to the bot, the bot can recover more precision than the two decimal places supplied by F3+C. The runner then measures the thrown eye with precise pixel corrections.\n\nA correct Boat Eye measurement can often give the calculator a high-confidence stronghold target from one eye, saving the time and movement needed for an ordinary second measurement. It is used in modern Java 1.16 RSG and Ranked, although newer sensitivity setups may preserve the required angle state without placing a boat immediately before every throw.",
+            "definition": "**Boat Eye** is a current high-precision Eye of Ender measurement technique used with Ninjabrain Bot. Entering and exiting a boat puts the player's view angle into a predictable state; after the runner gives that boat angle to the bot, the bot can recover more precision than the two decimal places supplied by F3+C. The runner then measures the thrown eye with precise pixel corrections.\n\n{{media:0}}\n\nA correct Boat Eye measurement can often give the calculator a high-confidence stronghold target from one eye, saving the time and movement needed for an ordinary second measurement. It is used in modern Java 1.16 RSG and Ranked, although newer sensitivity setups may preserve the required angle state without placing a boat immediately before every throw.",
             "relatedTerms": [
                 "Ninjabrain Bot",
                 "Eye of Ender",
@@ -321,7 +321,21 @@
             ],
             "creationDate": "2026-09-03",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03"
+            "updatedDate": "2026-09-07",
+            "media": [
+                {
+                    "type": "youtube",
+                    "src": "SxVJD7rW-x8",
+                    "start": 380,
+                    "title": "Boat Eye measurement with Ninjabrain Bot",
+                    "caption": "A complete Boat Eye measurement and calculator result in a 2026 tutorial",
+                    "credit": {
+                        "name": "HiTrippy",
+                        "url": "https://www.youtube.com/channel/UC4O6jy1EId7Qrmjoano3ggg"
+                    },
+                    "sourceUrl": "https://www.youtube.com/watch?v=SxVJD7rW-x8&t=380s"
+                }
+            ]
         },
         {
             "id": "0f3feedf-6e7c-483d-beef-2fbc9796217e",
@@ -345,19 +359,19 @@
             ],
             "creationDate": "2026-09-03",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03",
+            "updatedDate": "2026-09-07",
             "media": [
                 {
                     "type": "youtube",
                     "src": "2pzMpX1RJGI",
-                    "start": 128,
+                    "start": 140,
                     "title": "2 Minute Bastions: Bridge",
-                    "caption": "Bridge Bastion structure overview",
+                    "caption": "Bridge layout and chalice gold in a 2020 structure walkthrough",
                     "credit": {
                         "name": "T_Wagz",
                         "url": "https://www.youtube.com/@TWagz"
                     },
-                    "sourceUrl": "https://www.youtube.com/watch?v=2pzMpX1RJGI&t=128s"
+                    "sourceUrl": "https://www.youtube.com/watch?v=2pzMpX1RJGI&t=140s"
                 }
             ]
         },
@@ -509,20 +523,20 @@
             ],
             "creationDate": "2026-09-03",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03",
+            "updatedDate": "2026-09-07",
             "historicalNote": "Top-level 1.16.1 RSG runs used this technique in 2021; it remains legal and tool-supported but niche.",
             "media": [
                 {
                     "type": "youtube",
                     "src": "SXem01c44-I",
-                    "start": 0,
+                    "start": 68,
                     "title": "How to Divine Travel in Minecraft Speedrunning",
-                    "caption": "Divine Travel conditions and fossil setup",
+                    "caption": "Fossil identification for legacy 1.16.1 Divine Travel (2021)",
                     "credit": {
                         "name": "k4yfour",
                         "url": "https://www.youtube.com/@k4yfour"
                     },
-                    "sourceUrl": "https://www.youtube.com/watch?v=SXem01c44-I"
+                    "sourceUrl": "https://www.youtube.com/watch?v=SXem01c44-I&t=68s"
                 }
             ]
         },
@@ -541,7 +555,7 @@
                 "routing",
                 "version-1-16-1"
             ],
-            "definition": "The **Donkey Kong Route**, usually shortened to **DK**, is a current Java 1.16.1 route family for Bridge Bastions. It uses the bastion's chalice gold and funnels piglins gathered from the bridge and ramparts into a controlled trading position. Left- and right-side DK variants handle different rampart and chest generations, so the name describes a family of Bridge routes rather than one universal block-for-block path.",
+            "definition": "The **Donkey Kong Route**, usually shortened to **DK**, is a current Java 1.16.1 route family for Bridge Bastions. It uses the bastion's chalice gold and funnels piglins gathered from the bridge and ramparts into a controlled trading position.\n\n{{media:0}}\n\nLeft- and right-side DK variants handle different rampart and chest generations, so the name describes a family of Bridge routes rather than one universal block-for-block path.",
             "relatedTerms": [
                 "Bridge Bastion",
                 "Bastion Route",
@@ -549,7 +563,21 @@
             ],
             "creationDate": "2026-09-03",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03"
+            "updatedDate": "2026-09-07",
+            "media": [
+                {
+                    "type": "youtube",
+                    "src": "n5F1oVomh10",
+                    "start": 0,
+                    "title": "Donkey Kong Bridge Bastion route demonstration",
+                    "caption": "Chalice gold and piglin collection in one DK route variant (1.16.1)",
+                    "credit": {
+                        "name": "Itchmaninja",
+                        "url": "https://www.youtube.com/channel/UC-rFqgvXThKh5lLqGCk9EVQ"
+                    },
+                    "sourceUrl": "https://www.youtube.com/watch?v=n5F1oVomh10"
+                }
+            ]
         },
         {
             "id": "3a0720cc-12eb-43f4-b5ea-abce6463cd7b",
@@ -596,7 +624,7 @@
             ],
             "creationDate": "2026-09-03",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03",
+            "updatedDate": "2026-09-07",
             "historicalNote": "Pre-calculator direction-only 1.16 travel term; still used in no-calculator discussion.",
             "media": [
                 {
@@ -604,7 +632,7 @@
                     "src": "0N8Wj8hOVKM",
                     "start": 516,
                     "title": "Minecraft Nether Travel – An Introduction to Blind Travel and Educated Travel",
-                    "caption": "Educated Travel explained",
+                    "caption": "Using an eye direction to choose a second portal target (2021 method)",
                     "credit": {
                         "name": "BoomerPlayz",
                         "url": "https://www.youtube.com/@boomerplayz1"
@@ -768,14 +796,28 @@
                 "overworld",
                 "portal"
             ],
-            "definition": "A Flintless Portal is a Nether portal lit without flint and steel, usually by placing a flammable block beside a completed frame and using nearby lava to make fire spread into the portal opening. In Java 1.16 RSG it is a backup for an entry that has enough iron for the essential tools but no spare iron or flint for a normal light. The fire-spread wait is variable, and a runner who enters flintless still needs a plan to light the later Nether-side portal, such as obtaining a fire charge or making flint and steel.",
+            "definition": "A Flintless Portal is a Nether portal lit without flint and steel, usually by placing a flammable block beside a completed frame and using nearby lava to make fire spread into the portal opening.\n\n{{media:0}}\n\nIn Java 1.16 RSG it is a backup for an entry that has enough iron for the essential tools but no spare iron or flint for a normal light. The fire-spread wait is variable, and a runner who enters flintless still needs a plan to light the later Nether-side portal, such as obtaining a fire charge or making flint and steel.",
             "relatedTerms": [
                 "Nether Entry",
                 "Lava Pool Portal"
             ],
             "creationDate": "2026-09-02",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03"
+            "updatedDate": "2026-09-07",
+            "media": [
+                {
+                    "type": "youtube",
+                    "src": "DVDbfKuLaWo",
+                    "start": 9,
+                    "title": "Flintless ignition with planks and lava",
+                    "caption": "A plank-and-lava ignition setup from its designer’s 2020 demonstration",
+                    "credit": {
+                        "name": "Fyroah",
+                        "url": "https://www.youtube.com/channel/UCOZ-HufSERlLN3USTLTy8Ng"
+                    },
+                    "sourceUrl": "https://www.youtube.com/watch?v=DVDbfKuLaWo&t=9s"
+                }
+            ]
         },
         {
             "id": "c5808280-b628-47ec-b6f9-8af82d64bb28",
@@ -901,7 +943,7 @@
                 "perch",
                 "ranked"
             ],
-            "definition": "Half Bow is an End-fight strategy in which a runner quickly shoots several End crystals, then stops and waits to one-cycle the dragon when it perches. In Java, each holding-pattern perch roll has a `1 / (3 + live crystals)` chance, so destroying crystals improves the odds on later rolls; runners usually leave caged or inconvenient towers rather than clear all ten. Shooting costs time and crystal breaks can send the dragon into a strafe, so Half Bow trades the fastest possible natural perch for a more consistent wait. That tradeoff makes the strategy useful in Ranked and other consistency-focused play.",
+            "definition": "Half Bow is an End-fight strategy in which a runner quickly shoots several End crystals, then stops and waits to one-cycle the dragon when it perches. In Java, each holding-pattern perch roll has a `1 / (3 + live crystals)` chance, so destroying crystals improves the odds on later rolls; runners usually leave caged or inconvenient towers rather than clear all ten.\n\n{{media:0}}\n\nShooting costs time and crystal breaks can send the dragon into a strafe, so Half Bow trades the fastest possible natural perch for a more consistent wait. That tradeoff makes the strategy useful in Ranked and other consistency-focused play.",
             "relatedTerms": [
                 "Perch",
                 "One Cycle",
@@ -910,7 +952,21 @@
             ],
             "creationDate": "2026-09-02",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03"
+            "updatedDate": "2026-09-07",
+            "media": [
+                {
+                    "type": "youtube",
+                    "src": "whwjNbIni58",
+                    "start": 20,
+                    "title": "Ninjabrain Half Bow proof of concept",
+                    "caption": "Crystal shots followed by a one-cycle finish in Ninjabrain’s 2021 proof of concept",
+                    "credit": {
+                        "name": "Ninjabrain",
+                        "url": "https://www.youtube.com/channel/UCk7uqsCYvi5BJZhCeUxsqRQ"
+                    },
+                    "sourceUrl": "https://www.youtube.com/watch?v=whwjNbIni58&t=20s"
+                }
+            ]
         },
         {
             "id": "2e0b404a-9e30-451e-a1ee-3f547c10cfe3",
@@ -937,19 +993,19 @@
             ],
             "creationDate": "2026-09-03",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03",
+            "updatedDate": "2026-09-07",
             "media": [
                 {
                     "type": "youtube",
                     "src": "BoNr-pbEITM",
-                    "start": 132,
+                    "start": 144,
                     "title": "2 Minute Bastions: Housing Units",
-                    "caption": "Housing Units structure overview",
+                    "caption": "Housing Units layout and central courtyard in a 2020 walkthrough",
                     "credit": {
                         "name": "T_Wagz",
                         "url": "https://www.youtube.com/@TWagz"
                     },
-                    "sourceUrl": "https://www.youtube.com/watch?v=BoNr-pbEITM&t=132s"
+                    "sourceUrl": "https://www.youtube.com/watch?v=BoNr-pbEITM&t=144s"
                 }
             ]
         },
@@ -1042,14 +1098,14 @@
             ],
             "creationDate": "2026-09-03",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03",
+            "updatedDate": "2026-09-07",
             "media": [
                 {
                     "type": "youtube",
                     "src": "La-yHiEr7QM",
                     "start": 0,
                     "title": "Incredibly fast Nether Portal Build (in 8 seconds)",
-                    "caption": "Eight-second lava-pool portal build",
+                    "caption": "Casting a portal with water and lava in a short practice build",
                     "credit": {
                         "name": "unfried EXTRA",
                         "url": "https://www.youtube.com/@unfriedextra"
@@ -1151,19 +1207,19 @@
             ],
             "creationDate": "2026-09-03",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03",
+            "updatedDate": "2026-09-07",
             "media": [
                 {
                     "type": "youtube",
                     "src": "e-wTSITfJFo",
-                    "start": 19,
+                    "start": 70,
                     "title": "How to Find Buried Treasure in 150 Seconds (Mapless, Map)",
-                    "caption": "Mapless buried-treasure finding across Java versions",
+                    "caption": "Following the pie-chart reading to the buried-treasure chunk (1.16.1)",
                     "credit": {
                         "name": "k4yfour",
                         "url": "https://www.youtube.com/@k4yfour"
                     },
-                    "sourceUrl": "https://www.youtube.com/watch?v=e-wTSITfJFo&t=19s"
+                    "sourceUrl": "https://www.youtube.com/watch?v=e-wTSITfJFo&t=70s"
                 }
             ]
         },
@@ -1235,19 +1291,19 @@
             ],
             "creationDate": "2026-09-02",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03",
+            "updatedDate": "2026-09-07",
             "media": [
                 {
                     "type": "youtube",
-                    "src": "jvTfMLPnMSw",
-                    "start": 68,
-                    "title": "Original 2020 Guide to Bastion Xray/Microlensing in Minecraft Speedrunning 1.16",
-                    "caption": "Original 2020 bastion microlensing guide",
+                    "src": "M-sffdCnv-4",
+                    "start": 14,
+                    "title": "Bastion microlensing and entity-count scanning",
+                    "caption": "Narrowing a bastion direction with F3 entity counts (1.16.1 demonstration)",
                     "credit": {
                         "name": "k4yfour",
                         "url": "https://www.youtube.com/@k4yfour"
                     },
-                    "sourceUrl": "https://www.youtube.com/watch?v=jvTfMLPnMSw&t=68s"
+                    "sourceUrl": "https://www.youtube.com/watch?v=M-sffdCnv-4&t=14s"
                 }
             ]
         },
@@ -1396,21 +1452,21 @@
             ],
             "creationDate": "2026-09-03",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03",
+            "updatedDate": "2026-09-07",
             "media": [
                 {
                     "type": "image",
                     "src": "images/media/nether-coordinate-scaling.svg",
                     "title": "Overworld and Nether coordinate scaling",
-                    "caption": "One Nether block corresponds to eight blocks of horizontal Overworld coordinates",
+                    "caption": "Eight-to-one X/Z scaling; height is unchanged",
                     "credit": {
                         "name": "MCSR Glossary",
                         "url": "https://github.com/SirInfinite/mcsr-glossary"
                     },
                     "sourceUrl": "https://github.com/SirInfinite/mcsr-glossary/blob/main/images/media/nether-coordinate-scaling.svg",
-                    "alt": "Overworld and Nether lanes showing an eight-to-one horizontal coordinate scale",
-                    "width": 1200,
-                    "height": 675
+                    "alt": "Eight Overworld squares versus one Nether square: X 800 to 1600 matches Nether X 100 to 200; Z scales the same way, Y does not",
+                    "width": 800,
+                    "height": 520
                 }
             ]
         },
@@ -1440,19 +1496,19 @@
             ],
             "creationDate": "2026-09-03",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03",
+            "updatedDate": "2026-09-07",
             "media": [
                 {
                     "type": "youtube",
                     "src": "Rx8i7e5lu7g",
-                    "start": 0,
+                    "start": 575,
                     "title": "Ninjabrain Bot Stronghold Calculator Tutorial for Minecraft Speedruns (100% EYE SPY)",
-                    "caption": "Ninjabrain Bot setup and eye-measurement guide",
+                    "caption": "Eye-angle measurement with Ninjabrain Bot in a 2021 tutorial",
                     "credit": {
                         "name": "Four",
                         "url": "https://www.youtube.com/@FourSR"
                     },
-                    "sourceUrl": "https://www.youtube.com/watch?v=Rx8i7e5lu7g"
+                    "sourceUrl": "https://www.youtube.com/watch?v=Rx8i7e5lu7g&t=575s"
                 }
             ]
         },
@@ -1676,7 +1732,7 @@
                 "end",
                 "rng"
             ],
-            "definition": "A **Perch**, or **dragon perch**, is the Ender Dragon’s approach and landing sequence at the End’s central exit portal. It gives the runner the close-range window needed for a One Cycle.\n\n{{media:0}}\n\nIn ordinary Java RSG, the timing depends partly on the dragon’s pathing and random perch rolls. MCSR Ranked standardizes the random sequence between competitors, while choices such as breaking crystals can reduce the number of perch rolls needed for a successful result. The familiar perch routine applies to Java 1.9+ and is not the pre-1.9 dragon fight.",
+            "definition": "A **Perch**, or **dragon perch**, is the Ender Dragon’s approach and landing sequence at the End’s central exit portal. It gives the runner the close-range window needed for a One Cycle.\n\nIn ordinary Java RSG, the timing depends partly on the dragon’s pathing and random perch rolls. MCSR Ranked standardizes the random sequence between competitors, while choices such as breaking crystals can reduce the number of perch rolls needed for a successful result. The familiar perch routine applies to Java 1.9+ and is not the pre-1.9 dragon fight.",
             "relatedTerms": [
                 "One Cycle",
                 "Half Bow",
@@ -1685,21 +1741,7 @@
             ],
             "creationDate": "2026-09-03",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03",
-            "media": [
-                {
-                    "type": "youtube",
-                    "src": "6V2sQthCzOc",
-                    "start": 330,
-                    "title": "Speedrunners Guide to End Fights Part 1: Mechanics",
-                    "caption": "Dragon pathing phases and perch mechanics",
-                    "credit": {
-                        "name": "T_Wagz",
-                        "url": "https://www.youtube.com/@TWagz"
-                    },
-                    "sourceUrl": "https://www.youtube.com/watch?v=6V2sQthCzOc&t=330s"
-                }
-            ]
+            "updatedDate": "2026-09-07"
         },
         {
             "id": "9225b150-5768-429c-87f2-8701dfcc16d1",
@@ -1768,7 +1810,7 @@
                 "navigation",
                 "version-specific"
             ],
-            "definition": "**Pie-Ray**, also called **Piedar**, is using Java Edition's profiler Pie Chart to infer the presence or direction of a structure or structure component from changing profiler readings. In Java 1.16.1 fortress Pie-Ray, runners detect a blaze spawner and use render-distance and chunk-border changes to narrow its direction. Mapless buried treasure, Preemptive portal-room locating, and newer-version methods use different profiler paths or procedures, so Pie-Ray is a family of target- and version-specific techniques rather than one universal scan.",
+            "definition": "**Pie-Ray**, also called **Piedar**, is using Java Edition's profiler Pie Chart to infer the presence or direction of a structure or structure component from changing profiler readings. In Java 1.16.1 fortress Pie-Ray, runners detect a blaze spawner and use render-distance and chunk-border changes to narrow its direction.\n\n{{media:0}}\n\nMapless buried treasure, Preemptive portal-room locating, and newer-version methods use different profiler paths or procedures, so Pie-Ray is a family of target- and version-specific techniques rather than one universal scan.",
             "relatedTerms": [
                 "Pie Chart",
                 "F3",
@@ -1777,7 +1819,21 @@
             ],
             "creationDate": "2026-09-03",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03"
+            "updatedDate": "2026-09-07",
+            "media": [
+                {
+                    "type": "youtube",
+                    "src": "5LuoaGFCoBU",
+                    "start": 6,
+                    "title": "Fortress Pie-Ray with render distance and chunk borders",
+                    "caption": "Fortress direction from spawner readings; profiler paths vary by version",
+                    "credit": {
+                        "name": "k4yfour",
+                        "url": "https://www.youtube.com/channel/UCk2NQDMT5vNAZIIG2Wxz6QQ"
+                    },
+                    "sourceUrl": "https://www.youtube.com/watch?v=5LuoaGFCoBU&t=6s"
+                }
+            ]
         },
         {
             "id": "725c3c13-eaef-4bf6-bc43-4a73a852c9c8",
@@ -1869,7 +1925,7 @@
                 "stronghold",
                 "version-1-16-1"
             ],
-            "definition": "Preemptive Navigation, usually shortened to preemptive or preemptive nav, is a Java 1.16.1 stronghold technique that uses the F3 profiler pie chart to detect the portal room's silverfish spawner and narrow down its direction before choosing a route. Runners rotate through narrow views and refresh the chart to isolate a block-entity spike, then combine that direction with normal room and branch navigation. The reading is not an exact coordinate or guaranteed path: chests, other spawners, mobs, chunk culling and render settings can distort it, so a runner may need to rescan or fall back to systematic stronghold navigation. The technique is current in RSG, FSG and MCSR Ranked, but it is not available in a No F3 run.",
+            "definition": "Preemptive Navigation, usually shortened to preemptive or preemptive nav, is a Java 1.16.1 stronghold technique that uses the F3 profiler pie chart to detect the portal room's silverfish spawner and narrow down its direction before choosing a route. Runners rotate through narrow views and refresh the chart to isolate a block-entity spike, then combine that direction with normal room and branch navigation.\n\n{{media:0}}\n\nThe reading is not an exact coordinate or guaranteed path: chests, other spawners, mobs, chunk culling and render settings can distort it, so a runner may need to rescan or fall back to systematic stronghold navigation. The technique is current in RSG, FSG and MCSR Ranked, but it is not available in a No F3 run.",
             "relatedTerms": [
                 "Stronghold Navigation",
                 "Pie Chart",
@@ -1880,7 +1936,21 @@
             ],
             "creationDate": "2026-09-03",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03"
+            "updatedDate": "2026-09-07",
+            "media": [
+                {
+                    "type": "youtube",
+                    "src": "yF4kcBk3lKo",
+                    "start": 434,
+                    "title": "Preemptive navigation: reading a spawner in the pie chart",
+                    "caption": "A controlled spawner test shows what the profiler detects in 1.16.1",
+                    "credit": {
+                        "name": "meebie",
+                        "url": "https://www.youtube.com/channel/UCBxBqMt6XCT8_lskobinF6w"
+                    },
+                    "sourceUrl": "https://www.youtube.com/watch?v=yF4kcBk3lKo&t=434s"
+                }
+            ]
         },
         {
             "id": "ad9d3e01-d7ba-4dbc-a99e-16d7cb078b26",
@@ -2361,19 +2431,19 @@
             ],
             "creationDate": "2026-09-03",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03",
+            "updatedDate": "2026-09-07",
             "media": [
                 {
                     "type": "youtube",
                     "src": "TioQsF5ygOg",
-                    "start": 149,
+                    "start": 161,
                     "title": "2 Minute Bastions: Hoglin Stables",
-                    "caption": "Hoglin Stables structure overview",
+                    "caption": "Hoglin Stables layout and lower sections in a 2020 walkthrough",
                     "credit": {
                         "name": "T_Wagz",
                         "url": "https://www.youtube.com/@TWagz"
                     },
-                    "sourceUrl": "https://www.youtube.com/watch?v=TioQsF5ygOg&t=149s"
+                    "sourceUrl": "https://www.youtube.com/watch?v=TioQsF5ygOg&t=161s"
                 }
             ]
         },
@@ -2468,19 +2538,19 @@
             ],
             "creationDate": "2026-09-02",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03",
+            "updatedDate": "2026-09-07",
             "media": [
                 {
                     "type": "youtube",
-                    "src": "kQCt6JgWr6E",
-                    "start": 0,
-                    "title": "How to find the portal room and stronghold entrance",
-                    "caption": "Stronghold entrance and portal-room navigation",
+                    "src": "4It26dOki7g",
+                    "start": 258,
+                    "title": "Stronghold room branches and portal-room routing",
+                    "caption": "Reading room branches in a 1.16.1 stronghold walkthrough",
                     "credit": {
-                        "name": "k4yfour",
-                        "url": "https://www.youtube.com/@k4yfour"
+                        "name": "Mikeyboie",
+                        "url": "https://www.youtube.com/channel/UCvZzD27_9KOiLvNCkxfi7Ng"
                     },
-                    "sourceUrl": "https://www.youtube.com/watch?v=kQCt6JgWr6E"
+                    "sourceUrl": "https://www.youtube.com/watch?v=4It26dOki7g&t=258s"
                 }
             ]
         },
@@ -2504,19 +2574,19 @@
             ],
             "creationDate": "2026-09-03",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03",
+            "updatedDate": "2026-09-07",
             "media": [
                 {
                     "type": "youtube",
                     "src": "u4-KxRhNsUc",
-                    "start": 17,
+                    "start": 33,
                     "title": "How to SPEEDRUN Bastions - TREASURE",
-                    "caption": "Treasure Bastion route variants",
+                    "caption": "Annotated Twagz route through a 1.16.1 Treasure Bastion",
                     "credit": {
                         "name": "MCSR Wiki",
                         "url": "https://www.youtube.com/@MinecraftSpeedrunningWiki"
                     },
-                    "sourceUrl": "https://www.youtube.com/watch?v=u4-KxRhNsUc&t=17s"
+                    "sourceUrl": "https://www.youtube.com/watch?v=u4-KxRhNsUc&t=33s"
                 }
             ]
         },
@@ -2541,33 +2611,33 @@
             ],
             "creationDate": "2026-09-03",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03",
+            "updatedDate": "2026-09-07",
             "media": [
                 {
                     "type": "image",
                     "src": "images/media/stronghold-triangulation.svg",
                     "title": "Stronghold triangulation with two Eye of Ender throws",
-                    "caption": "Two eye bearings intersect at an estimated stronghold",
+                    "caption": "Two eye bearings give a stronghold estimate; distances are schematic",
                     "credit": {
                         "name": "MCSR Glossary",
                         "url": "https://github.com/SirInfinite/mcsr-glossary"
                     },
                     "sourceUrl": "https://github.com/SirInfinite/mcsr-glossary/blob/main/images/media/stronghold-triangulation.svg",
-                    "alt": "Two green eye-direction lines from separate throws intersecting at a highlighted stronghold estimate",
-                    "width": 1200,
-                    "height": 675
+                    "alt": "Two direction lines from separate Eye of Ender throw positions intersect at a highlighted estimated stronghold",
+                    "width": 800,
+                    "height": 520
                 },
                 {
                     "type": "youtube",
                     "src": "8c29j0We2VQ",
-                    "start": 54,
+                    "start": 214,
                     "title": "Minecraft Locating the Stronghold - A Speedrunner's Guide",
-                    "caption": "Two-throw stronghold triangulation",
+                    "caption": "Measuring eye directions after leaving the Nether (manual 1.16.1 method)",
                     "credit": {
                         "name": "BoomerPlayz",
                         "url": "https://www.youtube.com/@boomerplayz1"
                     },
-                    "sourceUrl": "https://www.youtube.com/watch?v=8c29j0We2VQ&t=54s"
+                    "sourceUrl": "https://www.youtube.com/watch?v=8c29j0We2VQ&t=214s"
                 }
             ]
         },
@@ -2691,14 +2761,14 @@
             ],
             "creationDate": "2026-09-03",
             "needsUpdating": false,
-            "updatedDate": "2026-09-03",
+            "updatedDate": "2026-09-07",
             "media": [
                 {
                     "type": "youtube",
                     "src": "CSdkCmZ69RI",
                     "start": 29,
                     "title": "How to ZERO CYCLE - ft. @Doogile",
-                    "caption": "Zero Cycle fundamentals and setups with Doogile",
+                    "caption": "An early dragon kill and the setups behind it, featuring Doogile (1.16.1)",
                     "credit": {
                         "name": "MCSR Wiki",
                         "url": "https://www.youtube.com/@MinecraftSpeedrunningWiki"

@@ -1,38 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
-  <title id="title">Stronghold triangulation with two Eye of Ender throws</title>
-  <desc id="desc">Two observed Eye of Ender directions extend from different positions and intersect near a stronghold.</desc>
-  <defs>
-    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
-      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#343a34" stroke-width="1"/>
-    </pattern>
-  </defs>
-  <rect width="1200" height="675" fill="#141615"/>
-  <rect x="34" y="34" width="1132" height="607" fill="url(#grid)" stroke="#65705f" stroke-width="3"/>
-  <g font-family="Arial, Helvetica, sans-serif">
-    <text x="70" y="92" fill="#eceee7" font-size="32" font-weight="700">TWO-THROW TRIANGULATION</text>
-    <text x="70" y="128" fill="#b5bcb1" font-size="22">Extend both measured eye directions; their intersection estimates the stronghold.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520" role="img" aria-labelledby="title desc">
+  <title id="title">Two eye bearings estimate a stronghold</title>
+  <desc id="desc">Two direction lines extend from separate Eye of Ender throw positions. Their intersection marks an estimated stronghold. This is a conceptual top-down view, not a measured route.</desc>
+  <rect width="800" height="520" fill="#212c30"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#f1f1e6">
+    <text x="36" y="53" font-size="34" font-weight="700">TWO EYE BEARINGS</text>
+    <text x="36" y="93" font-size="28" fill="#b8c9d0">Extend the directions until they intersect.</text>
+    <path d="M36 116H764 M36 458H764" stroke="#75898c"/>
+    <g stroke="#39484d" stroke-width="1">
+      <path d="M80 140V436 M160 140V436 M240 140V436 M320 140V436 M400 140V436 M480 140V436 M560 140V436 M640 140V436 M720 140V436 M36 200H764 M36 280H764 M36 360H764"/>
+    </g>
+    <g stroke="#b2dc83" stroke-width="6" fill="none">
+      <path d="M100 390L570 246 M226 178L570 246"/>
+    </g>
+    <g fill="#b2dc83">
+      <circle cx="100" cy="390" r="10"/><circle cx="226" cy="178" r="10"/>
+      <path d="M325 310l23 4-16 16z M384 204l20 15-25 7z"/>
+    </g>
+    <circle cx="570" cy="246" r="17" fill="#efd080"/>
+    <circle cx="570" cy="246" r="5" fill="#212c30"/>
+    <g font-size="30" font-weight="700">
+      <text x="56" y="433">Throw 1</text>
+      <text x="148" y="159">Throw 2</text>
+      <text x="480" y="316" fill="#efd080">Estimated</text>
+      <text x="480" y="352" fill="#efd080">stronghold</text>
+    </g>
+    <text x="36" y="496" font-size="26" fill="#b8c9d0">Top-down concept · precise angles matter in a run</text>
   </g>
-  <g stroke="#acd679" stroke-width="8" stroke-linecap="round" fill="none">
-    <path d="M 194 514 L 924 250"/>
-    <path d="M 360 208 L 924 250"/>
-  </g>
-  <g fill="#acd679" stroke="#d0e8b0" stroke-width="4">
-    <circle cx="194" cy="514" r="18"/>
-    <circle cx="360" cy="208" r="18"/>
-  </g>
-  <g>
-    <circle cx="924" cy="250" r="28" fill="#f1ce54"/>
-    <circle cx="924" cy="250" r="10" fill="#fff2a8"/>
-  </g>
-  <g font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700">
-    <text x="105" y="568" fill="#eceee7">Throw 1</text>
-    <text x="270" y="184" fill="#eceee7">Throw 2</text>
-    <text x="956" y="244" fill="#f5da78">Estimated</text>
-    <text x="956" y="274" fill="#f5da78">stronghold</text>
-  </g>
-  <g fill="#acd679">
-    <path d="M 565 367 l 28 -8 -13 26 z"/>
-    <path d="M 630 220 l 27 10 -25 15 z"/>
-  </g>
-  <text x="600" y="611" fill="#b5bcb1" font-family="Arial, Helvetica, sans-serif" font-size="20" text-anchor="middle">Diagram is conceptual; runners use precise angles or calculators for accurate estimates.</text>
 </svg>

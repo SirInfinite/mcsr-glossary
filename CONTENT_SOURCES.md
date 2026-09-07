@@ -922,10 +922,11 @@ Version/mode evidence:
 Historical evidence:
 - https://www.youtube.com/watch?v=kyYrxzZRItA
 - https://www.youtube.com/watch?v=qgVeIWahoOI
-- https://www.reddit.com/r/MinecraftSpeedrun/comments/1mqrx03/
 - https://www.method.gg/method-moves-into-minecraft-esports
 
 Notes: Kept as legacy early-1.16 route-era vocabulary; the individual bastion-first strategies remain current even though the label is less common.
+
+Release audit, 2026-09-07: Removed an unrelated subcategory meme from the historical evidence list. The early route context is supported by the recorded creator tutorials and the 2021 discussions above; that meme did not support Hypermodern's meaning or history.
 
 ## IGT
 

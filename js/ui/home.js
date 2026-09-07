@@ -1,6 +1,6 @@
 import { TERM_CONTRACT } from "../content-contract.js";
 import { filterTerms, normalizeText as toLower } from "../content/search.js";
-import { escapeHTML, highlightMatch, getDefinitionPreview } from "./content.js";
+import { escapeHTML, highlightMatch, getDefinitionPreview, renderDimensionLabels } from "./content.js";
 import { showToast } from "./feedback.js";
 
 export function createHome({ data, navigateToTerm, bindTermLink, showHome, getTrending, dataLoadFailed }) {
@@ -21,6 +21,7 @@ function buildTermCard(term) {
         <p class="term-card-preview">${highlightMatch(getDefinitionPreview(term), searchQuery)}</p>
         <div class="term-row-meta">
             <span class="term-category">${escapeHTML(term.category)}</span>
+            ${renderDimensionLabels(term.tags)}
             ${term.status !== "current" ? `<span class="term-status term-status-${escapeHTML(term.status)}">${escapeHTML(term.status)}</span>` : ""}
             ${term.needsUpdating ? '<span class="term-status term-status-updating">Needs updating</span>' : ""}
             ${term.media?.length ? `<span class="term-media-count"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16"/><path d="m10 8 6 4-6 4Z"/></svg>${term.media.length} ${term.media.length === 1 ? "example" : "examples"}</span>` : ""}

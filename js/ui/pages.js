@@ -57,6 +57,7 @@ function renderStats() {
                     <div class="category-stat-track" role="img" aria-label="${count} ${escapeHTML(category)} terms, ${percent} percent of the glossary">
                         <span style="width:${percent}%"></span>
                     </div>
+                    <span class="split-percentage" aria-hidden="true">${percent}%</span>
                 </div>`;
         }).join("");
     }

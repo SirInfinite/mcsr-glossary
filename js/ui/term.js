@@ -1,6 +1,6 @@
 import { slugifyTermName as slugify } from "../content-contract.js";
 import { resolveRelatedTerms } from "../content/search.js";
-import { escapeHTML, renderDefinitionWithMedia } from "./content.js";
+import { escapeHTML, renderDefinitionWithMedia, renderDimensionLabels } from "./content.js";
 import { copyText, showToast } from "./feedback.js";
 
 export function createTermView({ data, router, voting, onEdit, onReport, onVoteChanged, bindTermLink }) {
@@ -60,12 +60,13 @@ function renderTermDetail(id) {
                     ${term.needsUpdating ? '<p class="term-review-note">This term is established; its definition or context needs community review.</p>' : ""}
                     ${term.historicalNote ? `<p class="term-historical-note">${escapeHTML(term.historicalNote)}</p>` : ""}
                     <div class="term-detail-meta">
-                        ${dateStr ? `<span>Updated ${dateStr}</span>` : ""}
+                        ${dateStr ? `<span>Updated <time datetime="${escapeHTML(term.updatedDate)}" title="${dateStr}">${escapeHTML(term.updatedDate)}</time></span>` : ""}
                         <span>${relatedTerms.length} related ${relatedTerms.length === 1 ? "term" : "terms"}</span>
                     </div>
                     ${term.tags?.length ? `
                     <div class="term-tags term-detail-tags">
-                        ${(term.tags || []).map(t => `<span class="term-tag">${escapeHTML(t)}</span>`).join("")}
+                        ${renderDimensionLabels(term.tags)}
+                        ${(term.tags || []).filter(t => !["overworld", "nether", "end"].includes(t)).map(t => `<span class="term-tag">${escapeHTML(t)}</span>`).join("")}
                     </div>` : ""}
                 </header>
                 <div class="term-reading-layout">

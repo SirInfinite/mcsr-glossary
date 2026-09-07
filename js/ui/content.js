@@ -8,6 +8,13 @@ export function escapeHTML(str) {
         .replace(/"/g, "&quot;");
 }
 
+// A presentation detail based only on explicit, validated dimension tags.
+// No category-to-dimension inference or new content taxonomy is introduced.
+export function renderDimensionLabels(tags = []) {
+    return tags.filter(tag => ["overworld", "nether", "end"].includes(tag))
+        .map(tag => `<span class="dimension-label" data-dimension="${tag}">${tag}</span>`).join("");
+}
+
 function plainText(html) {
     const el = document.createElement("div");
     el.innerHTML = html;

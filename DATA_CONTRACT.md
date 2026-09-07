@@ -48,6 +48,8 @@ Media is presentation data, never arbitrary HTML. Each item requires `type`, `sr
 
 Unsupported fields or providers fail both repository validation and runtime dataset loading. The media renderer also has a defensive source-link fallback for an invalid item with a safe HTTPS source; it omits items without a safe source. External image hosts are intentionally limited to `minecraft.wiki` and `upload.wikimedia.org`. Expanding any embed or image host requires both a contract change and a matching CSP review.
 
+GIF is supported but unpublished: the current dataset contains no GIFs. The renderer does not yet provide a pause control or a reduced-motion poster replacement; its poster is an image-error fallback. Keep animations unpublished until those controls and actual animated-content accessibility are verified (REL-104 in `FINAL_RELEASE_AUDIT.md`).
+
 ### Inline media placement
 
 The `media` array owns validated provider metadata. The definition controls reading order with a zero-based token on its own line:

@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### UI readability and discovery
+
+- Increased dark-surface contrast and reserved Minecraft lettering for titles and primary controls; categories, tags, aliases and supporting UI use readable sans-serif text.
+- Replaced the glossary's table header and narrow metadata column with reference entries that show one primary category and a few useful context tags. Version labels remain precise, and exceptional statuses remain visible.
+- Removed repeated project totals and per-entry media counts from ordinary browsing. Stats retains aggregate metrics; search and filters retain matching-result feedback.
+
 ### MCSR theming
 
 - Restored compact Minecraft menu-style navigation and added coordinated deepslate/stone surfaces, inset search and filter controls, and explicit dimension-tag accents.

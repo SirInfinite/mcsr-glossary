@@ -8,7 +8,7 @@ A community reference for Minecraft speedrunning terminology. Search 100 researc
 
 This is an early beta. The repository contains newer work than the deployed site. Published content lives in `data/terms.json`; community proposals and reports remain private until maintainer review. Changing a database moderation status never publishes a term.
 
-The MCSR theme uses Minecraft menu controls, stone/deepslate surfaces and compact technical metadata, preserving the lightweight HTML/CSS/native-JavaScript architecture. See [MCSR_THEME_QA.md](MCSR_THEME_QA.md) for visual and performance evidence, and [STRUCTURAL_INTEGRITY_QA.md](STRUCTURAL_INTEGRITY_QA.md) for the existing hosted release blockers.
+Minecraft title lettering and menu controls sit alongside readable sans-serif UI, distinct charcoal/stone surfaces and contextual tags. The lightweight HTML/CSS/native-JavaScript architecture is preserved. See [UI_DIRECTION_QA.md](UI_DIRECTION_QA.md) for the latest visual and performance evidence, [MCSR_THEME_QA.md](MCSR_THEME_QA.md) for the earlier theme pass, and [STRUCTURAL_INTEGRITY_QA.md](STRUCTURAL_INTEGRITY_QA.md) for the existing hosted release blockers.
 
 ## Product
 
@@ -37,7 +37,7 @@ npm start
 
 Open **http://127.0.0.1:8001/mcsr-glossary/**. The development server maps that subpath independently of the folder name. It is not a production backend; GitHub Pages directly serves the static files. Opening `index.html` through `file://` is unsupported.
 
-The browser suite starts/closes its own server and browser contexts, intercepts community RPCs, tests both themes and five viewport sizes, and writes evidence under ignored `output/structural/final/`. It never inserts live moderation records. On Linux, use `npx playwright install --with-deps chromium`, as CI does. An installed Chrome can alternatively be selected through `QA_BROWSER_CHANNEL=chrome`.
+The browser suite starts/closes its own server and browser contexts, intercepts community RPCs, tests both themes at seven viewport sizes, and writes evidence under ignored `output/structural/final/` (override with `QA_OUTPUT_DIR`). It never inserts live moderation records. On Linux, use `npx playwright install --with-deps chromium`, as CI does. An installed Chrome can alternatively be selected through `QA_BROWSER_CHANNEL=chrome`.
 
 ## Checks
 

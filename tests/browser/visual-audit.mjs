@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { mkdir, readFile } from "node:fs/promises";
+import path from "node:path";
 
-export async function visualAudit(browser, base) {
+export async function visualAudit(browser, base, { output = "output/structural/final" } = {}) {
+    await mkdir(output, { recursive: true });
     const source = await readFile(new URL("../../node_modules/axe-core/axe.min.js", import.meta.url), "utf8");
     const terms = JSON.parse(await readFile(new URL("../../data/terms.json", import.meta.url), "utf8")).terms;
-    const viewports = [[1440,900],[1024,768],[768,1024],[390,844],[360,800]];
+    const viewports = [[1440,900],[1280,720],[1024,768],[768,1024],[430,932],[390,844],[360,800]];
     const errors = [];
     const violations = [];
     let scans = 0;
@@ -23,11 +25,22 @@ export async function visualAudit(browser, base) {
         // audit checks the host's real iframe geometry and CSP without provider ads.
         await context.route(/https:\/\/(www.youtube-nocookie.com|clips.twitch.tv)\//, route => route.fulfill({ contentType: "text/html", body: "<!doctype html><title>Media provider QA fixture</title>" }));
         try {
-            for (const [name, query] of [["home",""],["term","?t=bastion"],["media","?t=triangulation"],["stats","?page=stats"],["changelog","?page=changelog"],["about","?page=about"]]) {
+            for (const [name, query] of [["home",""],["search",""],["filters",""],["term","?t=bastion"],["media","?t=triangulation"],["stats","?page=stats"],["changelog","?page=changelog"],["about","?page=about"]]) {
                 await page.goto(base+query);
                 await page.locator("#terms article").first().waitFor({ state: "attached" });
                 if (name === "changelog") await page.locator(".changelog-release").first().waitFor();
+                if (name === "search") {
+                    await page.locator("#search-input").fill("bastion");
+                    await page.locator(".tooltip-item").first().waitFor();
+                    await page.locator("#search-input").press("ArrowDown");
+                }
+                if (name === "filters") {
+                    await page.locator("#filter-btn").click();
+                    await page.locator("#category-filters .chip[data-value='technique']").click();
+                    await page.locator("#tag-dropdown-btn").click();
+                }
                 await page.evaluate(() => document.fonts.ready);
+                await page.mouse.move(0, 0);
                 assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${theme} ${name} ${width} must not overflow`);
                 layouts++;
                 if (width === 1440 || width === 390) {
@@ -36,9 +49,10 @@ export async function visualAudit(browser, base) {
                     violations.push(...result.violations.map(item => ({ id: item.id, theme, name, width, nodes: item.nodes.map(node => node.target) })));
                     scans++;
                 }
-                if ([1440,390,360].includes(width)) {
-                    await page.locator("h1:visible").evaluate(element => element.blur());
-                    await page.screenshot({ path: `output/structural/final/${theme}-${name}-${width}.png` });
+                await page.locator("h1:visible").evaluate(element => element.blur());
+                await page.screenshot({ path: path.join(output, `${theme}-${name}-${width}.png`) });
+                if (name === "media" && [1440,390].includes(width)) {
+                    await page.screenshot({ path: path.join(output, `${theme}-media-full-${width}.png`), fullPage: true });
                 }
             }
             for (const kind of ["submit", "edit", "report"]) {
@@ -52,8 +66,9 @@ export async function visualAudit(browser, base) {
                     const result = await page.evaluate(() => axe.run(document, { runOnly: { type: "tag", values: ["wcag2a","wcag2aa","wcag21aa","best-practice"] } }));
                     violations.push(...result.violations.map(item => ({ id: item.id, theme, name: kind, width, nodes: item.nodes.map(node => node.target) })));
                     scans++;
-                    await page.screenshot({ path: `output/structural/final/${theme}-${kind}-${width}.png` });
                 }
+                await page.mouse.move(0, 0);
+                await page.screenshot({ path: path.join(output, `${theme}-${kind}-${width}.png`) });
             }
         } finally { await context.close(); }
     }

@@ -1,4 +1,4 @@
-export async function productFlows(page, base) {
+export async function productFlows(page, base, { output = 'output/structural/final' } = {}) {
     const context = await page.context().browser().newContext({
         viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce',
         permissions: ['clipboard-read', 'clipboard-write']
@@ -218,7 +218,7 @@ export async function productFlows(page, base) {
         assert(errors.length === 0, 'No unexpected application console errors or exceptions: ' + errors.join('; '));
         return { result: 'PASS', checks: checks.length, passed: checks, moderationWrites: 0, externalDiagnostics, note: 'RPC fixtures; run the live voting script separately.' };
     } catch (error) {
-        await tab.screenshot({ path: 'output/structural/final/browser-test-failure.png' });
+        await tab.screenshot({ path: `${output}/browser-test-failure.png` });
         throw new Error(error.message + '\nLast passed: ' + checks.at(-1) + '\nStatus: ' + await tab.locator('#sub-status, #report-status').allTextContents());
     } finally {
         await context.close();

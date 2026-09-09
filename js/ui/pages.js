@@ -3,7 +3,7 @@ import { APP_CONFIG } from "../config.js";
 import { request } from "../core/http.js";
 import { escapeHTML, parseDefinition } from "./content.js";
 
-export function createPages({ data, navigateToTerm, voting }) {
+export function createPages({ data, navigateToTerm, voting, analytics }) {
 const getVotes = voting.getVotes;
 // Top N terms by all-time aggregate vote balance, used on the Stats page.
 function getTopRatedTerms(n = 5) {
@@ -37,13 +37,15 @@ function renderStats() {
         { label: "Published terms", value: data.terms.length },
         { label: "Categories", value: categories.length },
         { label: "Topic tags", value: allTags.size },
-        { label: "Media-backed", value: data.terms.filter(term => term.media?.length).length }
+        { label: "Media-backed", value: data.terms.filter(term => term.media?.length).length },
+        { label: "Site visits", value: analytics.totalVisits }
     ];
 
     cards.forEach(({ label, value }) => {
         const card = document.createElement("div");
         card.className = "stat-card";
-        card.innerHTML = `<span class="stat-number">${value}</span><span class="stat-label">${escapeHTML(label)}</span>`;
+        const displayValue = Number.isSafeInteger(value) ? value.toLocaleString("en-US") : "—";
+        card.innerHTML = `<span class="stat-number">${displayValue}</span><span class="stat-label">${escapeHTML(label)}</span>`;
         grid.appendChild(card);
     });
 

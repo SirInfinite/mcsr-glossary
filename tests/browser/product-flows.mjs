@@ -47,6 +47,8 @@ export async function productFlows(page, base, { output = 'output/structural/fin
             payload = [{ report_id: '10000000-0000-4000-8000-000000000002', report_status: 'pending', created: true }];
         } else if (name === 'get_glossary_trending_terms') {
             payload = [{ term_id: terms.find(t => t.name === 'Bastion').id, recent_upvotes: 5, recent_downvotes: 1 }];
+        } else if (name === 'record_glossary_visit') {
+            payload = [{ visit_date: '2026-09-09', daily_visits: 12, total_visits: 345, recorded: true }];
         } else throw new Error('Unexpected RPC: ' + name);
         return route.fulfill({ contentType: 'application/json', body: JSON.stringify(payload) });
     });
@@ -188,6 +190,11 @@ export async function productFlows(page, base, { output = 'output/structural/fin
             await tab.locator('.nav-btn[data-page="' + view + '"]').click();
             assert(await tab.locator('.nav-btn[data-page="' + view + '"]').getAttribute('aria-current') === 'page', view + ' navigation has an active state');
             assert(await tab.locator('#page-' + view + ' h1').evaluate(el => el === document.activeElement), view + ' navigation announces the new heading');
+            if (view === 'stats') {
+                const visitCard = tab.locator('.stat-card').filter({ hasText: 'Site visits' });
+                await visitCard.getByText('345', { exact: true }).waitFor();
+                assert(await visitCard.getByText('Site visits', { exact: true }).isVisible(), 'Stats exposes the confirmed site visit total');
+            }
         }
         await home(); await tab.locator('#random-btn').click();
         assert(await tab.locator('#page-term h1').isVisible(), 'Random discovers a published term');

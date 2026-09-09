@@ -2,6 +2,7 @@ import { loadContent } from "./content/loader.js";
 import { createRouter } from "./core/router.js";
 import { createStorage, createVoterIdentity, STORAGE_KEYS } from "./core/storage.js";
 import { createSupabaseClient } from "./backend/client.js";
+import { createAnalytics } from "./backend/analytics.js";
 import { createVoting } from "./backend/voting.js";
 import { createContributions } from "./backend/contributions.js";
 import { createHome } from "./ui/home.js";
@@ -16,6 +17,7 @@ export async function start() {
     const storage = createStorage();
     const getBrowserID = createVoterIdentity(storage);
     const client = createSupabaseClient();
+    const analytics = createAnalytics({ client, getBrowserID });
     const toggle = document.getElementById("theme-toggle");
     function applyTheme(theme) {
         const safe = theme === "light" ? "light" : "dark";
@@ -46,7 +48,7 @@ export async function start() {
     const router = createRouter(data.terms, renderPage);
     const home = createHome({ data, dataLoadFailed, navigateToTerm: router.toTerm, bindTermLink: router.bindTermLink, showHome: () => router.navigate("home"), getTrending: voting.getTrending });
     const termView = createTermView({ data, router, voting, onEdit: modals.openSubmit, onReport: modals.openReport, onVoteChanged: home.renderTrending, bindTermLink: router.bindTermLink });
-    const pages = createPages({ data, voting, navigateToTerm: router.toTerm });
+    const pages = createPages({ data, voting, analytics, navigateToTerm: router.toTerm });
     let lastPage;
     function renderPage(route) {
         home.hideSearchTooltip();
@@ -79,6 +81,9 @@ export async function start() {
         if (router.current.page === "stats") pages.renderStats();
     });
     void voting.loadTrending().then(home.renderTrending);
+    void analytics.load().then(() => {
+        if (router.current.page === "stats") pages.renderStats();
+    });
 }
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => void start(), { once: true });

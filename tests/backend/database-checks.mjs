@@ -56,6 +56,23 @@ export async function databaseChecks(client, connectionString, terms, legacyID, 
         check(Number(state.upvotes) + Number(state.downvotes) === 1, "Conflicting requests from one voter leave exactly one receipt");
         await actors[0].query("select * from public.set_glossary_vote($1,$2,0::smallint)", [term.id, conflictID]);
 
+        const visitor = randomUUID();
+        const firstVisit = await actors[0].query("select * from public.record_glossary_visit($1)", [visitor]);
+        const repeatedVisit = await actors[1].query("select * from public.record_glossary_visit($1)", [visitor]);
+        check(firstVisit.rows[0].recorded && !repeatedVisit.rows[0].recorded, "A browser contributes at most one visit per UTC day");
+        check(firstVisit.rows[0].daily_visits === "1" && repeatedVisit.rows[0].daily_visits === "1", "A repeated daily visit leaves the aggregate unchanged");
+        const storedVisit = (await client.query("select visitor_hash from public.glossary_daily_visit_receipts")).rows[0];
+        check(storedVisit.visitor_hash.length === 32 && !storedVisit.visitor_hash.includes(visitor), "Visit receipts store only a date-scoped hash");
+        const sharedVisitor = randomUUID();
+        const sharedResults = await Promise.all(actors.map(actor => actor.query("select * from public.record_glossary_visit($1)", [sharedVisitor])));
+        check(sharedResults.filter(result => result.rows[0].recorded).length === 1, "Concurrent visits from one browser produce one daily receipt");
+        const distinctResults = await Promise.all(actors.map(actor => actor.query("select * from public.record_glossary_visit($1)", [randomUUID()])));
+        check(distinctResults.every(result => Number(result.rows[0].total_visits) >= 3), "Concurrent distinct visits return valid cumulative totals");
+        check((await client.query("select visits from public.glossary_daily_visit_totals")).rows[0].visits === "8", "Concurrent daily visit increments cannot be lost");
+        await assert.rejects(actors[0].query("select * from public.record_glossary_visit($1)", ["00000000-0000-0000-0000-000000000000"]), { code: "22023" });
+        await assert.rejects(actors[0].query("select * from public.record_glossary_visit($1)", ["invalid"]), { code: "22P02" });
+        checks.push("Invalid visit identities are rejected");
+
         const proposed = randomUUID();
         const proposalSQL = "select * from public.submit_glossary_term($1,$2,$3,$4::text[],$5::text[],$6,$7)";
         const good = [proposed, "Integrity QA proposal", "technique", ["QA alias"], ["qa-check"], "A disposable proposal used to verify the complete moderation contract.", ""];
@@ -95,8 +112,15 @@ export async function databaseChecks(client, connectionString, terms, legacyID, 
             await assert.rejects(actors[0].query(reportSQL, input), { code: "22023" });
             checks.push(`Malformed report field ${index} is rejected`);
         }
-        for (const table of ["glossary_vote_totals", "glossary_vote_receipts", "glossary_submissions", "glossary_term_reports"]) {
-            for (const sql of [`select * from public.${table}`, `delete from public.${table}`, `update public.${table} set ${table === "glossary_vote_receipts" ? "direction=direction" : table === "glossary_vote_totals" ? "upvotes=upvotes" : "status=status"}`, `insert into public.${table} default values`]) {
+        for (const [table, update] of [
+            ["glossary_vote_totals", "upvotes=upvotes"],
+            ["glossary_vote_receipts", "direction=direction"],
+            ["glossary_submissions", "status=status"],
+            ["glossary_term_reports", "status=status"],
+            ["glossary_daily_visit_totals", "visits=visits"],
+            ["glossary_daily_visit_receipts", "created_at=created_at"]
+        ]) {
+            for (const sql of [`select * from public.${table}`, `delete from public.${table}`, `update public.${table} set ${update}`, `insert into public.${table} default values`]) {
                 await assert.rejects(actors[0].query(sql), { code: "42501" });
                 checks.push(`Anonymous ${sql.split(" ")[0]} denied on ${table}`);
             }

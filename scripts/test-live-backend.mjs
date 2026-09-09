@@ -10,11 +10,12 @@ const result = { project: new URL(APP_CONFIG.supabaseUrl).hostname.split(".")[0]
 const rows = await client.rpc("get_glossary_vote_state", { p_browser_id: randomUUID() });
 result.missingVoteTargets = terms.filter(term => !rows.some(row => row.term_id === term.id)).map(term => term.name);
 if (result.missingVoteTargets.length) result.issues.push(`${result.missingVoteTargets.length} published terms are missing live voting targets.`);
-for (const table of ["glossary_vote_totals", "glossary_vote_receipts", "glossary_submissions", "glossary_term_reports"]) {
+for (const table of ["glossary_vote_totals", "glossary_vote_receipts", "glossary_submissions", "glossary_term_reports", "glossary_daily_visit_totals", "glossary_daily_visit_receipts"]) {
     // Never enumerate a moderation payload in output. Write probes either use
     // an unknown random UUID filter or an empty insert that cannot be valid.
     const unknown = randomUUID();
-    const key = table.includes("vote") ? "term_id" : "id";
+    const key = table === "glossary_vote_totals" || table === "glossary_vote_receipts" ? "term_id"
+        : table.includes("daily_visit") ? "visit_date" : "id";
     for (const method of ["GET", "POST", "PATCH", "DELETE"]) {
         const query = method === "GET" ? "?limit=1" : method === "POST" ? "" : `?${key}=eq.${unknown}`;
         try {

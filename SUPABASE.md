@@ -4,7 +4,7 @@ The configured public beta project is `olmazjfubvpgtpoxlxzy`. Its URL and publis
 
 ## Current deployment boundary
 
-The September 7 release repair verified authenticated Supabase MCP management access and applied the three missing tracked migrations. Hosted voting now covers all 100 canonical terms. Recent trending and structured corrections pass the actual hosted RPC and application checks; `trendingEnabled` and `structuredCorrectionsEnabled` are `true`. The released correction-compatible submission path remains available.
+The September 7 release repair verified authenticated Supabase MCP management access and applied the three missing tracked migrations. Hosted voting now covers all 100 canonical terms. Recent trending and structured corrections pass the actual hosted RPC and application checks; `trendingEnabled` and `structuredCorrectionsEnabled` are `true`. The released correction-compatible submission path remains available. The daily visit counter is tracked in a later migration and must be applied to the hosted project before its Stats card can show a live total.
 
 All eleven migration versions/names and the effective application schema match the repository replay. RLS, grants, private queues, advisors, hosted moderation and targeted QA cleanup were verified through authenticated management access. Security advisors returned zero findings; the remaining performance notices are informational unused indexes. See [SUPABASE_RELEASE_PARITY.md](SUPABASE_RELEASE_PARITY.md) and [FINAL_RELEASE_AUDIT.md](FINAL_RELEASE_AUDIT.md). A production frontend deployment smoke pass is still required; backend certification does not authorize publication.
 
@@ -16,6 +16,8 @@ All eleven migration versions/names and the effective application schema match t
 | `glossary_vote_receipts` | Unique term/hash receipt, direction, creation/meaningful-update timestamps | All denied. |
 | `glossary_submissions` | Hashed submitter, proposed text/taxonomy, explicit kind, target FK and moderation fields | All denied. |
 | `glossary_term_reports` | Hashed reporter, target/name snapshot, reason/details and moderation fields | All denied. |
+| `glossary_daily_visit_totals` | One aggregate visit count per UTC date | All denied; read only through the visit RPC result. |
+| `glossary_daily_visit_receipts` | Date-scoped visitor hashes used for daily duplicate suppression | All denied. |
 
 All are in `public`, enable RLS, and revoke public table grants. Totals/receipts/proposals have restrictive deny-all policies for `anon`; reports explicitly deny both public roles. `authenticated` has neither grants nor permissive policies. `service_role` retains trusted moderation privileges and is never delivered to the browser. Old prototype tables, when present, are retained and locked down; a fresh project does not need them.
 
@@ -35,6 +37,7 @@ Calls are POST JSON to `/rest/v1/rpc/NAME` with the public `apikey`. Successful 
 | `submit_glossary_term` | `p_browser_id`, `p_name`, `p_category`, `p_aliases: text[]`, `p_tags: text[]`, `p_definition`, `p_website` | One `{submission_id: uuid, submission_status: pending}` | Pending private queue. Per-browser advisory lock serializes duplicate/cooldown/limit checks. Same pending name is rejected. Released correction tags are validated and classified explicitly. |
 | `submit_glossary_correction` | `p_browser_id`, `p_term_id`, `p_definition`, `p_website` | Same pending proposal receipt | Additive endpoint; server derives target name/category and stores kind/FK. Same serialized proposal limits. |
 | `submit_glossary_term_report` | `p_browser_id`, `p_term_id`, `p_term_name`, `p_reason`, `p_details`, `p_website` | One `{report_id: uuid, report_status: pending, created: boolean}` | Private report only; exact target/name check, per-browser lock, duplicate browser+term returns existing pending ID with `created=false`. |
+| `record_glossary_visit` | `p_browser_id: uuid` | One `{visit_date, daily_visits, total_visits, recorded}` | Anonymous atomic daily increment. The same browser UUID contributes once per UTC date. |
 
 Mutation IDs must be non-null; browser IDs cannot be zero. PostgreSQL rejects malformed UUID input. Unknown targets and vote values outside `-1,0,1` are rejected. Counts are nonnegative integers; the JS boundary accepts only safe integer numbers or bigint digit strings. Target metadata is a migration-backed identity registry, not another published definition store.
 
@@ -46,7 +49,8 @@ Mutation IDs must be non-null; browser IDs cannot be zero. PostgreSQL rejects ma
 - Proposal kind: new with no target, or correction with a target FK. Status: pending/approved/rejected; reviewed states require a review timestamp.
 - Report reasons: inaccurate, inappropriate, broken_media, spam, other. Details are absent or 10–2000 trimmed characters; other requires details. Report status: pending/resolved/dismissed, with consistent review timestamps.
 - Empty honeypot `p_website`; 30-second per-browser queue cooldown and at most five pending items per queue. This is weak abuse friction, not authentication or a global rate limit.
-- Application tables store SHA-256 hashes, not raw browser UUIDs, accounts, email, IP or user agents. Supabase infrastructure has its own logging settings.
+- Application tables store SHA-256 hashes, not raw browser UUIDs, accounts, email, IP or user agents. Visit hashes include the UTC date, preventing the stored receipt from linking the same browser across days. Supabase infrastructure has its own logging settings.
+- Daily visit suppression is a lightweight browser count. Clearing storage, changing browsers, or sending random UUIDs can count again, so it is not an authenticated unique-user metric.
 
 ### Errors and uncertain writes
 
@@ -69,7 +73,7 @@ Tabs/clients serialize at the database; the last committed target wins. Click ti
 
 ## Migrations and fresh projects
 
-Apply every SQL file in `supabase/migrations/` in filename order. The first eight applied migrations are unchanged. The final three retain their original SQL and logical names, with their previously pending filenames aligned to the deployment versions assigned by authenticated MCP. The eleventh is `20260907210851_enforce_structural_integrity.sql`. It adds target metadata, preserved legacy baselines, deferred consistency checks, explicit corrections and stricter moderation boundaries; it removes no production rows. The original-to-deployed filename mapping is recorded in [SUPABASE_RELEASE_PARITY.md](SUPABASE_RELEASE_PARITY.md); remote history was not rewritten.
+Apply every SQL file in `supabase/migrations/` in filename order. The first eight applied migrations are unchanged. The next three retain their original SQL and logical names, with their previously pending filenames aligned to the deployment versions assigned by authenticated MCP. The eleventh is `20260907210851_enforce_structural_integrity.sql`. It adds target metadata, preserved legacy baselines, deferred consistency checks, explicit corrections and stricter moderation boundaries; it removes no production rows. The twelfth is `20260909215434_add_daily_visit_counter.sql`; it adds private daily aggregates and date-scoped receipts plus the narrow public recording RPC. The original-to-deployed filename mapping for the September 7 repair is recorded in [SUPABASE_RELEASE_PARITY.md](SUPABASE_RELEASE_PARITY.md); remote history was not rewritten.
 
 Local/CI reproduction uses PostgreSQL 17, pgcrypto, synthetic Supabase platform roles and the extensions schema. `npm run test-database` replays the same files both fresh and with prototype history, checks authorization/constraints/concurrency, and deletes only its disposable databases. This proves the application schema, not the entire managed Auth/Storage/Realtime platform. No dashboard-only application table/function is required.
 

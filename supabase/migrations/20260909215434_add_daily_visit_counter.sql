@@ -70,7 +70,7 @@ begin
 
     insert into public.glossary_daily_visit_totals (visit_date)
     values (v_visit_date)
-    on conflict (visit_date) do nothing;
+    on conflict on constraint glossary_daily_visit_totals_pkey do nothing;
 
     select totals.visits
       into v_daily_visits
@@ -80,7 +80,7 @@ begin
 
     insert into public.glossary_daily_visit_receipts (visit_date, visitor_hash)
     values (v_visit_date, v_visitor_hash)
-    on conflict (visit_date, visitor_hash) do nothing;
+    on conflict on constraint glossary_daily_visit_receipts_pkey do nothing;
 
     get diagnostics v_inserted_rows = row_count;
     v_recorded := v_inserted_rows = 1;
